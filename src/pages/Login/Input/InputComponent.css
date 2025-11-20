@@ -1,0 +1,54 @@
+.input_login_container {
+    position: relative;
+    width: 100%;
+}
+
+.input-login {
+    font-size: 16px;
+    font-weight: 400;
+    color: #333;
+    border: solid 1px #e7e7e7;
+    padding: 23px;
+    border-radius: 50px;
+    width: 100%;
+    line-height: 1.5;
+    outline: 0;
+    box-shadow: none;
+    background: #fff;
+    font-family: inherit;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.icon-input {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.error_message {
+    color: red;
+    font-size: 14px;
+    margin-top: 8px;
+    margin-left: 20px;
+}
+
+.label_login_title {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: #333;
+    margin-left: 20px;
+}
+
+.require {
+    color: red;
+    margin-left: 0.5px;
+}
+
+.input_login_wrapper {
+    width: 100%;
+    position: relative;
+}

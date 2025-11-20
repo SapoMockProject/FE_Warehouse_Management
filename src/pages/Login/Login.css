@@ -1,0 +1,41 @@
+.container {
+    background-color: #F0F4F9;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.content {
+    margin: auto;
+    background-color: #fff;
+    width: min(814px, 100%);
+    border-radius: 30px;
+    padding: 50px;
+}
+
+.content .logo {
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+.content .logo img {
+    width: 140px;
+    height: auto;
+}
+
+.model_content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.login_button {
+    border-radius: 50px;
+    background-color: #26CB87;
+    padding: 15px;
+    font-size: 18px;
+    border: none;
+    cursor: pointer;
+}
