@@ -1,0 +1,148 @@
+.top-bar {
+  height: 52px;
+  box-shadow: rgba(0, 0, 0, 0.15) 0px 2px 2px -1px;
+  background-color: #fff;
+  transition: background-color 200ms cubic-bezier(0.42, 0, 0.58, 1);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  color: black;
+  position: relative;
+  z-index: 100;
+}
+
+.top-bar-content {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 20px;
+}
+
+.top-bar-content-right {
+  position: relative;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.user-info:hover {
+  background-color: #f5f5f5;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.username {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.dropdown-icon {
+  transition: transform 0.3s ease;
+  color: #666;
+}
+
+.dropdown-icon.open {
+  transform: rotate(180deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 240px;
+  overflow: hidden;
+  animation: slideDown 0.2s ease;
+  z-index: 1000;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background-color 0.2s ease;
+}
+
+.dropdown-item.user-profile {
+  cursor: default;
+}
+
+.dropdown-item.user-profile:hover {
+  background-color: transparent;
+}
+
+.avatar-small {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-details {
+  flex: 1;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 2px;
+}
+
+.user-email {
+  font-size: 12px;
+  color: #666;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #e5e5e5;
+  margin: 4px 0;
+}
+
+.dropdown-button {
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: #dc2626;
+  font-weight: 500;
+  text-align: left;
+}
+
+.dropdown-button:hover {
+  background-color: #fef2f2;
+}
+
+.dropdown-button svg {
+  color: #dc2626;
+}
