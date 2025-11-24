@@ -1,0 +1,64 @@
+import "./Pagination.css";
+
+export default function Pagination({
+  page,
+  totalPages,
+  size,
+  sortOrder,
+  onPageChange,
+  onSizeChange,
+  onSortChange,
+}) {
+  return (
+    <div className="pagination-container">
+      <div className="pagination-controls">
+        <button
+          disabled={page === 0}
+          onClick={() => onPageChange(page - 1)}
+          className="pagination-btn"
+        >
+          Prev
+        </button>
+
+        <span className="pagination-info">
+          Page <strong>{page + 1}</strong> / {totalPages}
+        </span>
+
+        <button
+          disabled={page === totalPages - 1}
+          onClick={() => onPageChange(page + 1)}
+          className="pagination-btn"
+        >
+          Next
+        </button>
+      </div>
+
+      <div className="pagination-options">
+        <label>
+          Page size:{" "}
+          <select
+            value={size}
+            onChange={(e) => onSizeChange(parseInt(e.target.value))}
+            className="pagination-select"
+          >
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+            <option value={50}>50</option>
+          </select>
+        </label>
+
+        <label>
+          Sort:{" "}
+          <select
+            value={sortOrder}
+            onChange={(e) => onSortChange(e.target.value)}
+            className="pagination-select"
+          >
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  );
+}
