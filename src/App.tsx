@@ -2,7 +2,6 @@ import './App.css'
 import { AppRouter } from './routers/AppRouter'
 
 function App() {
-
   return (
     <>
       <AppRouter/>
@@ -10,4 +9,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

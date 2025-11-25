@@ -7,6 +7,7 @@ export interface ButtonProps {
   disabled?: boolean;
   onClick?: () => void;
   type?: "button" | "submit";
+  icon?: React.ReactNode;
 }
 
 export default function Button({

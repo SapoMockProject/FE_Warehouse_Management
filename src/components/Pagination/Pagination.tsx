@@ -1,5 +1,13 @@
 import "./Pagination.css";
-
+export interface IPaginationProps {
+  page: number,
+  totalPages: number,
+  size: number,
+  sortOrder: string,
+  onPageChange: (page: number) => void,
+  onSizeChange: (size: number) => void,
+  onSortChange: (sortOrder: string) => void,
+}
 export default function Pagination({
   page,
   totalPages,
@@ -8,7 +16,7 @@ export default function Pagination({
   onPageChange,
   onSizeChange,
   onSortChange,
-}) {
+}: IPaginationProps) {
   return (
     <div className="pagination-container">
       <div className="pagination-controls">
