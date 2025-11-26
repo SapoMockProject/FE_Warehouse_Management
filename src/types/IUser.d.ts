@@ -3,7 +3,6 @@ export interface IUserResponse {
 	fullName: string;
 	phoneNumber: string;
 	email: string;
-	address: string;
 	role: Role;
 }
 

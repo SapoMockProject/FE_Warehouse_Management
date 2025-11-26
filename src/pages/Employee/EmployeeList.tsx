@@ -51,7 +51,6 @@ export default function EmployeeList() {
 								<th>Tên nhân viên</th>
 								<th>Số điện thoại</th>
 								<th>Email</th>
-								<th>Địa chỉ</th>
 								<th>Chức vụ</th>
 								<th>Hành động</th>
 							</tr>
@@ -65,7 +64,6 @@ export default function EmployeeList() {
 									<td>{employee.fullName}</td>
 									<td>{employee.phoneNumber}</td>
 									<td>{employee.email}</td>
-									<td>{employee.address}</td>
 									<td>{getNameOfRole(employee.role)}</td>
 									<td className="employee-list-table-action">
 										<Button label="Chỉnh sửa" variant="warning" type="button" size="sm" onClick={() => {}} />

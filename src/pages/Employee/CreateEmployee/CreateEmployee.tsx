@@ -1,23 +1,12 @@
 import React from "react";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
-import "./CreateEmployee.css";
-import { Role, type IUserCreateRequest } from "../../../types/IUser.d";
 import { axiosConfiguration } from "../../../configurations/AxiosConfiguration";
+import { Role, type IUserCreateRequest } from "../../../types/IUser.d";
+import useModalComponent from "../../../hooks/Modal/useModalComponent";
+import "./CreateEmployee.css";
 
 export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => void }) {
-	function openModal() {
-		const modal = document.querySelector(".create-employee-modal-container");
-		if (modal) {
-			modal.setAttribute("style", "display: block;");
-		}
-	}
-	function closeModal() {
-		const modal = document.querySelector(".create-employee-modal-container");
-		if (modal) {
-			modal.setAttribute("style", "display: none;");
-		}
-	}
 	const [employeeData, setEmployeeData] = React.useState<IUserCreateRequest>({
 		fullName: "",
 		phoneNumber: "",
@@ -25,6 +14,7 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 		username: "",
 		role: Role.WAREHOUSE_STAFF,
 	});
+    const [openModal, closeModal, ModalComponent] = useModalComponent();
 	function handleInputChange(field: keyof IUserCreateRequest, value: string) {
 		setEmployeeData({
 			...employeeData,
@@ -51,11 +41,7 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 	return (
 		<>
 			<Button label="Thêm nhân viên" variant="secondary" type="button" size="md" onClick={openModal} />
-			<div className="create-employee-modal-container">
-				<div className="create-employee-modal-content">
-					<span className="create-employee-close-btn" onClick={closeModal}>
-						&times;
-					</span>
+			<ModalComponent>
 					<form className="create-employee-form">
 						<div className="create-employee-row">
 							<Input
@@ -100,8 +86,7 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 						/>
 						<Button label="Tạo nhân viên" variant="primary" type="submit" size="md" onClick={handleSubmit} />
 					</form>
-				</div>
-			</div>
+			</ModalComponent>
 		</>
 	);
 }
