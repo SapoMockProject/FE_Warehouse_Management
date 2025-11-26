@@ -7,6 +7,7 @@ import type { PagedModel } from "../../types/PagedModel";
 import "./EmployeeList.css";
 import { getNameOfRole } from "../../utils/Employee.util";
 import CreateEmployee from "./CreateEmployee/CreateEmployee";
+import UpdateEmployee from "./UpdateEmployee/UpdateEmployee";
 
 export default function EmployeeList() {
 	const [employees, setEmployees] = React.useState<IUserResponse[]>([]);
@@ -66,7 +67,7 @@ export default function EmployeeList() {
 									<td>{employee.email}</td>
 									<td>{getNameOfRole(employee.role)}</td>
 									<td className="employee-list-table-action">
-										<Button label="Chỉnh sửa" variant="warning" type="button" size="sm" onClick={() => {}} />
+										<UpdateEmployee realoadFunc={() => setReload(prev => !prev)} employee={employee} />
 										<Button
 											label="Xóa"
 											variant="danger"

@@ -2,6 +2,7 @@ export interface IUserResponse {
 	id: number;
 	fullName: string;
 	phoneNumber: string;
+	username: string;
 	email: string;
 	role: Role;
 }

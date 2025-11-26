@@ -5,6 +5,7 @@ import { axiosConfiguration } from "../../../configurations/AxiosConfiguration";
 import { Role, type IUserCreateRequest } from "../../../types/IUser.d";
 import useModalComponent from "../../../hooks/Modal/useModalComponent";
 import "./CreateEmployee.css";
+import { handleGetRoleOptions } from "../../../utils/Employee.util";
 
 export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => void }) {
 	const [employeeData, setEmployeeData] = React.useState<IUserCreateRequest>({
@@ -21,13 +22,6 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 			[field]: value,
 		});
 	}
-	const handleGetRoleOptions = () => {
-		return [
-			{ label: "Quản lý kho", value: Role.COORDINATOR },
-			{ label: "Nhân viên kho", value: Role.WAREHOUSE_STAFF },
-			{ label: "Thủ kho", value: Role.STORE_KEEPER },
-		];
-	};
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 		await axiosConfiguration.post("/users", employeeData, {

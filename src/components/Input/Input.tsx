@@ -15,6 +15,7 @@ interface BaseInputProps {
 	disabled?: boolean;
 	required?: boolean;
 	className?: string;
+	readonly?: boolean;
 }
 
 interface TextInputProps extends BaseInputProps {
@@ -88,6 +89,7 @@ const Input: React.FC<InputProps> = (props) => {
 						disabled={disabled}
 						required={required}
 						className={getInputClassName()}
+						readOnly={props.readonly}
 					/>
 				);
 
@@ -102,6 +104,7 @@ const Input: React.FC<InputProps> = (props) => {
 						required={required}
 						rows={rows}
 						className={`${getInputClassName()} input-textarea`}
+						readOnly={props.readonly}
 					/>
 				);
 			}
@@ -129,6 +132,7 @@ const Input: React.FC<InputProps> = (props) => {
 							disabled={disabled}
 							required={required}
 							className={`${getInputClassName()} input-search`}
+							readOnly={props.readonly}
 						/>
 					</div>
 				);
@@ -143,6 +147,7 @@ const Input: React.FC<InputProps> = (props) => {
 							disabled={disabled}
 							required={required}
 							className={getInputClassName()}
+							readOnly={props.readonly}
 						/>
 					</div>
 				);
@@ -178,6 +183,7 @@ const Input: React.FC<InputProps> = (props) => {
 						disabled={disabled}
 						required={required}
 						className={getInputClassName()}
+						readOnly={props.readonly}
 					/>
 				);
 

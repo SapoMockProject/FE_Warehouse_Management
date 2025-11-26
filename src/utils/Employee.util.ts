@@ -1,3 +1,5 @@
+import { Role } from "../types/IUser.d";
+
 export function getNameOfRole(role: string): string {
 	switch (role) {
 		case "WAREHOUSE_STAFF":
@@ -12,3 +14,11 @@ export function getNameOfRole(role: string): string {
 			return "Nhân viên";
 	}
 }
+
+export const handleGetRoleOptions = () => {
+	return [
+		{ label: "Quản lý kho", value: Role.COORDINATOR },
+		{ label: "Nhân viên kho", value: Role.WAREHOUSE_STAFF },
+		{ label: "Thủ kho", value: Role.STORE_KEEPER },
+	];
+};

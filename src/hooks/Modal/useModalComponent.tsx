@@ -1,20 +1,23 @@
+import React from "react";
 import "./ModelComponent.css";
 export default function useModalComponent(): [() => void, () => void, ({ children }: { children: React.ReactNode }) => React.ReactNode] {
+	const modalRef = React.useRef<HTMLDivElement | null>(null);
+	const [isVisible, setIsVisible] = React.useState<boolean>(false);
 	function openModal() {
-		const modal = document.querySelector(".modal-container");
+		const modal = modalRef.current;
 		if (modal) {
-			modal.setAttribute("style", "display: block;");
+			setIsVisible(true);
 		}
 	}
 	function closeModal() {
-		const modal = document.querySelector(".modal-container");
+		const modal = modalRef.current;
 		if (modal) {
-			modal.setAttribute("style", "display: none;");
+			setIsVisible(false);
 		}
 	}
-	const ModalComponent = ({ children }: { children: React.ReactNode }): React.ReactNode => (
+	const ModalComponent = React.useCallback(({ children }: { children: React.ReactNode }): React.ReactNode => (
 		<>
-			<div className="modal-container">
+			<div className="modal-container" style={isVisible ? { display: "block" } : { display: "none" }} ref={modalRef}>
 				<div className="modal-content">
 					<span className="modal-close-btn" onClick={closeModal}>
 						&times;
@@ -23,6 +26,6 @@ export default function useModalComponent(): [() => void, () => void, ({ childre
 				</div>
 			</div>
 		</>
-	);
+	), [isVisible]);
 	return [openModal, closeModal, ModalComponent];
 }
