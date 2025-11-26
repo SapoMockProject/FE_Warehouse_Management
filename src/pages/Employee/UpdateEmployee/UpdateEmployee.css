@@ -1,0 +1,10 @@
+.update-employee-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.update-employee-row {
+    display: flex;
+    gap: 20px;
+}

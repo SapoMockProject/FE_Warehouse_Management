@@ -2,11 +2,12 @@ import "./Button.css";
 
 export interface ButtonProps {
   label: string;
-  variant?: "primary" | "secondary" | "tertiary" | "danger" | "success";
+  variant?: "primary" | "secondary" | "tertiary" | "danger" | "success" | "warning";
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   type?: "button" | "submit";
+  icon?: React.ReactNode;
 }
 
 export default function Button({

@@ -1,0 +1,10 @@
+.create-employee-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.create-employee-row {
+    display: flex;
+    gap: 20px;
+}

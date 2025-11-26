@@ -26,7 +26,6 @@ export default function Login() {
 			return;
 		}
 		const response = await axiosConfiguration.post("/auth/login", loginValue);
-		console.log(response);
 		const token = response.data.data.token;
 		localStorage.setItem("token", token);
 		navigate("/dashboard");

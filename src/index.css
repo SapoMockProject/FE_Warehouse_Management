@@ -1,67 +1,66 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 :root {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  font-size: 0.875rem;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	font-family: Inter, -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+	line-height: 1.5;
+	font-weight: 400;
+	font-size: 0.875rem;
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 * {
-  padding: 0;
-  margin: 0;
-  box-sizing: border-box;
+	padding: 0;
+	margin: 0;
+	box-sizing: border-box;
 }
 
-html, body, button {
-  font-family: Inter, -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+html,
+body,
+button {
+	font-family: Inter, -apple-system, BlinkMacSystemFont, "San Francisco", "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
 }
 
 a {
-  font-weight: 450;
-  line-height: 1.3;
-  color: rgb(255, 255, 255);
-  text-decoration: inherit;
+	font-weight: 450;
+	line-height: 1.3;
+	color: rgb(255, 255, 255);
+	text-decoration: inherit;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+	font-size: 3.2em;
+	line-height: 1.1;
 }
 
 h2 {
-  font-size: 1.375rem;
+	font-size: 1.375rem;
 }
 
-
-
-.row_highlight:hover{
-    cursor: pointer;
-    background-color: rgb(243, 244, 245);
+.row_highlight:hover {
+	cursor: pointer;
+	background-color: rgb(243, 244, 245);
 }
 
-.td_highlight{
-        color: rgb(0, 136, 255);
-    cursor: pointer;
+.td_highlight {
+	color: rgb(0, 136, 255);
+	cursor: pointer;
 }
 
-.td_highlight:hover{
-    text-decoration: underline;
+.td_highlight:hover {
+	text-decoration: underline;
 }
 
-.align_right{
-    text-align: right;
+.align_right {
+	text-align: right;
 }
 
-.align_center{
-    text-align: center;
+.align_center {
+	text-align: center;
 }
 
-.align_left{
-    text-align: left;
+.align_left {
+	text-align: left;
 }
-

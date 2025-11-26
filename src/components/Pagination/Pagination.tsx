@@ -1,5 +1,13 @@
 import "./Pagination.css";
-
+export interface IPaginationProps {
+  page: number,
+  totalPages: number,
+  size: number,
+  sortOrder: string,
+  onPageChange: (page: number) => void,
+  onSizeChange: (size: number) => void,
+  onSortChange: (sortOrder: 'asc' | 'desc') => void,
+}
 export default function Pagination({
   page,
   totalPages,
@@ -8,7 +16,7 @@ export default function Pagination({
   onPageChange,
   onSizeChange,
   onSortChange,
-}) {
+}: IPaginationProps) {
   return (
     <div className="pagination-container">
       <div className="pagination-controls">
@@ -38,7 +46,10 @@ export default function Pagination({
           Page size:{" "}
           <select
             value={size}
-            onChange={(e) => onSizeChange(parseInt(e.target.value))}
+            onChange={(e) => {
+              onSizeChange(parseInt(e.target.value));
+              onPageChange(0);
+            }}
             className="pagination-select"
           >
             <option value={10}>10</option>
@@ -51,7 +62,7 @@ export default function Pagination({
           Sort:{" "}
           <select
             value={sortOrder}
-            onChange={(e) => onSortChange(e.target.value)}
+            onChange={(e) => onSortChange(e.target.value as 'asc' | 'desc')}
             className="pagination-select"
           >
             <option value="asc">Ascending</option>

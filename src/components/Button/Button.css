@@ -66,6 +66,16 @@
   background: rgb(255, 112, 112);
 }
 
+.btn-warning {
+  border: 1px solid transparent;
+  color: rgb(255, 255, 255);
+  background: rgb(255, 159, 67);
+}
+
+.btn-warning:hover {
+  background: rgb(255, 180, 100);
+}
+
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
