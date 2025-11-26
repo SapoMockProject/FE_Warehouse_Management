@@ -1,5 +1,6 @@
 .input-wrapper {
-  width: 100%;
+  display: flex;
+  flex: 1 1 auto
 }
 
 .input-label {
@@ -17,7 +18,7 @@
 
 .input-base {
   width: 100%;
-  padding: 10px 16px;
+  padding: 8px 16px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 1rem;
@@ -92,15 +93,6 @@
   background-position: right 12px center;
   background-size: 20px;
   padding-right: 40px;
-}
-
-.input-select:disabled {
-  cursor: not-allowed;
-}
-
-.input-date-wrapper {
-  position: relative;
-  width: 100%;
 }
 
 @media (max-width: 640px) {

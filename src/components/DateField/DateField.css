@@ -1,0 +1,118 @@
+.datefield-wrapper input[type="datetime-local"],
+.datefield-wrapper input[type="date"] {
+  width: 100%;
+  padding: 8px 16px;
+  border: 1px solid rgb(217, 221, 222);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s ease;
+  background-color: rgb(255, 255, 255);
+  color: rgb(149, 149, 149);
+  flex: 0 1 auto
+}
+
+.daterange-select {
+  position: relative;
+}
+
+.daterange-select-trigger {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  border: 1px solid rgb(183, 188, 199);
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: rgb(255, 255, 255);
+  transition: all 0.2s ease;
+}
+
+.daterange-select-trigger.open {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.daterange-select-arrow {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.daterange-select-trigger.open .daterange-select-arrow {
+  transform: rotate(180deg);
+}
+
+.daterange-select-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: calc(-70%);
+  right: calc(-70%);
+  background: rgb(255, 255, 255);
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-height: 400px;
+  overflow-y: auto;
+  box-sizing: border-box;
+  z-index: 1000;
+  padding: 8px;
+}
+
+.daterange-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+
+}
+
+.daterange-option {
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  color: rgb(32, 32, 32);
+  border-radius: 6px;
+  text-align: center;
+  border: 1px solid rgb(220, 220, 220);
+  white-space: nowrap;
+}
+
+.daterange-option:hover {
+  background-color: #f3f4f6;
+  border: 1px solid rgb(137, 137, 137);
+}
+
+.daterange-option.selected {
+  background-color: #eff6ff;
+  color: #3b82f6;
+  font-weight: 500;
+}
+
+.daterange-option-full {
+  grid-column: 1 / -1;
+}
+
+.daterange-custom {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  width: 100%;
+}
+
+.daterange-custom .datefield-wrapper {
+  width: 100%;
+  min-width: 0; 
+}
+
+.daterange-custom .datefield-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.daterange-filter-button {
+  width: 100%;
+  transition: background-color 0.2s;
+  margin-top: 8px;
+}

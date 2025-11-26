@@ -1,53 +1,18 @@
-import React, { type HTMLInputTypeAttribute } from "react";
+import React from "react";
 import "./Input.css";
-
+import type { BaseInputProps } from "../../types/BaseInputProps";
+import type { TextInputProps, TextAreaProps, SearchInputProps, NumberInputProps } from "../../types/TextInputProps";
 interface Option {
 	value: string | number;
 	label: string;
 }
-
-interface BaseInputProps {
-	label?: string;
-	placeholder?: string;
-	value: string | number;
-	onChange: (value: string | number) => void;
-	error?: string;
-	disabled?: boolean;
-	required?: boolean;
-	className?: string;
-	readonly?: boolean;
-}
-
-interface TextInputProps extends BaseInputProps {
-	type: "text";
-	inputType?: HTMLInputTypeAttribute | undefined;
-}
-
-interface TextAreaProps extends BaseInputProps {
-	type: "textarea";
-	rows?: number;
-}
-
-interface SearchInputProps extends BaseInputProps {
-	type: "search";
-}
-
-interface DateInputProps extends BaseInputProps {
-	type: "date";
-}
-
 interface SelectInputProps extends BaseInputProps {
 	type: "select";
 	options: Option[];
 }
 
-interface NumberInputProps extends BaseInputProps {
-	type: "number";
-	min?: number;
-	max?: number;
-}
 
-type InputProps = TextInputProps | TextAreaProps | SearchInputProps | DateInputProps | SelectInputProps | NumberInputProps;
+type InputProps = TextInputProps | SearchInputProps | TextAreaProps | SelectInputProps | NumberInputProps;
 
 const Input: React.FC<InputProps> = (props) => {
 	const { label, placeholder, value, onChange, error, disabled, required, type, className = "" } = props;
@@ -82,14 +47,13 @@ const Input: React.FC<InputProps> = (props) => {
 			case "text":
 				return (
 					<input
-						type={(props as TextInputProps).inputType || "text"}
+						type="text"
 						value={value}
 						onChange={(e) => onChange(e.target.value)}
 						placeholder={placeholder}
 						disabled={disabled}
 						required={required}
 						className={getInputClassName()}
-						readOnly={props.readonly}
 					/>
 				);
 
@@ -104,7 +68,6 @@ const Input: React.FC<InputProps> = (props) => {
 						required={required}
 						rows={rows}
 						className={`${getInputClassName()} input-textarea`}
-						readOnly={props.readonly}
 					/>
 				);
 			}
@@ -132,25 +95,10 @@ const Input: React.FC<InputProps> = (props) => {
 							disabled={disabled}
 							required={required}
 							className={`${getInputClassName()} input-search`}
-							readOnly={props.readonly}
 						/>
 					</div>
 				);
 
-			case "date":
-				return (
-					<div className="input-date-wrapper">
-						<input
-							type="datetime-local"
-							value={value}
-							onChange={(e) => onChange(e.target.value)}
-							disabled={disabled}
-							required={required}
-							className={getInputClassName()}
-							readOnly={props.readonly}
-						/>
-					</div>
-				);
 
 			case "select": {
 				const options = (props as SelectInputProps).options;
@@ -183,7 +131,6 @@ const Input: React.FC<InputProps> = (props) => {
 						disabled={disabled}
 						required={required}
 						className={getInputClassName()}
-						readOnly={props.readonly}
 					/>
 				);
 
@@ -194,14 +141,16 @@ const Input: React.FC<InputProps> = (props) => {
 
 	return (
 		<div className="input-wrapper">
-			{label && (
-				<label className="input-label">
-					{label}
-					{required && <span className="input-required">*</span>}
-				</label>
-			)}
-			{renderInput()}
-			{error && <p className="input-error-message">{error}</p>}
+			<>
+				{label && (
+					<label className="input-label">
+						{label}
+						{required && <span className="input-required">*</span>}
+					</label>
+				)}
+				{renderInput()}
+				{error && <p className="input-error-message">{error}</p>}
+			</>
 		</div>
 	);
 };

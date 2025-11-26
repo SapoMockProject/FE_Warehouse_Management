@@ -8,6 +8,7 @@ export interface ButtonProps {
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   type?: "button" | "submit";
   icon?: React.ReactNode;
+  className?: string;
 }
 
 export default function Button({
@@ -17,11 +18,12 @@ export default function Button({
   disabled = false,
   onClick,
   type = "button",
+  className = ""
 }: ButtonProps) {
   return (
     <button
       type={type}
-      className={`btn btn-${variant} btn-${size}`}
+      className={`btn btn-${variant} btn-${size}  ${className}`}
       disabled={disabled}
       onClick={onClick}
     >
