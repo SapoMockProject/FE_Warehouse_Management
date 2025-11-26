@@ -7,6 +7,7 @@ export default function ContainerComponent({ children }: { children: React.React
 		const token = localStorage.getItem("token");
 		if (!token) {
 			navigate("/login");
+			return;
 		}
 		const exp: number = JSON.parse(atob(token!.split(".")[1]));
 		if (Date.now() >= exp * 1000) {

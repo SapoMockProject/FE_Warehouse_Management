@@ -1,4 +1,4 @@
-import React from "react";
+import React, { type HTMLInputTypeAttribute } from "react";
 import "./Input.css";
 
 interface Option {
@@ -19,6 +19,7 @@ interface BaseInputProps {
 
 interface TextInputProps extends BaseInputProps {
 	type: "text";
+	inputType?: HTMLInputTypeAttribute | undefined;
 }
 
 interface TextAreaProps extends BaseInputProps {
@@ -80,7 +81,7 @@ const Input: React.FC<InputProps> = (props) => {
 			case "text":
 				return (
 					<input
-						type="text"
+						type={(props as TextInputProps).inputType || "text"}
 						value={value}
 						onChange={(e) => onChange(e.target.value)}
 						placeholder={placeholder}
