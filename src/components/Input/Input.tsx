@@ -81,6 +81,7 @@ const Input: React.FC<InputProps> = (props) => {
 							type="text"
 							value={value}
 							onChange={(e) => onChange(e.target.value)}
+							onClick={props.onClick}
 							placeholder={placeholder}
 							disabled={disabled}
 							required={required}
