@@ -1,4 +1,4 @@
-export interface OrderRequest {
+export interface PurchaseOrderRequest {
     code: string;
     createdAt: string;
     branch: string;
