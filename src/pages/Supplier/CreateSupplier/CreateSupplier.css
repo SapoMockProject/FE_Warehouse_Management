@@ -1,0 +1,15 @@
+.create-supplier-form {
+	display: flex;
+	flex-direction: column;
+	gap: 15px;
+	justify-content: center;
+}
+
+.create-supplier-row {
+	display: flex;
+	gap: 10px;
+	margin-bottom: 10px;
+	justify-content: space-between;
+	align-items: center;
+	width: 100%;
+}

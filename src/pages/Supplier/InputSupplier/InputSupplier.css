@@ -1,0 +1,13 @@
+.supplier-input-wrapper {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	align-items: flex-start;
+	gap: 10px;
+}
+
+.supplier-input-label {
+	font-size: 1rem;
+	font-weight: 500;
+	color: #374151;
+}

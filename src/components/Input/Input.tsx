@@ -2,7 +2,7 @@ import React from "react";
 import "./Input.css";
 import type { TextInputProps, TextAreaProps, SearchInputProps, NumberInputProps } from "../../types/TextInputProps";
 
-type InputProps = TextInputProps | SearchInputProps | TextAreaProps | NumberInputProps;
+export type InputProps = TextInputProps | SearchInputProps | TextAreaProps | NumberInputProps;
 
 const Input: React.FC<InputProps> = (props) => {
 	const { label, placeholder, value, onChange, error, disabled, required, type, className = "" } = props;

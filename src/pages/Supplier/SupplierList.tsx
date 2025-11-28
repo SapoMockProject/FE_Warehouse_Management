@@ -8,6 +8,8 @@ import type { PagedModel } from "../../types/PagedModel";
 import "./SupplierList.css";
 import { getSupplierStatusText, getSupplierStatusVariant } from "../../utils/Supplier.util";
 import TagComponent from "./Tag/TagComponent";
+import CreateSupplier from "./CreateSupplier/CreateSupplier";
+import PopConfirm from "../../components/PopConfirm/PopConfirm";
 
 export default function SupplierList() {
 	const [supplies, setSuppliers] = React.useState<ISupplierResponse[]>([]);
@@ -34,13 +36,19 @@ export default function SupplierList() {
 		};
 		fetchSuppliers();
 	}, [reload, page, limit, sortOrder]);
-	const deleteUser = async (id: number) => {
-		await axiosConfiguration.delete(`/users/${id}`, {
-			headers: {
-				Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-			},
-		});
-		setReload(!reload);
+
+	const handleDeleteSupplier = async (supplierId: number) => {
+		try {
+			await axiosConfiguration.delete(`/suppliers/${supplierId}`, {
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+				},
+			});
+			setReload(!reload);
+			console.log("Supplier deleted successfully");
+		} catch (error) {
+			console.error("Error deleting supplier:", error);
+		}
 	};
 
 	return (
@@ -48,7 +56,9 @@ export default function SupplierList() {
 			<div className="supplier-list-container">
 				<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 					<span style={{ fontWeight: "bold" }}>Nhà cung cấp</span>
-					<div></div>
+					<div>
+						<CreateSupplier />
+					</div>
 				</div>
 				<div>
 					<table className="supplier-list-table">
@@ -70,16 +80,15 @@ export default function SupplierList() {
 									<td>{supplier.email}</td>
 									<td>{supplier.phone}</td>
 									<td>
-										<TagComponent message={getSupplierStatusText(supplier.isDeleted)} variant={getSupplierStatusVariant(supplier.isDeleted)} />
+										<TagComponent
+											message={getSupplierStatusText(supplier.deleted)}
+											variant={getSupplierStatusVariant(supplier.deleted)}
+										/>
 									</td>
 									<td className="supplier-list-table-action">
-										<Button
-											label="Xóa"
-											variant="danger"
-											type="button"
-											size="sm"
-											onClick={() => deleteUser(supplier.id)}
-										/>
+										<PopConfirm onClickConfirm={() => handleDeleteSupplier(supplier.id)}>
+											<Button label="Xóa" variant="danger" type="button" size="sm" />
+										</PopConfirm>
 									</td>
 								</tr>
 							))}

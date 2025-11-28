@@ -1,6 +1,7 @@
 import type { ITagVariants } from "../pages/Supplier/Tag/TagComponent";
 
 export function getSupplierStatusText(isDeleted: boolean): string {
+    console.log("Getting status text for isDeleted:", isDeleted);
     return isDeleted ? "Không hoạt động" : "Đang hoạt động";
 }
 

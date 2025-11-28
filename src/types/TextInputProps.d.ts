@@ -20,3 +20,5 @@ export interface NumberInputProps extends BaseInputProps {
 	min?: number;
 	max?: number;
 }
+
+export type InputType = "text" | "textarea" | "search" | "number";

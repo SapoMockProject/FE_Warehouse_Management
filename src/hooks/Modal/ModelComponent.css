@@ -13,11 +13,14 @@
 
 .modal-container .modal-content {
 	background-color: #fefefe;
-	margin: 15% auto;
 	padding: 20px;
 	border: 1px solid #888;
 	width: 50%;
-    position: relative;
+    position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	padding: 50px;
 }
 
 .modal-close-btn {
@@ -25,7 +28,7 @@
   font-size: 28px;
   font-weight: bold;
   position: absolute;
-  top: 10px;
+  top: 5px;
   right: 10px;
 }
 
