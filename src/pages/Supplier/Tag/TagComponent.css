@@ -1,0 +1,30 @@
+.supplier-tag {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+.supplier-tag-default {
+    background-color: #e0e0e0;
+    color: #333333;
+}
+
+.supplier-tag-primary {
+    background-color: #1976d2;
+    color: #ffffff;
+}
+
+.supplier-tag-success {
+    background-color: #388e3c;
+    color: #ffffff;
+}
+
+.supplier-tag-warning {
+    background-color: #f57c00;
+    color: #ffffff;
+}
+
+.supplier-tag-danger {
+    background-color: #d32f2f;
+    color: #ffffff;
+}

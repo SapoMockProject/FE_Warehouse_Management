@@ -1,18 +1,8 @@
 import React from "react";
 import "./Input.css";
-import type { BaseInputProps } from "../../types/BaseInputProps";
 import type { TextInputProps, TextAreaProps, SearchInputProps, NumberInputProps } from "../../types/TextInputProps";
-interface Option {
-	value: string | number;
-	label: string;
-}
-interface SelectInputProps extends BaseInputProps {
-	type: "select";
-	options: Option[];
-}
 
-
-type InputProps = TextInputProps | SearchInputProps | TextAreaProps | SelectInputProps | NumberInputProps;
+type InputProps = TextInputProps | SearchInputProps | TextAreaProps | NumberInputProps;
 
 const Input: React.FC<InputProps> = (props) => {
 	const { label, placeholder, value, onChange, error, disabled, required, type, className = "" } = props;
@@ -91,6 +81,7 @@ const Input: React.FC<InputProps> = (props) => {
 							type="text"
 							value={value}
 							onChange={(e) => onChange(e.target.value)}
+							onClick={props.onClick}
 							placeholder={placeholder}
 							disabled={disabled}
 							required={required}
@@ -98,27 +89,6 @@ const Input: React.FC<InputProps> = (props) => {
 						/>
 					</div>
 				);
-
-
-			case "select": {
-				const options = (props as SelectInputProps).options;
-				return (
-					<select
-						value={value}
-						onChange={(e) => onChange(e.target.value)}
-						disabled={disabled}
-						required={required}
-						className={`${getInputClassName()} input-select`}
-					>
-						{placeholder && <option value="">{placeholder}</option>}
-						{options?.map((opt) => (
-							<option key={opt.value} value={opt.value}>
-								{opt.label}
-							</option>
-						))}
-					</select>
-				);
-			}
 
 			case "number":
 				return (
@@ -140,7 +110,6 @@ const Input: React.FC<InputProps> = (props) => {
 	};
 
 	return (
-		<div className="input-wrapper">
 			<>
 				{label && (
 					<label className="input-label">
@@ -151,7 +120,6 @@ const Input: React.FC<InputProps> = (props) => {
 				{renderInput()}
 				{error && <p className="input-error-message">{error}</p>}
 			</>
-		</div>
 	);
 };
 

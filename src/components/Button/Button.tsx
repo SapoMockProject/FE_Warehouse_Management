@@ -1,7 +1,7 @@
 import "./Button.css";
 
 export interface ButtonProps {
-  label: string;
+  label?: string;
   variant?: "primary" | "secondary" | "tertiary" | "danger" | "success" | "warning";
   size?: "sm" | "md" | "lg";
   disabled?: boolean;
@@ -18,6 +18,7 @@ export default function Button({
   disabled = false,
   onClick,
   type = "button",
+  icon,
   className = ""
 }: ButtonProps) {
   return (
@@ -27,6 +28,7 @@ export default function Button({
       disabled={disabled}
       onClick={onClick}
     >
+      {icon && <span className="btn-icon">{icon}</span>}
       <span className="btn-label">{label}</span>
     </button>
   );

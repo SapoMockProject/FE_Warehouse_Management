@@ -1,6 +1,5 @@
 .input-wrapper {
   display: flex;
-  flex: 1 1 auto
 }
 
 .input-label {
@@ -8,7 +7,7 @@
   font-size: 1rem;
   font-weight: 500;
   color: #374151;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
 }
 
 .input-required {
@@ -84,15 +83,6 @@
 
 .input-search {
   padding-left: 40px;
-}
-
-.input-select {
-  cursor: pointer;
-  appearance: none;
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 20px;
-  padding-right: 40px;
 }
 
 @media (max-width: 640px) {

@@ -1,3 +1,4 @@
+import type React from "react";
 import type { BaseInputProps } from "./BaseInputProps";
 
 export interface TextInputProps extends BaseInputProps {
@@ -11,6 +12,7 @@ export interface TextAreaProps extends BaseInputProps {
 
 export interface SearchInputProps extends BaseInputProps {
 	type: "search";
+  	onClick?: (e: React.MouseEvent<HTMLInputElement>) => void;
 } 
 
 export interface NumberInputProps extends BaseInputProps {
