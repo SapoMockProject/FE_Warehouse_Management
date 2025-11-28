@@ -1,18 +1,18 @@
-.employee-list-container {
+.supplier-list-container {
     padding: 20px;
     font-size: 15px;
     background-color: #ffffff;
     border-radius: 8px;
 }
 
-.employee-list-table {
+.supplier-list-table {
     width: 100%;
     border-collapse: collapse;
     border-width: 1px;
     margin-top: 30px;
 }
 
-.employee-list-table-body {
+.supplier-list-table-body {
     text-align: center;
 }
 
@@ -21,22 +21,22 @@ input[type="checkbox"] {
     height: auto;
 }
 
-.employee-list-table-header {
+.supplier-list-table-header {
     background-color: #F4F6F8;
 }
-.employee-list-table-header th {
+.supplier-list-table-header th {
     font-weight: 600;
     padding: 12px;
     text-align: center;
     border-bottom: 1px solid #E0E0E0;
 }
 
-.employee-list-table-body td {
+.supplier-list-table-body td {
     padding: 12px;
     border-bottom: 1px solid #E0E0E0;
 }
 
-.employee-list-table-action {
+.supplier-list-table-action {
     display: flex;
     gap: 8px;
     justify-content: center;

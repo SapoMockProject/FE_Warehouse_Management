@@ -2,10 +2,10 @@ import React from "react";
 import "./Input.css";
 import type { TextInputProps, TextAreaProps, SearchInputProps, NumberInputProps } from "../../types/TextInputProps";
 
-type InputProps = TextInputProps | SearchInputProps | TextAreaProps | NumberInputProps;
+export type InputProps = TextInputProps | SearchInputProps | TextAreaProps | NumberInputProps;
 
 const Input: React.FC<InputProps> = (props) => {
-	const { label, placeholder, value, onChange, error, disabled, required, type, className = "" } = props;
+	const { label, placeholder, value, onChange, error, disabled, required, type, readonly, className = "" } = props;
 
 	const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const val = e.target.value;
@@ -43,6 +43,7 @@ const Input: React.FC<InputProps> = (props) => {
 						placeholder={placeholder}
 						disabled={disabled}
 						required={required}
+						readOnly={readonly}
 						className={getInputClassName()}
 					/>
 				);
@@ -57,6 +58,7 @@ const Input: React.FC<InputProps> = (props) => {
 						disabled={disabled}
 						required={required}
 						rows={rows}
+						readOnly={readonly}
 						className={`${getInputClassName()} input-textarea`}
 					/>
 				);
@@ -85,6 +87,7 @@ const Input: React.FC<InputProps> = (props) => {
 							placeholder={placeholder}
 							disabled={disabled}
 							required={required}
+							readOnly={readonly}
 							className={`${getInputClassName()} input-search`}
 						/>
 					</div>
@@ -100,6 +103,7 @@ const Input: React.FC<InputProps> = (props) => {
 						placeholder={placeholder}
 						disabled={disabled}
 						required={required}
+						readOnly={readonly}
 						className={getInputClassName()}
 					/>
 				);

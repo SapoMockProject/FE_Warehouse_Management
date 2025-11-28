@@ -7,4 +7,5 @@ export interface BaseInputProps {
 	disabled?: boolean;
 	required?: boolean;
 	className?: string;
+	readonly?: boolean;
 }

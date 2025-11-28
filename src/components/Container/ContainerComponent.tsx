@@ -9,7 +9,7 @@ export default function ContainerComponent({ children }: { children: React.React
 			navigate("/login");
 			return;
 		}
-		const exp: number = JSON.parse(atob(token!.split(".")[1]));
+		const { exp } = JSON.parse(atob(token!.split(".")[1]));
 		if (Date.now() >= exp * 1000) {
 			localStorage.removeItem("token");
 			navigate("/login");

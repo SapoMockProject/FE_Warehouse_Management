@@ -6,6 +6,8 @@ import { Role, type IUserCreateRequest } from "../../../types/IUser.d";
 import useModalComponent from "../../../hooks/Modal/useModalComponent";
 import "./CreateEmployee.css";
 import { handleGetRoleOptions } from "../../../utils/Employee.util";
+import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
+import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
 
 export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => void }) {
 	const [employeeData, setEmployeeData] = React.useState<IUserCreateRequest>({
@@ -56,7 +58,6 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 						<div className="create-employee-row">
 							<Input
 								type="text"
-								inputType="email"
 								value={employeeData.email}
 								required
 								label="Email:"
@@ -64,20 +65,26 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 							/>
 							<Input
 								type="text"
-								inputType="tel"
 								value={employeeData.phoneNumber}
 								required
 								label="Phone Number:"
 								onChange={(value) => handleInputChange("phoneNumber", value as string)}
 							/>
 						</div>
-						<Input
-							options={handleGetRoleOptions()}
-							type="select"
+						<CustomSelect
 							value={employeeData.role}
-							label="Role:"
+							placeholder="Role:"
 							onChange={(value) => handleInputChange("role", value as Role)}
-						/>
+							multiple={true}
+						>
+							{handleGetRoleOptions().map((option) => (
+								<SelectOption
+									key={option.value}
+									value={option.value}
+									label={option.label}
+								/>
+							))}
+						</CustomSelect>
 						<Button label="Tạo nhân viên" variant="primary" type="submit" size="md" onClick={handleSubmit} />
 					</form>
 			</ModalComponent>
