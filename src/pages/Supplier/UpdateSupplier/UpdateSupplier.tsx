@@ -1,23 +1,14 @@
 import React from "react";
-import Button from "../../../components/Button/Button";
 import useModalComponent from "../../../hooks/Modal/useModalComponent";
-import type { ISupplierCreateRequest } from "../../../types/ISupplier";
 import InputSupplier from "../InputSupplier/InputSupplier";
-import "./CreateSupplier.css";
+import Button from "../../../components/Button/Button";
+import type { ISupplierResponse, ISupplierUpdateRequest } from "../../../types/ISupplier";
 import { axiosConfiguration } from "../../../configurations/AxiosConfiguration";
 
-export default function CreateSupplier() {
+export default function UpdateSupplier({ supplier, refreshData }: { supplier: ISupplierResponse; refreshData: () => void }) {
 	const [openModal, closeModal, ModalComponent] = useModalComponent();
-	const [supplierData, setSupplierData] = React.useState<ISupplierCreateRequest>({
-		name: "",
-		address: "",
-		phone: "",
-		email: "",
-		taxCode: "",
-		website: "",
-		note: "",
-	});
-	function handleInputChange(field: keyof ISupplierCreateRequest, value: string) {
+	const [supplierData, setSupplierData] = React.useState<ISupplierUpdateRequest>({ ...supplier });
+	function handleInputChange(field: keyof ISupplierUpdateRequest, value: string) {
 		setSupplierData({
 			...supplierData,
 			[field]: value,
@@ -25,16 +16,17 @@ export default function CreateSupplier() {
 	}
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		await axiosConfiguration.post("/suppliers", supplierData, {
+		await axiosConfiguration.put(`/suppliers/${supplier.id}`, supplierData, {
 			headers: {
 				Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
 			},
 		});
 		closeModal();
+        refreshData();
 	}
 	return (
 		<>
-			<Button label="Thêm nhà cung cấp" variant="secondary" type="button" size="md" onClick={openModal} />
+			<Button label="Cập nhật" variant="warning" type="button" size="sm" onClick={openModal} />
 			<ModalComponent>
 				<form className="create-supplier-form">
 					<div className="create-supplier-row">
@@ -67,6 +59,17 @@ export default function CreateSupplier() {
 					</div>
 					<div className="create-supplier-row">
 						<InputSupplier
+							value={supplierData.supplierCode}
+							required={true}
+							label="Mã nhà cung cấp:"
+							placeholder="Mã nhà cung cấp"
+							type="text"
+                            readonly={true}
+							onChange={(value) => handleInputChange("supplierCode", value as string)}
+						/>
+					</div>
+					<div className="create-supplier-row">
+						<InputSupplier
 							value={supplierData.address}
 							required={true}
 							label="Địa chỉ:"
@@ -93,6 +96,16 @@ export default function CreateSupplier() {
 							onChange={(value) => handleInputChange("taxCode", value as string)}
 						/>
 					</div>
+                    <div className="create-supplier-row">
+                        <InputSupplier
+                            label="Mã nhà cung cấp"
+                            type="text"
+                            value={supplierData.supplierCode}
+                            placeholder="Mã nhà cung cấp"
+                            readonly={true}
+                            onChange={(value) => handleInputChange("supplierCode", value as string)}
+                        />
+                    </div>
 					<div className="create-supplier-row">
 						<InputSupplier
 							label="Ghi chú"
@@ -102,7 +115,7 @@ export default function CreateSupplier() {
 							onChange={(value) => handleInputChange("note", value as string)}
 						/>
 					</div>
-					<Button label="Tạo nhà cung cấp" variant="primary" type="submit" size="md" onClick={handleSubmit} />
+					<Button label="Cập nhật nhà cung cấp" variant="primary" type="submit" size="md" onClick={handleSubmit} />
 				</form>
 			</ModalComponent>
 		</>

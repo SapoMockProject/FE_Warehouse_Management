@@ -10,6 +10,7 @@ import { getSupplierStatusText, getSupplierStatusVariant } from "../../utils/Sup
 import TagComponent from "./Tag/TagComponent";
 import CreateSupplier from "./CreateSupplier/CreateSupplier";
 import PopConfirm from "../../components/PopConfirm/PopConfirm";
+import UpdateSupplier from "./UpdateSupplier/UpdateSupplier";
 
 export default function SupplierList() {
 	const [supplies, setSuppliers] = React.useState<ISupplierResponse[]>([]);
@@ -36,7 +37,7 @@ export default function SupplierList() {
 		};
 		fetchSuppliers();
 	}, [reload, page, limit, sortOrder]);
-
+	const refreshData = () => setReload(!reload);
 	const handleDeleteSupplier = async (supplierId: number) => {
 		try {
 			await axiosConfiguration.delete(`/suppliers/${supplierId}`, {
@@ -44,13 +45,24 @@ export default function SupplierList() {
 					Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
 				},
 			});
-			setReload(!reload);
+			refreshData();
 			console.log("Supplier deleted successfully");
 		} catch (error) {
 			console.error("Error deleting supplier:", error);
 		}
 	};
-
+	const handleChangeStatus = async (supplierId: number) => {
+		try {
+			await axiosConfiguration.patch(`/suppliers/deleted/${supplierId}`, null, {
+				headers: {
+					Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+				},
+			});
+			refreshData();
+		} catch (error) {
+			console.error("Error changing supplier status:", error);
+		}
+	};
 	return (
 		<>
 			<div className="supplier-list-container">
@@ -81,11 +93,13 @@ export default function SupplierList() {
 									<td>{supplier.phone}</td>
 									<td>
 										<TagComponent
+											onClick={() => handleChangeStatus(supplier.id)}
 											message={getSupplierStatusText(supplier.deleted)}
 											variant={getSupplierStatusVariant(supplier.deleted)}
 										/>
 									</td>
 									<td className="supplier-list-table-action">
+										<UpdateSupplier supplier={supplier} refreshData={refreshData} />
 										<PopConfirm onClickConfirm={() => handleDeleteSupplier(supplier.id)}>
 											<Button label="Xóa" variant="danger" type="button" size="sm" />
 										</PopConfirm>

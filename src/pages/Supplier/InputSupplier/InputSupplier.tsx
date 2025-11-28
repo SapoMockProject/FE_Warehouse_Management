@@ -8,6 +8,7 @@ export default function InputSupplier({
 	label,
 	placeholder,
 	type,
+	readonly
 }: (TextInputProps | TextAreaProps)) {
 	return (
 		<>
@@ -16,7 +17,7 @@ export default function InputSupplier({
 					{label}
 					{required && <span className="input-required">*</span>}
 				</label>
-				<Input type={type || "text"} value={value} required={required} placeholder={placeholder} onChange={onChange} />
+				<Input readonly={readonly} type={type || "text"} value={value} required={required} placeholder={placeholder} onChange={onChange} />
 			</div>
 		</>
 	);
