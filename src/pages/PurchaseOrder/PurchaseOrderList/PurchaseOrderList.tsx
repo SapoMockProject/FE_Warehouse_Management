@@ -42,7 +42,7 @@ export default function PurchaseOrderRequest() {
 		<div className="opr-container">
 			<div className="opr-top-content" style={{ display: "flex", flex: "space-between" }}>
 				<h2 className="opr-title">Danh sách đơn đặt hàng nhập</h2>
-				<a className="opr-add-orther_order" href="/order-product/create">
+				<a className="opr-add-orther_order" href="/purchase-order/create">
 					+ Tạo đơn đặt hàng
 				</a>
 			</div>
