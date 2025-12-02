@@ -11,7 +11,7 @@ const Input: React.FC<InputProps> = (props) => {
 		const val = e.target.value;
 
 		if (val === "") {
-			onChange(0);
+			onChange?.(0);
 			return;
 		}
 
@@ -21,7 +21,7 @@ const Input: React.FC<InputProps> = (props) => {
 			return;
 		}
 
-		onChange(val);
+		onChange?.(val);
 	};
 
 	const getInputClassName = () => {
@@ -39,7 +39,7 @@ const Input: React.FC<InputProps> = (props) => {
 					<input
 						type="text"
 						value={value}
-						onChange={(e) => onChange(e.target.value)}
+						onChange={(e) => onChange?.(e.target.value)}
 						placeholder={placeholder}
 						disabled={disabled}
 						required={required}
@@ -53,7 +53,7 @@ const Input: React.FC<InputProps> = (props) => {
 				return (
 					<textarea
 						value={value}
-						onChange={(e) => onChange(e.target.value)}
+						onChange={(e) => onChange?.(e.target.value)}
 						placeholder={placeholder}
 						disabled={disabled}
 						required={required}
@@ -82,7 +82,7 @@ const Input: React.FC<InputProps> = (props) => {
 						<input
 							type="text"
 							value={value}
-							onChange={(e) => onChange(e.target.value)}
+							onChange={(e) => onChange?.(e.target.value)}
 							onClick={props.onClick}
 							placeholder={placeholder}
 							disabled={disabled}
