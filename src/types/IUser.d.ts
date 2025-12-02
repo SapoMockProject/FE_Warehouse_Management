@@ -5,6 +5,7 @@ export interface IUserResponse {
 	username: string;
 	email: string;
 	role: Role;
+	avatar: string;
 }
 
 export interface IUserCreateRequest {

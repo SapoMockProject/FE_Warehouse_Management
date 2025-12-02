@@ -1,4 +1,3 @@
 import React from "react";
-import type { IAuthenticationContext } from "../types/IAuthenticationContext";
-
-export const AuthenticationContext = React.createContext<IAuthenticationContext | null>(null);
+import type { IUserResponse } from "../types/IUser";
+export const AuthenticationContext = React.createContext<IUserResponse | null>(null);
