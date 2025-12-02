@@ -9,6 +9,8 @@ import { getNameOfRole } from "../../utils/Employee.util";
 import CreateEmployee from "./CreateEmployee/CreateEmployee";
 import UpdateEmployee from "./UpdateEmployee/UpdateEmployee";
 import Pagination from "../../components/Pagination/Pagination";
+import Input from "../../components/Input/Input";
+import { useDebounce } from "../../hooks/useDebounce";
 
 export default function EmployeeList() {
 	const [employees, setEmployees] = React.useState<IUserResponse[]>([]);
@@ -17,6 +19,8 @@ export default function EmployeeList() {
 	const [totalPages, setTotalPages] = React.useState<number>(0);
 	const [limit, setLimit] = React.useState<number>(10);
 	const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
+	const [inputValue, setInputValue] = React.useState<string>("");
+	const query = useDebounce(inputValue, 1000);
 	React.useEffect(() => {
 		const fetchEmployees = async () => {
 			const response = await axiosConfiguration.get<BaseResponse<PagedModel<IUserResponse>>>("/users", {
@@ -25,8 +29,9 @@ export default function EmployeeList() {
 				},
 				params: {
 					page,
-					limit
-				}
+					limit,
+					query
+				},
 			});
 			const data = response.data;
 			setEmployees(data.data.content);
@@ -34,7 +39,7 @@ export default function EmployeeList() {
 			setTotalPages(data.data.page.totalPages);
 		};
 		fetchEmployees();
-	}, [reload, page, limit, sortOrder]);
+	}, [reload, page, limit, sortOrder, query]);
 	const deleteUser = async (id: number) => {
 		await axiosConfiguration.delete(`/users/${id}`, {
 			headers: {
@@ -52,6 +57,14 @@ export default function EmployeeList() {
 					<div>
 						<CreateEmployee realoadFunc={() => setReload((prev) => !prev)} />
 					</div>
+				</div>
+				<div className="supplier_query">
+					<Input
+						placeholder="Tìm kiếm...."
+						type="search"
+						value={inputValue}
+						onChange={(value) => setInputValue(value as string)}
+					/>
 				</div>
 				<div>
 					<table className="employee-list-table">
