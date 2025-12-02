@@ -8,7 +8,7 @@ export const mockOrders = [
     status: "cancelled",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -18,7 +18,7 @@ export const mockOrders = [
     status: "cancelled",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -28,7 +28,7 @@ export const mockOrders = [
     status: "completed",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -38,7 +38,7 @@ export const mockOrders = [
     status: "completed",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -48,7 +48,7 @@ export const mockOrders = [
     status: "draft",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -58,7 +58,7 @@ export const mockOrders = [
     status: "pending",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -68,7 +68,7 @@ export const mockOrders = [
     status: "draft",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -78,7 +78,7 @@ export const mockOrders = [
     status: "completed",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -88,7 +88,7 @@ export const mockOrders = [
     status: "draft",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -98,7 +98,7 @@ export const mockOrders = [
     status: "pending",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -108,7 +108,7 @@ export const mockOrders = [
     status: "draft",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -118,7 +118,7 @@ export const mockOrders = [
     status: "draft",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -128,7 +128,7 @@ export const mockOrders = [
     status: "draft",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -138,7 +138,7 @@ export const mockOrders = [
     status: "pending",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -148,7 +148,7 @@ export const mockOrders = [
     status: "cancelled",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -158,7 +158,7 @@ export const mockOrders = [
     status: "pending",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -168,7 +168,7 @@ export const mockOrders = [
     status: "cancelled",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -178,7 +178,7 @@ export const mockOrders = [
     status: "draft",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -188,7 +188,7 @@ export const mockOrders = [
     status: "pending",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -198,7 +198,7 @@ export const mockOrders = [
     status: "cancelled",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -208,7 +208,7 @@ export const mockOrders = [
     status: "pending",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -218,7 +218,7 @@ export const mockOrders = [
     status: "cancelled",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -228,7 +228,7 @@ export const mockOrders = [
     status: "draft",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -238,7 +238,7 @@ export const mockOrders = [
     status: "completed",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -248,7 +248,7 @@ export const mockOrders = [
     status: "completed",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -258,7 +258,7 @@ export const mockOrders = [
     status: "cancelled",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
   {
@@ -268,10 +268,15 @@ export const mockOrders = [
     status: "completed",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantity: 1,
+    quantityInStock: 1,
     value: 800000,
   },
 ];
+
+// Hàm sinh barcode 8 chữ số
+const generateBarcode = () => {
+  return Math.floor(10000000 + Math.random() * 90000000).toString();
+};
 
 export const mockProducts: Product[] = [
   {
@@ -279,94 +284,131 @@ export const mockProducts: Product[] = [
     name: "Áo thể thao Adidas X",
     sku: "ADIDAS-X-001",
     price: 500000,
-    availableStock: 0,
+    quantityInStock: 0,
+    code: generateBarcode(),
+    color: "không có",
+    size: "free"
   },
   {
     id: "2",
     name: "Giày Adidas 36 / đỏ",
     sku: "ADIDAS-36-RED",
     price: 800000,
-    availableStock: 268,
+    quantityInStock: 268,
     unit: "chiếc",
+    code: generateBarcode(),
+    color: "đỏ",
+    size: "36"
   },
   {
     id: "3",
     name: "Giày Adidas 36 / xanh",
     sku: "ADIDAS-36-BLUE",
     price: 850000,
-    availableStock: 150,
+    quantityInStock: 150,
     unit: "chiếc",
+    code: generateBarcode(),
+    color: "xanh",
+    size: "36"
   },
   {
     id: "4",
     name: "Áo thể thao Adidas X",
     sku: "ADIDAS-X-001",
     price: 500000,
-    availableStock: 268,
+    quantityInStock: 268,
     unit: "chiếc",
+    code: generateBarcode(),
+    color: "không có",
+    size: "free"
   },
   {
     id: "5",
     name: "Giày Adidas 36 / đỏ",
     sku: "ADIDAS-36-RED",
     price: 800000,
-    availableStock: 150,
+    quantityInStock: 150,
     unit: "chiếc",
+    code: generateBarcode(),
+    color: "đỏ",
+    size: "36"
   },
   {
     id: "6",
     name: "Giày Adidas 36 / xanh",
     sku: "ADIDAS-36-BLUE",
     price: 850000,
-    availableStock: 50,
+    quantityInStock: 50,
     unit: "chiếc",
+    code: generateBarcode(),
+    color: "xanh",
+    size: "36"
   },
   {
     id: "7",
     name: "Áo thể thao Adidas X",
     sku: "ADIDAS-X-001",
     price: 500000,
-    availableStock: 50,
+    quantityInStock: 50,
     unit: "chiếc",
+    code: generateBarcode(),
+    color: "không có",
+    size: "free"
   },
   {
     id: "8",
     name: "Giày Adidas 36 / đỏ",
     sku: "ADIDAS-36-RED",
     price: 800000,
-    availableStock: 50,
+    quantityInStock: 50,
     unit: "chiếc",
+    code: generateBarcode(),
+    color: "đỏ",
+    size: "36"
   },
   {
     id: "9",
     name: "Giày Adidas 36 / xanh",
     sku: "ADIDAS-36-BLUE",
     price: 850000,
-    availableStock: 50,
+    quantityInStock: 50,
     unit: "chiếc",
+    code: generateBarcode(),
+    color: "xanh",
+    size: "36"
   },
   {
     id: "10",
     name: "Áo thể thao Adidas X",
     sku: "ADIDAS-X-001",
     price: 500000,
-    availableStock: 50,
+    quantityInStock: 50,
     unit: "chiếc",
+    code: generateBarcode(),
+    color: "không có",
+    size: "free"
   },
   {
     id: "11",
     name: "Giày Adidas 36 / đỏ",
     sku: "ADIDAS-36-RED",
     price: 800000,
-    availableStock: 50,
+    quantityInStock: 50,
     unit: "chiếc",
+    code: generateBarcode(),
+    color: "đỏ",
+    size: "36"
   },
   {
     id: "12",
     name: "Giày Adidas 36 / xanh",
     sku: "ADIDAS-36-BLUE",
     price: 850000,
-    availableStock: 50,
+    quantityInStock: 50,
     unit: "chiếc",
-  },
+    code: generateBarcode(),
+    color: "xanh",
+    size: "36"
+  }
 ];
+

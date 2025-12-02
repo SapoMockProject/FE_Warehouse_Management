@@ -1,0 +1,76 @@
+.pis-container {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 10px;
+  border-bottom: 1px solid #e6e6e6;
+  cursor: pointer;
+}
+
+.pis-container:hover {
+  background-color: #f7f9fc;
+}
+
+.pis-left {
+  display: flex;
+  gap: 12px;
+}
+
+.pis-img-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  background: #f0f0f0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pis-img-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.pis-placeholder {
+  color: #888;
+}
+
+.pis-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.pis-name {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.pis-variant {
+  color: #555;
+  margin-bottom: 3px;
+}
+
+.pis-meta {
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  gap: 6px;
+}
+
+.pis-right {
+  text-align: right;
+}
+
+.pis-price {
+  font-weight: 600;
+}
+
+.pis-available {
+  color: #666;
+}
+
+.pis-available-num {
+  color: #007bff;
+  cursor: pointer;
+}

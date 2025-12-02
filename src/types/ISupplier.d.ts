@@ -9,6 +9,7 @@ export interface ISupplierResponse {
 	website: string;
 	note: string;
 	deleted: boolean;
+	onClick?: (id: string) => void;
 }
 
 export interface ISupplierCreateRequest {
