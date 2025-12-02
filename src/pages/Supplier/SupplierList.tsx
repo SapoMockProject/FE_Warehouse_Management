@@ -11,6 +11,8 @@ import TagComponent from "./Tag/TagComponent";
 import CreateSupplier from "./CreateSupplier/CreateSupplier";
 import PopConfirm from "../../components/PopConfirm/PopConfirm";
 import UpdateSupplier from "./UpdateSupplier/UpdateSupplier";
+import Input from "../../components/Input/Input";
+import { useDebounce } from "../../hooks/useDebounce";
 
 export default function SupplierList() {
 	const [supplies, setSuppliers] = React.useState<ISupplierResponse[]>([]);
@@ -19,6 +21,8 @@ export default function SupplierList() {
 	const [totalPages, setTotalPages] = React.useState<number>(0);
 	const [limit, setLimit] = React.useState<number>(10);
 	const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
+	const [inputValue, setInputValue] = React.useState<string>("");
+	const query = useDebounce(inputValue, 1000);
 	React.useEffect(() => {
 		const fetchSuppliers = async () => {
 			const response = await axiosConfiguration.get<BaseResponse<PagedModel<ISupplierResponse>>>("/suppliers", {
@@ -28,6 +32,7 @@ export default function SupplierList() {
 				params: {
 					page,
 					limit,
+					query
 				},
 			});
 			const data = response.data;
@@ -36,7 +41,7 @@ export default function SupplierList() {
 			setTotalPages(data.data.page.totalPages);
 		};
 		fetchSuppliers();
-	}, [reload, page, limit, sortOrder]);
+	}, [reload, page, limit, sortOrder, query]);
 	const refreshData = () => setReload(!reload);
 	const handleDeleteSupplier = async (supplierId: number) => {
 		try {
@@ -71,6 +76,14 @@ export default function SupplierList() {
 					<div>
 						<CreateSupplier />
 					</div>
+				</div>
+				<div className="supplier_query">
+					<Input
+						placeholder="Tìm kiếm...."
+						type="search"
+						value={inputValue}
+						onChange={(value) => setInputValue(value as string)}
+					/>
 				</div>
 				<div>
 					<table className="supplier-list-table">
