@@ -8,7 +8,7 @@ export const mockOrders = [
     status: "cancelled",
     supplier: "Uniqlo",
     createdBy: "Đàm Khắc Thái",
-    quantityInStock: 1,
+    quantity: 1,
     value: 800000,
   },
   {

@@ -12,7 +12,7 @@ import type { PurchaseOrderRequest } from "../../../types/IPurchaseOrder";
 import { mockOrders, mockProducts } from "../mock-data";
 import "./PurchaseOrderList.css";
 
-const mockData: PurchaseOrderRequest[] = mockOrders as PurchaseOrderRequest[];
+const mockData = mockOrders as PurchaseOrderRequest[];
 
 export default function PurchaseOrderRequest() {
 	const [orders] = useState<PurchaseOrderRequest[]>(mockData);
