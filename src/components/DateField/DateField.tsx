@@ -41,7 +41,7 @@ const DateField: React.FC<DateProps> = (props) => {
                         <input
                             type="date"
                             value={value}
-                            onChange={(e) => onChange(e.target.value)}
+                            onChange={(e) => onChange?.(e.target.value)}
                             disabled={disabled}
                             required={required}
                             className={getInputClassName()}
@@ -55,7 +55,7 @@ const DateField: React.FC<DateProps> = (props) => {
                         <input
                             type="datetime-local"
                             value={value}
-                            onChange={(e) => onChange(e.target.value)}
+                            onChange={(e) => onChange?.(e.target.value)}
                             disabled={disabled}
                             required={required}
                             className={getInputClassName()}

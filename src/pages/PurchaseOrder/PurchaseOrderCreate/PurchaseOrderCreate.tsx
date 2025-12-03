@@ -40,7 +40,7 @@ const PurchaseOrderCreate: React.FC = () => {
     const [isOpenSearchSupplier, setIsOpenSearchSupplier] = useState<boolean>(false);
     const [pageSearchSupplier, setPageSearchSupplier] = useState<number>(0);
     const [suppliers, setSuppliers] = useState<ISupplierResponse[]>([]);
-    const [selectSupplier, setSelectSupplier] = useState<ISupplierResponse>();
+    const [supplier, setSelectSupplier] = useState<ISupplierResponse>();
     // const [isOpenSupplier, setIsOpenSupplier] = useState(false);
     const [hasMoreSupplier, setHasMoreSupplier] = useState(true);
     const [loadingSupplier, setLoadingSupplier] = useState(false);
