@@ -1,17 +1,20 @@
 import React, { useState, useRef, useEffect } from "react";
 import "./HeaderComponent.css";
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
+import { useNavigate } from "react-router-dom";
 
 export const HeaderComponent = () => {
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 	const dropdownRef = useRef<HTMLDivElement>(null);
+	const navigate = useNavigate();
 
 	const toggleDropdown = () => {
 		setIsDropdownOpen(!isDropdownOpen);
 	};
 
 	const handleLogout = () => {
-		console.log("Logged out");
+		localStorage.removeItem("token");
+		navigate("/login");
 	};
 
 	useEffect(() => {
