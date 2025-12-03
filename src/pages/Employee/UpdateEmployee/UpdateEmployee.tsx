@@ -1,11 +1,13 @@
 import React from "react";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
+import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { axiosConfiguration } from "../../../configurations/AxiosConfiguration";
 import useModalComponent from "../../../hooks/Modal/useModalComponent";
-import { Role, type IUserCreateRequest, type IUserResponse } from "../../../types/IUser.d";
+import { type IUserCreateRequest, type IUserResponse } from "../../../types/IUser.d";
 import "./UpdateEmployee.css";
 import { handleGetRoleOptions } from "../../../utils/Employee.util";
+import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
 
 export default function UpdateEmployee({ realoadFunc, employee }: { realoadFunc: () => void; employee: IUserResponse }) {
 	const [employeeData, setEmployeeData] = React.useState<IUserCreateRequest>({
@@ -57,7 +59,6 @@ export default function UpdateEmployee({ realoadFunc, employee }: { realoadFunc:
 					<div className="update-employee-row">
 						<Input
 							type="text"
-							inputType="email"
 							value={employeeData.email}
 							required
 							label="Email:"
@@ -65,20 +66,20 @@ export default function UpdateEmployee({ realoadFunc, employee }: { realoadFunc:
 						/>
 						<Input
 							type="text"
-							inputType="tel"
 							value={employeeData.phoneNumber}
 							required
 							label="Phone Number:"
 							onChange={(value) => handleInputChange("phoneNumber", value as string)}
 						/>
 					</div>
-					<Input
-						options={handleGetRoleOptions()}
-						type="select"
-						value={employeeData.role}
-						label="Role:"
-						onChange={(value) => handleInputChange("role", value as Role)}
-					/>
+					<div style={{ display: "flex", justifyContent: "center" }}>
+						<label className="input-label">Role:</label>
+						<CustomSelect value={employeeData.role} onChange={(role) => handleInputChange("role", role as string)}>
+							{handleGetRoleOptions().map((role) => (
+								<SelectOption key={role.value} value={role.value} label={role.label} />
+							))}
+						</CustomSelect>
+					</div>
 					<Button label="Chỉnh sửa thông tin nhân viên" variant="primary" type="submit" size="md" onClick={handleSubmit} />
 				</form>
 			</ModalComponent>

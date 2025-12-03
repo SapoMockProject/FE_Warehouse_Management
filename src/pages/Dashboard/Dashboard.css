@@ -1,3 +1,17 @@
-.dasboard{
+.statistic_container{
     color: black;
+	display: flex;
+	flex-direction: column;
+	height: calc(100vh - 52px);
+	background-color: #fff;
+}
+.statistic_info_wrapper {
+	display: flex;
+	justify-content: space-around;
+	padding: 20px;
+}
+
+.statistic_chart {
+	flex: 1;
+	text-align: center;
 }
