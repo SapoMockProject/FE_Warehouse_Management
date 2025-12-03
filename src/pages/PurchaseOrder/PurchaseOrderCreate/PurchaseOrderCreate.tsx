@@ -40,8 +40,7 @@ const PurchaseOrderCreate: React.FC = () => {
     const [isOpenSearchSupplier, setIsOpenSearchSupplier] = useState<boolean>(false);
     const [pageSearchSupplier, setPageSearchSupplier] = useState<number>(0);
     const [suppliers, setSuppliers] = useState<ISupplierResponse[]>([]);
-    const [supplier, setSelectSupplier] = useState<ISupplierResponse>();
-    // const [isOpenSupplier, setIsOpenSupplier] = useState(false);
+    // const [supplier, setSelectSupplier] = useState<ISupplierResponse>();
     const [hasMoreSupplier, setHasMoreSupplier] = useState(true);
     const [loadingSupplier, setLoadingSupplier] = useState(false);
     const observerSupplierRef = useRef<HTMLDivElement | null>(null);
@@ -352,7 +351,8 @@ const PurchaseOrderCreate: React.FC = () => {
     };
 
     const handleSelectSupplier = (supplier: ISupplierResponse) => {
-        setSelectSupplier(supplier);
+        //setSelectSupplier(supplier);
+        console.log("Selected supplier: ", supplier);
         setIsOpenSearchSupplier(false);
     }
 
@@ -580,7 +580,7 @@ const PurchaseOrderCreate: React.FC = () => {
                                                 </td>
 
                                                 <td className="purchase-order-total align_right">
-                                                    {((item.quantityPurchase) * item.price).toLocaleString("vi-VN")}đ
+                                                    {((item?.quantityPurchase || 0) * (item?.price || 0)).toLocaleString("vi-VN")}đ
                                                 </td>
 
                                                 <td>

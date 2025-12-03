@@ -21,7 +21,7 @@ export const ProductSelect: React.FC<ProductSelectProps> = ({
       return renderProductLabel(product);
     }
     
-    const identifier = product.sku || product.code || product.id;
+    const identifier = product.sku || product.id;
     return `${product.name} / ${identifier}`;
   };
 
@@ -37,7 +37,7 @@ export const ProductSelect: React.FC<ProductSelectProps> = ({
       {products.map(product => (
         <SelectOption 
           key={product.id}
-          value={product.id} 
+          value={String(product.id)} 
           label={getProductLabel(product)}
         />
       ))}
