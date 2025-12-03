@@ -6,7 +6,7 @@ export interface CustomSelectProps {
   className?: string;
   multiple?: boolean;
   searchable?: boolean;
-  children: React.ReactNode;
+  children: React.ReactElement<SelectOptionProps> | React.ReactElement<SelectOptionProps>[];
   showSelectedInTrigger?: boolean;
   renderTrigger?: (selectedLabel: string, isOpen: boolean) => React.ReactNode;
 }
