@@ -27,26 +27,26 @@ const ProductList = () => {
   const [selectAll, setSelectAll] = useState(false);
 
   interface Attribute {
-  name: string;
-  values: string[];
-}
+    name: string;
+    values: string[];
+  }
 
-interface Product {
-  id: number;
-  name: string;
-  sku: string;
-  price: number | string;
-  stock: number | string;
-  description: string;
-  attributes: Attribute[];
-  categories: string;
-  images: File[];
-}
+  interface Product {
+    id: number;
+    name: string;
+    sku: string;
+    price: number | string;
+    stock: number | string;
+    description: string;
+    attributes: Attribute[];
+    categories: string;
+    images: File[];
+  }
 
-interface Category {
-  id: number;
-  name: string;
-}
+  interface Category {
+    id: number;
+    name: string;
+  }
 
   const fetchData = async () => {
     try {
@@ -122,15 +122,15 @@ interface Category {
         </div>
 
         <CustomSelect onChange={() => {}} value={""}>
-          <SelectOption value=""  label="Kênh bán hàng"/>
+          <SelectOption value="" label="Kênh bán hàng" />
         </CustomSelect>
 
         <CustomSelect onChange={() => {}} value={""}>
-          <SelectOption value=""  label="Kênh bán hàng"/>
+          <SelectOption value="" label="Kênh bán hàng" />
         </CustomSelect>
 
         <CustomSelect onChange={() => {}} value={""}>
-          <SelectOption value=""  label="Kênh bán hàng"/>
+          <SelectOption value="" label="Kênh bán hàng" />
         </CustomSelect>
 
         <Button label="Bộ lọc khác" variant="secondary" size="md" />
@@ -147,19 +147,21 @@ interface Category {
           {selectedIds.length > 0 ? (
             <tr>
               <th>
-                <input type="checkbox" checked={selectAll} onChange={toggleSelectAll} />
+                <input
+                  type="checkbox"
+                  checked={selectAll}
+                  onChange={toggleSelectAll}
+                />
               </th>
               <th colSpan={4}>
                 <div className="product-list-select-checkbox">
                   Đã chọn {selectedIds.length} sản phẩm
-
                   <Button
                     label="Sửa sản phẩm"
                     variant="tertiary"
                     size="sm"
                     className="product-list-update-link"
                   />
-
                   <Button
                     label="Xóa sản phẩm"
                     variant="danger"
@@ -172,7 +174,11 @@ interface Category {
           ) : (
             <tr>
               <th>
-                <input type="checkbox" checked={selectAll} onChange={toggleSelectAll} />
+                <input
+                  type="checkbox"
+                  checked={selectAll}
+                  onChange={toggleSelectAll}
+                />
               </th>
               <th>Sản phẩm</th>
               <th>Có thể bán</th>
@@ -214,7 +220,7 @@ interface Category {
                   {p.quantityInStock}
                   <br />
                   <span className="product-list-vesion-product-variant">
-                    ({p.} Phiên bản)
+                    ({p?.attributes?.length} Phiên bản)
                   </span>
                 </td>
 

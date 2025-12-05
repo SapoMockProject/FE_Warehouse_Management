@@ -173,3 +173,46 @@
 .add-product-small {
   font-size: 13px;
 }
+
+.add-product-tag-input-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border: 1px solid #e6e9ee;
+  border-radius: 6px;
+  padding: 6px;
+  /* min-height: 42px; */
+  align-items: center;
+}
+
+.add-product-tag-input {
+  flex: 1;
+  min-width: 60px;
+  outline: none;
+}
+
+.add-product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.add-product-tag {
+  background: #eef2ff;
+  color: #1e40af;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tag button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #1e40af;
+  font-weight: 700;
+  padding: 0;
+}
