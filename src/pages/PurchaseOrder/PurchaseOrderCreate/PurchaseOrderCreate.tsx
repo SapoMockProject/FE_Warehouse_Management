@@ -361,17 +361,10 @@ const PurchaseOrderCreate: React.FC = () => {
             ...prev,
             items: prev.items.map(item => {
                 if (item.productVariantId === productId) {
-                    const newSubtotal = calculateItemSubtotal(
-                        item.price,
-                        qty,
-                        item.discountType,
-                        item.discountValueItem
-                    );
-
                     return {
                         ...item,
                         quantity: qty,
-                        subtotalPriceItem: newSubtotal
+                        subtotalPriceItem: item.price * qty
                     };
                 }
                 return item;
@@ -379,23 +372,6 @@ const PurchaseOrderCreate: React.FC = () => {
         }));
         console.log("Purchase order: ", purchaseOrderRequest);
 
-    };
-
-    const calculateItemSubtotal = (
-        price: number,
-        quantity: number,
-        discountType: "FIXED" | "PERCENT" | null,
-        discountValue?: number | null
-    ): number => {
-        const baseTotal = price * quantity;
-
-        if (!discountType || !discountValue) return baseTotal;
-
-        if (discountType === "FIXED") {
-            return Math.max(0, baseTotal - discountValue);
-        } else {
-            return baseTotal * (1 - discountValue / 100);
-        }
     };
 
     const removeProduct = (productId: number) => {
@@ -421,7 +397,7 @@ const PurchaseOrderCreate: React.FC = () => {
         if (!selectedProductFixPrice) return;
 
         const productId = selectedProductFixPrice.id;
-        // console.log("edit price: ", productId, data);
+        console.log("edit price: ", productId, data);
 
         setOrderItems((prev) =>
             prev.map((p) =>
@@ -445,20 +421,13 @@ const PurchaseOrderCreate: React.FC = () => {
                 if (item.productVariantId === productId) {
                     const orderItem = orderItems.find(oi => oi.id === productId);
                     const quantity = orderItem?.quantityPurchase || item.quantity;
-
-                    const newSubtotal = calculateItemSubtotal(
-                        data.priceAfterDiscount,
-                        quantity,
-                        data.discountType,
-                        data.discountValue
-                    );
-
+                    const  discountValue = data.discountValue != null ? data.discountValue : 0;
                     return {
                         ...item,
-                        price: data.priceAfterDiscount,
+                        price: data.price,
                         discountType: data.discountType,
                         discountValueItem: data.discountValue,
-                        subtotalPriceItem: newSubtotal
+                        subtotalPriceItem: (data.price - discountValue) * quantity
                     };
                 }
                 return item;
@@ -577,9 +546,10 @@ const PurchaseOrderCreate: React.FC = () => {
         };
 
         console.log("Body request: ", bodyRequest);
+        console.log("orderitem : ", orderItems);
 
         try {
-            const response = await createPurchaseOrder(bodyRequest);
+            // const response = await createPurchaseOrder(bodyRequest);
             console.log("Kết quả backend:", response);
         } catch (err) {
             console.error("Lỗi tạo đơn đặt hàng:", err);
@@ -805,7 +775,7 @@ const PurchaseOrderCreate: React.FC = () => {
                                                 </td>
 
                                                 <td className="purchase-order-total align_right">
-                                                    {((item?.quantityPurchase || 0) * (item?.price || 0)).toLocaleString("vi-VN")}đ
+                                                    {((item?.quantityPurchase || 0) * (item?.priceAfterDiscount || 0)).toLocaleString("vi-VN")}đ
                                                 </td>
 
                                                 <td>

@@ -228,8 +228,13 @@
   color: rgb(134, 134, 134);
 }
 
+.btn-edit-price-product-item:disabled,
 .btn-edit-price-product-item:disabled:hover {
   text-decoration-line: line-through;
+
+}
+
+.btn-edit-price-product-item:disabled:hover {
   background: none;
   cursor: text
 }
