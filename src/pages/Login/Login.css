@@ -39,3 +39,22 @@
     border: none;
     cursor: pointer;
 }
+
+.login_subtext_login_social {
+    text-align: center;
+    margin: 20px 0;
+    color: #888;
+    font-size: medium;
+}
+
+.login_social_button_wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.login_google_btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}

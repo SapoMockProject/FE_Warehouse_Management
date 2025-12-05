@@ -3,6 +3,9 @@ import InputComponent from "./Input/InputComponent";
 import "./Login.css";
 import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
 import { useNavigate } from "react-router-dom";
+import Button from "../../components/Button/Button";
+import { loginGoogle } from "../../apis/authApi";
+import type { BaseResponse } from "../../types/BaseResponse";
 
 export default function Login() {
 	const [loginValue, setLoginValue] = React.useState({ username: "", password: "" });
@@ -29,7 +32,31 @@ export default function Login() {
 		const token = response.data.data.token;
 		localStorage.setItem("token", token);
 		navigate("/dashboard");
-	}
+	};
+	const handleRedirect = () => {
+		window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?
+			scope=https://www.googleapis.com/auth/userinfo.profile%20https://www.googleapis.com/auth/userinfo.email&
+			access_type=offline&
+			include_granted_scopes=true&
+			response_type=code&
+			state=state_parameter_passthrough_value&
+			redirect_uri=http://localhost:5173/login&
+			client_id=${import.meta.env.VITE_PUBLIC_CLIENT_ID}&prompt=select_account`;
+	};
+	React.useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const code = urlParams.get("code");
+		const prompt = urlParams.get("prompt");
+		if (code && prompt) {
+			const fetchToken = async () => {
+				const response = await loginGoogle(code);
+				const token = (response as BaseResponse<{token: string}>).data.token;
+				localStorage.setItem("token", token);
+				navigate("/dashboard");
+			}
+			fetchToken();
+		}
+	}, [navigate]);
 	return (
 		<>
 			<div className="container">
@@ -58,7 +85,18 @@ export default function Login() {
 							required
 							onChange={(e) => setLoginValue((prev) => ({ ...prev, password: e.target.value }))}
 						/>
-						<button onClick={login} className="login_button">Đăng nhập</button>
+						<button onClick={login} className="login_button">
+							Đăng nhập
+						</button>
+					</div>
+					<div className="login_subtext_login_social">Hoặc đăng nhập với</div>
+					<div className="login_social_button_wrapper">
+						<Button
+							onClick={handleRedirect}
+							className="login_google_btn"
+							label="Login With Google"
+							icon={<img width={20} height={20} src={'/google-icon-logo-svgrepo-com.svg'} alt="Google Icon" />}
+						/>
 					</div>
 				</div>
 			</div>
