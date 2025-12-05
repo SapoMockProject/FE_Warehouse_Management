@@ -1,12 +1,13 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function ContainerComponent({ children }: { children: React.ReactNode }) {
 	const navigate = useNavigate();
+	const [params] = useSearchParams();
 	React.useEffect(() => {
 		const token = localStorage.getItem("token");
 		if (!token) {
-			navigate("/login");
+			navigate(`/login?${params.toString()}`);
 			return;
 		}
 		const { exp } = JSON.parse(atob(token!.split(".")[1]));
