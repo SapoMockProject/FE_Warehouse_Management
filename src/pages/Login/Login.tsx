@@ -41,7 +41,7 @@ export default function Login() {
 			response_type=code&
 			state=state_parameter_passthrough_value&
 			redirect_uri=http://localhost:5173/login&
-			client_id=${import.meta.env.VITE_PUBLIC_CLIENT_ID}&prompt=select_account`;
+			client_id=${import.meta.env.VITE_PUBLIC_CLIENT_ID}&prompt=consent`;
 	};
 	React.useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);

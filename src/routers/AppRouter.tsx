@@ -13,8 +13,8 @@ export const AppRouter = () => {
 	return (
 		<BrowserRouter>
 			<ContainerComponent>
-				<AuthenticationProvider>
-					<Routes>
+				<Routes>
+					<Route element={<AuthenticationProvider />}>
 						<Route path="/" element={<Navigate to="/dashboard" />} />
 						<Route element={<DefaultLayout />}>
 							<Route path="/dashboard" element={<Dashboard />} />
@@ -23,9 +23,9 @@ export const AppRouter = () => {
 							<Route path="/employees" element={<EmployeeList />} />
 							<Route path="/suppliers" element={<SupplierList />} />
 						</Route>
-						<Route path="/login" element={<Login />} />
-					</Routes>
-				</AuthenticationProvider>
+					</Route>
+					<Route path="/login" element={<Login />} />
+				</Routes>
 			</ContainerComponent>
 		</BrowserRouter>
 	);
