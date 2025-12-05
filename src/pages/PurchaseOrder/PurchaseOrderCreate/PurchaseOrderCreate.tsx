@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import "./PurchaseOrderCreate.css";
 import type {
     ProductResponse,
-    ProductVariantItem
+    ProductVariantItem,
 } from "../../../types/IProduct";
 import Input from "../../../components/Input/Input";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
@@ -11,27 +11,47 @@ import Button from "../../../components/Button/Button";
 import DateField from "../../../components/DateField/DateField";
 import { useNavigate } from "react-router-dom";
 import EditPriceProductItem from "./EditPriceProductItem/EditPriceProductItem";
-import { axiosConfiguration } from "../../../configurations/AxiosConfiguration";
-import type { BaseResponse } from "../../../types/BaseResponse";
-import type { PagedModel } from "../../../types/PagedModel";
 import { ProductItemSearch } from "../../../components/ProductItemSearch/ProductItemSearch";
 import type { ISupplierResponse } from "../../../types/ISupplier";
 import SupplierItem from "../../../components/Supplier/SupplierItem/SupplierItem";
+import SupplierInfoCard from "../../../components/Supplier/SupplierCard/SupplierCard";
+import type { PurchaseOrderItemRequest, PurchaseOrderRequest } from "../../../types/IPurchaseOrder";
+import { getAllProducts } from "../../../apis/productApi";
+import { getAllSupliers } from "../../../apis/supplierApi";
+import type { IUserResponse } from "../../../types/IUser";
+import { getAllEmployees } from "../../../apis/employeeApi";
+import { ValidationMessage } from "../../../components/ValidationMessage/ValidationMessage";
+import { createPurchaseOrder } from "../../../apis/purchaseOrderApi";
 
 const PurchaseOrderCreate: React.FC = () => {
     const navigate = useNavigate();
+
+    const bodyRequest: PurchaseOrderRequest = {
+        supplierId: null,
+        description: "",
+        assignedToAccountId: null,
+        expectedReceiptDate: "",
+        status: "DRAFT",
+        refference: "",
+        purchaseOrderCode: "",
+        totalDiscountValue: 0,
+        totalLineItemsPriceBeforeDiscount: 0,
+        totalLineItemsPriceAfterDiscount: 0,
+        totalLandedCost: 0,
+        totalPrice: 0,
+        items: []
+    }
+
+    const [purchaseOrderRequest, setPurchaseOrderRequest] = useState<PurchaseOrderRequest>(bodyRequest);
     const [orderItems, setOrderItems] = useState<ProductVariantItem[]>([]);
 
-    // Input search Product
     const [inputValue, setInputValue] = useState<string>("");
     const [isOpenSearchProduct, setIsOpenSearchProduct] = useState<boolean>(false);
     const [searchProducts, setSearchProducts] = useState<ProductVariantItem[]>([]);
     const [pageSearchProduct, setPageSearchProduct] = useState<number>(0);
     const [hasMoreProduct, setHasMoreProduct] = useState(true);
     const [loadingProduct, setLoadingProduct] = useState(false);
-
     const dropdownProductRef = useRef<HTMLDivElement>(null);
-    const dropdownSupplierRef = useRef<HTMLDivElement>(null);
     const observerProductRef = useRef<HTMLDivElement | null>(null);
     const sizeSearch = 3;
 
@@ -40,34 +60,18 @@ const PurchaseOrderCreate: React.FC = () => {
     const [isOpenSearchSupplier, setIsOpenSearchSupplier] = useState<boolean>(false);
     const [pageSearchSupplier, setPageSearchSupplier] = useState<number>(0);
     const [suppliers, setSuppliers] = useState<ISupplierResponse[]>([]);
-    // const [supplier, setSelectSupplier] = useState<ISupplierResponse>();
+    const [selectSupplier, setSelectSupplier] = useState<ISupplierResponse>();
     const [hasMoreSupplier, setHasMoreSupplier] = useState(true);
     const [loadingSupplier, setLoadingSupplier] = useState(false);
+    const dropdownSupplierRef = useRef<HTMLDivElement>(null);
     const observerSupplierRef = useRef<HTMLDivElement | null>(null);
 
     const [selectedProductFixPrice, setSelectedProductFixPrice] = useState<ProductVariantItem>();
     const [isOpenEditPriceModal, setIsOpenEditPriceModal] = useState<boolean>(false);
 
-    const [selectedBranch, setSelectedBranch] = useState<string>("");
-    const [responsiblePerson, setResponsiblePerson] = useState<string>("");
-    const [expectedDate, setExpectedDate] = useState<string>("");
-    const [orderCode, setOrderCode] = useState<string>("");
-    const [reference, setReference] = useState<string>("");
-    const [note, setNote] = useState<string>("");
-    const [tags, setTags] = useState<string[]>([]);
-    const [tagInput, setTagInput] = useState<string>("");
+    const [employees, setEmployees] = useState<IUserResponse[]>([]);
 
-    const branchOptions = [
-        { value: "main", label: "Cửa hàng chính" },
-        { value: "branch1", label: "Chi nhánh 1" },
-        { value: "branch2", label: "Chi nhánh 2" },
-    ];
-
-    const employeeOptions = [
-        { value: "emp1", label: "Đàm Khắc Thái" },
-        { value: "emp2", label: "Nhân viên 1" },
-        { value: "emp3", label: "Nhân viên 2" },
-    ];
+    const [error, setError] = useState<Record<string, string>>({});
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -140,25 +144,13 @@ const PurchaseOrderCreate: React.FC = () => {
         setLoadingProduct(true);
 
         try {
-            const res = await axiosConfiguration.get<
-                BaseResponse<PagedModel<ProductResponse>>
-            >("/product", {
-                // headers: {
-                //     Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-                // },
-                params: {
-                    page,
-                    size: sizeSearch,
-                    keyword
-                },
-            });
-            const data = res.data.data;
-            console.log("Product list: ", data);
+            const res = await getAllProducts(page, sizeSearch, keyword);
+            const data = res.data;
 
-            const productVariantList = convertToProductVariants(data.content)
+            const productVariantList = convertToProductVariants(data.content);
             console.log("Convert product variant: ", productVariantList);
 
-            const totalPage = data.page.totalPages
+            const totalPage = data.page.totalPages;
 
             if (!productVariantList || productVariantList.length === 0) {
                 setHasMoreProduct(false);
@@ -181,25 +173,13 @@ const PurchaseOrderCreate: React.FC = () => {
     const fetchSuppliers = async (page: number, query: string) => {
         setLoadingSupplier(true);
         try {
-            const res = await axiosConfiguration.get<BaseResponse<PagedModel<ISupplierResponse>>>(
-                "/suppliers",
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-                    },
-                    params: {
-                        page,
-                        size: sizeSearch,
-                        query
-                    },
-                }
-            );
+            const res = await getAllSupliers(page, sizeSearch, query);
 
-            const data = res.data.data;
+            const data = res.data;
             console.log("Supplier: ", data);
 
             const supplierList = data.content;
-            const totalPage = data.page.totalPages
+            const totalPage = data.page.totalPages;
 
             if (!supplierList || supplierList.length === 0) {
                 setHasMoreSupplier(false);
@@ -208,13 +188,36 @@ const PurchaseOrderCreate: React.FC = () => {
             }
 
             setSuppliers((prev) => [...prev, ...supplierList]);
-            // setSuppliers(supplierList);
 
             if (page + 1 >= totalPage) {
                 setHasMoreSupplier(false);
             }
         } catch (error) {
             console.error("Lỗi khi load nhà cung cấp:", error);
+        } finally {
+            setLoadingSupplier(false);
+        }
+    };
+
+    const fetchEmployees = async (page: number, query: string) => {
+        setLoadingSupplier(true);
+        try {
+            const res = await getAllEmployees(page, 999, query);
+
+            const data = res.data;
+            console.log("Supplier: ", data);
+
+            const employeeList = data.content;
+
+            if (!employeeList || employeeList.length === 0) {
+                setLoadingSupplier(false);
+                return;
+            }
+
+            setEmployees((prev) => [...prev, ...employeeList]);
+
+        } catch (error) {
+            console.error("Lỗi khi load nhân viên:", error);
         } finally {
             setLoadingSupplier(false);
         }
@@ -263,9 +266,9 @@ const PurchaseOrderCreate: React.FC = () => {
     useEffect(() => {
         if (!isOpenSearchSupplier) return;
         const delayDebounce = setTimeout(() => {
-            setSuppliers([])
+            setSuppliers([]);
             setPageSearchSupplier(0);
-            setHasMoreSupplier(true)
+            setHasMoreSupplier(true);
             fetchSuppliers(0, inputSearchSupplier);
         }, 500);
         return () => clearTimeout(delayDebounce);
@@ -298,6 +301,10 @@ const PurchaseOrderCreate: React.FC = () => {
         return () => observer.disconnect();
     }, [hasMoreSupplier, loadingSupplier]);
 
+    useEffect(() => {
+        fetchEmployees(0, "")
+    }, [])
+
     const handleBackBtn = () => {
         navigate("/purchase-order");
     };
@@ -307,38 +314,158 @@ const PurchaseOrderCreate: React.FC = () => {
             setIsOpenSearchProduct((prev) => (prev ? prev : true));
             setSearchProducts([]);
             setPageSearchProduct(0);
-            setHasMoreProduct(true)
+            setHasMoreProduct(true);
         }
     };
 
     const handleProductSelect = (productVariantId: number) => {
         const product = searchProducts.find((p) => p.id === productVariantId);
+
         if (product && !orderItems.find((item) => item.id === productVariantId)) {
-            setOrderItems((prev) => [...prev, { ...product, quantityPurchase: 1 }]);
+            setOrderItems((prev) => [
+                ...prev,
+                { ...product, quantityPurchase: 1 }
+            ]);
+
+            const newItem: PurchaseOrderItemRequest = {
+                productVariantId: product.id,
+                quantity: 1,
+                price: product.price,
+                discountType: null,
+                discountValueItem: null,
+                subtotalPriceItem: product.price
+            };
+
+            setPurchaseOrderRequest(prev => ({
+                ...prev,
+                items: [...prev.items, newItem]
+            }));
+
+            setError({});
             setIsOpenSearchProduct(false);
         }
-        console.log("OrderItem: ", orderItems);
-        
     };
 
     const updateQuantity = (productId: number, quantity: number | string) => {
-        const qty =
-            typeof quantity === "string" ? parseInt(quantity) || 0 : quantity;
+        const qty = typeof quantity === "string" ? parseInt(quantity) || 0 : quantity;
 
         setOrderItems(
             orderItems.map((item) =>
-                item.id === productId ? { ...item, quantityPurchase: qty } : item
+                item.id === productId
+                    ? { ...item, quantityPurchase: qty }
+                    : item
             )
         );
+
+        setPurchaseOrderRequest(prev => ({
+            ...prev,
+            items: prev.items.map(item => {
+                if (item.productVariantId === productId) {
+                    const newSubtotal = calculateItemSubtotal(
+                        item.price,
+                        qty,
+                        item.discountType,
+                        item.discountValueItem
+                    );
+
+                    return {
+                        ...item,
+                        quantity: qty,
+                        subtotalPriceItem: newSubtotal
+                    };
+                }
+                return item;
+            })
+        }));
+        console.log("Purchase order: ", purchaseOrderRequest);
+
+    };
+
+    const calculateItemSubtotal = (
+        price: number,
+        quantity: number,
+        discountType: "FIXED" | "PERCENT" | null,
+        discountValue?: number | null
+    ): number => {
+        const baseTotal = price * quantity;
+
+        if (!discountType || !discountValue) return baseTotal;
+
+        if (discountType === "FIXED") {
+            return Math.max(0, baseTotal - discountValue);
+        } else {
+            return baseTotal * (1 - discountValue / 100);
+        }
     };
 
     const removeProduct = (productId: number) => {
         setOrderItems(orderItems.filter((item) => item.id !== productId));
+
+        setPurchaseOrderRequest(prev => ({
+            ...prev,
+            items: prev.items.filter(item => item.productVariantId !== productId)
+        }));
     };
 
     const handleOpenEditPriceModal = (item: ProductVariantItem) => {
         setSelectedProductFixPrice(item);
         setIsOpenEditPriceModal((prev) => (prev ? prev : true));
+    };
+
+    const handleSavePriceDiscount = (data: {
+        price: number;
+        priceAfterDiscount: number;
+        discountType: "FIXED" | "PERCENT" | null;
+        discountValue: number | null;
+    }) => {
+        if (!selectedProductFixPrice) return;
+
+        const productId = selectedProductFixPrice.id;
+        // console.log("edit price: ", productId, data);
+
+        setOrderItems((prev) =>
+            prev.map((p) =>
+                p.id === selectedProductFixPrice?.id
+                    ? {
+                        ...p,
+                        ...{
+                            price: data.price,
+                            discountType: data.discountType,
+                            discountValue: data.discountValue || 0,
+                            priceAfterDiscount: data.priceAfterDiscount
+                        }
+                    }
+                    : p
+            )
+        );
+
+        setPurchaseOrderRequest(prev => ({
+            ...prev,
+            items: prev.items.map(item => {
+                if (item.productVariantId === productId) {
+                    const orderItem = orderItems.find(oi => oi.id === productId);
+                    const quantity = orderItem?.quantityPurchase || item.quantity;
+
+                    const newSubtotal = calculateItemSubtotal(
+                        data.priceAfterDiscount,
+                        quantity,
+                        data.discountType,
+                        data.discountValue
+                    );
+
+                    return {
+                        ...item,
+                        price: data.priceAfterDiscount,
+                        discountType: data.discountType,
+                        discountValueItem: data.discountValue,
+                        subtotalPriceItem: newSubtotal
+                    };
+                }
+                return item;
+            })
+        }));
+
+        setIsOpenEditPriceModal(false);
     };
 
     const handleSupplierInputClick = () => {
@@ -351,10 +478,22 @@ const PurchaseOrderCreate: React.FC = () => {
     };
 
     const handleSelectSupplier = (supplier: ISupplierResponse) => {
-        //setSelectSupplier(supplier);
+        handleChangePurchaseOrderField("supplierId", supplier.id)
+        setSelectSupplier(supplier);
         console.log("Selected supplier: ", supplier);
+        setError({});
         setIsOpenSearchSupplier(false);
-    }
+    };
+
+    const handleChangePurchaseOrderField = <K extends keyof PurchaseOrderRequest>(
+        field: K,
+        value: PurchaseOrderRequest[K]
+    ) => {
+        setPurchaseOrderRequest(prev => ({
+            ...prev,
+            [field]: value
+        }));
+    };
 
     // const addTag = () => {
     //     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -363,24 +502,90 @@ const PurchaseOrderCreate: React.FC = () => {
     //     }
     // };
 
-    const removeTag = (tagToRemove: string) => {
-        setTags(tags.filter((tag) => tag !== tagToRemove));
-    };
+    // const removeTag = (tagToRemove: string) => {
+    //     setTags(tags.filter((tag) => tag !== tagToRemove));
+    // };
 
-    const calculateTotal = () => {
-        return orderItems.reduce(
-            (sum, item) => sum + item.price * (item.quantityPurchase ?? 1),
+    useEffect(() => {
+        const totalLineItemsPriceBeforeDiscount = purchaseOrderRequest.items.reduce(
+            (sum, item) => sum + (item.price * item.quantity),
             0
         );
+
+        const totalItemsDiscount = purchaseOrderRequest.items.reduce(
+            (sum, item) => {
+                const basePrice = item.price * item.quantity;
+                const discountAmount = basePrice - item.subtotalPriceItem;
+                return sum + discountAmount;
+            },
+            0
+        );
+
+        const totalLineItemsPriceAfterDiscount = purchaseOrderRequest.items.reduce(
+            (sum, item) => sum + item.subtotalPriceItem,
+            0
+        );
+
+        let orderDiscount = 0;
+        if (purchaseOrderRequest.discountType === "FIXED" && purchaseOrderRequest.discountValue != null) {
+            orderDiscount = purchaseOrderRequest.discountValue;
+        } else if (purchaseOrderRequest.discountType === "PERCENT" && purchaseOrderRequest.discountValue != null) {
+            orderDiscount = totalLineItemsPriceAfterDiscount * (purchaseOrderRequest.discountValue / 100);
+        }
+
+        const totalDiscountValue = totalItemsDiscount + orderDiscount;
+
+        const totalLandedCost = purchaseOrderRequest.totalLandedCost || 0;
+
+        const totalPrice = Math.max(0,
+            totalLineItemsPriceAfterDiscount - orderDiscount + totalLandedCost
+        );
+
+        setPurchaseOrderRequest(prev => ({
+            ...prev,
+            totalDiscountValue,
+            totalLandedCost,
+            totalLineItemsPriceBeforeDiscount,
+            totalLineItemsPriceAfterDiscount,
+            totalPrice
+        }));
+    }, [
+        purchaseOrderRequest.items,
+        purchaseOrderRequest.discountType,
+        purchaseOrderRequest.discountValue,
+        purchaseOrderRequest.totalLandedCost,
+    ]);
+
+    const handleSubmitOrder = async (status: "DRAFT" | "PENDING") => {
+        const error: Record<string, string> = {};
+
+        if (purchaseOrderRequest.items.length <= 0) {
+            error.purchaseOrderItem = "Bạn chưa thêm sản phẩm nào";
+        }
+
+        if (!purchaseOrderRequest.supplierId) {
+            error.supplierId = "Vui lòng chọn nhà cung cấp";
+        }
+
+        setError(error);
+
+        if (Object.keys(error).length > 0) return;
+
+        const bodyRequest: PurchaseOrderRequest = {
+            ...purchaseOrderRequest,
+            status: status
+        };
+
+        console.log("Body request: ", bodyRequest);
+
+        try {
+            const response = await createPurchaseOrder(bodyRequest);
+            console.log("Kết quả backend:", response);
+        } catch (err) {
+            console.error("Lỗi tạo đơn đặt hàng:", err);
+        }
     };
 
-    const handleSaveDraft = () => {
-        console.log("Tạo & duyệt đơn đặt hàng");
-    };
-
-    const handleCreateOrder = () => {
-        console.log("Tạo đơn đặt hàng");
-    };
 
     return (
         <div className="purchase-order-page">
@@ -414,7 +619,10 @@ const PurchaseOrderCreate: React.FC = () => {
                         <h2 className="purchase-order-section-title">Thông tin sản phẩm</h2>
 
                         <div className="purchase-order-search-wrapper">
-                            <div className="purchase-order-search_product " ref={dropdownProductRef}>
+                            <div
+                                className="purchase-order-search_product "
+                                ref={dropdownProductRef}
+                            >
                                 <Input
                                     type="search"
                                     value={inputValue}
@@ -479,7 +687,7 @@ const PurchaseOrderCreate: React.FC = () => {
                                 variant="tertiary"
                             /> */}
                         </div>
-
+                        {error.purchaseOrderItem && (<ValidationMessage show={true} message={error.purchaseOrderItem} type="error" />)}
                         {orderItems.length === 0 ? (
                             <div className="purchase-order-empty-state">
                                 <svg
@@ -572,11 +780,28 @@ const PurchaseOrderCreate: React.FC = () => {
                                                 </td>
 
                                                 <td className="purchase-order-price align_center">
-                                                    <Button
-                                                        className="btn-edit-price-product-item"
-                                                        label={item.price.toLocaleString("vi-VN") + "đ"}
-                                                        onClick={() => handleOpenEditPriceModal(item)}
-                                                    />
+                                                    {item.priceAfterDiscount != null ? (
+                                                        <div className="purchase-order-price_edit">
+                                                            <Button
+                                                                className="btn-edit-price-product-item"
+                                                                label={item.priceAfterDiscount.toLocaleString("vi-VN")}
+                                                                onClick={() => handleOpenEditPriceModal(item)}
+                                                            />
+                                                            <Button
+                                                                className="btn-edit-price-product-item"
+                                                                label={item.price.toLocaleString("vi-VN") + "đ"}
+                                                                disabled={true}
+                                                            />
+                                                        </div>
+                                                    ) : (
+                                                        <Button
+                                                            className="btn-edit-price-product-item"
+                                                            label={item.price.toLocaleString("vi-VN") + "đ"}
+                                                            onClick={() => handleOpenEditPriceModal(item)}
+                                                        />
+                                                    )}
+
+
                                                 </td>
 
                                                 <td className="purchase-order-total align_right">
@@ -617,7 +842,7 @@ const PurchaseOrderCreate: React.FC = () => {
                                 <span className="purchase-order-payment-label">Tổng tiền</span>
                                 {/* <span className="purchase-order-payment-value">------</span> */}
                                 <span className="purchase-order-payment-currency">
-                                    {calculateTotal().toLocaleString("vi-VN")}đ
+                                    {purchaseOrderRequest.totalLineItemsPriceAfterDiscount.toLocaleString("vi-VN")}đ
                                 </span>
                             </div>
                             <div className="purchase-order-payment-row">
@@ -625,7 +850,9 @@ const PurchaseOrderCreate: React.FC = () => {
                                     Chiết khấu đơn
                                 </span>
                                 {/* <span className="purchase-order-payment-value">------</span> */}
-                                <span className="purchase-order-payment-currency">0đ</span>
+                                <span className="purchase-order-payment-currency">
+                                    {purchaseOrderRequest.discountValue != null && purchaseOrderRequest.discountValue.toLocaleString("vi-VN")}đ
+                                </span>
                             </div>
                             <div className="purchase-order-payment-row purchase-order-payment-total">
                                 <span className="purchase-order-payment-label">
@@ -633,7 +860,7 @@ const PurchaseOrderCreate: React.FC = () => {
                                 </span>
                                 {/* <span className="purchase-order-payment-value">------</span> */}
                                 <span className="purchase-order-payment-currency">
-                                    {calculateTotal().toLocaleString("vi-VN")}đ
+                                    {purchaseOrderRequest.totalPrice.toLocaleString("vi-VN")}đ
                                 </span>
                             </div>
                         </div>
@@ -645,54 +872,65 @@ const PurchaseOrderCreate: React.FC = () => {
                         <h2 className="purchase-order-section-title">Nhà cung cấp</h2>
 
                         <div className="purchase-order-search-wrapper">
-                            <div className="purchase-order-search_supplier" ref={dropdownSupplierRef}>
-                                <Input
-                                    type="search"
-                                    placeholder="Tìm theo tên, mã, SĐT NCC"
-                                    value={inputSearchSupplier}
-                                    onChange={(e) => setInputSearchSupplier(e as string)}
-                                    onClick={handleSupplierInputClick}
-                                    className="input-search-supplier"
-                                />
+                            {!selectSupplier ? (
+                                <div
+                                    className="purchase-order-search_supplier"
+                                    ref={dropdownSupplierRef}
+                                >
+                                    <Input
+                                        type="search"
+                                        placeholder="Tìm theo tên, mã, SĐT NCC"
+                                        value={inputSearchSupplier}
+                                        onChange={(e) => setInputSearchSupplier(e as string)}
+                                        onClick={handleSupplierInputClick}
+                                        className="input-search-supplier"
+                                    />
 
-                                {isOpenSearchSupplier && (
-                                    <div className="purchase-order-dropdown">
-                                        <div className="purchase-order-dropdown-item">
-                                            {suppliers.map((s) => (
-                                                <SupplierItem
-                                                    id={s.id}
-                                                    phone={s.phone}
-                                                    name={s.name}
-                                                    supplierCode={s.supplierCode}
-                                                    onClick={() => handleSelectSupplier(s)} address={""} email={""} taxCode={""} website={""} note={""} deleted={false} />
+                                    {isOpenSearchSupplier && (
+                                        <div className="purchase-order-dropdown">
+                                            <div className="purchase-order-dropdown-item">
+                                                {suppliers.map((s) => (
+                                                    <SupplierItem
+                                                        key={s.id}
+                                                        id={s.id}
+                                                        phone={s.phone}
+                                                        name={s.name}
+                                                        supplierCode={s.supplierCode}
+                                                        address={s.address || ""}
+                                                        email={s.email || ""}
+                                                        onClick={() => handleSelectSupplier(s)}
+                                                    />
+                                                ))}
+                                            </div>
 
-                                            ))}
+                                            <div
+                                                ref={observerSupplierRef}
+                                                style={{ textAlign: "center", padding: "10px" }}
+                                            >
+                                                {loadingSupplier
+                                                    ? "Đang tải..."
+                                                    : hasMoreSupplier
+                                                        ? "Cuộn để tải thêm"
+                                                        : ""}
+                                            </div>
                                         </div>
-                                        <div ref={observerSupplierRef} style={{ textAlign: "center", padding: "10px" }}>
-                                            {loadingSupplier ? "" : hasMoreSupplier ? "Cuộn để tải thêm" : ""}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                                    )}
+                                    {error.supplierId && (<ValidationMessage show={true} message={error.supplierId} type="error" />)}
+                                </div>
+
+                            ) : (
+                                <SupplierInfoCard
+                                    name={selectSupplier.name}
+                                    supplierCode={selectSupplier.supplierCode}
+                                    address={selectSupplier.address}
+                                    phone={selectSupplier.phone}
+                                    email={selectSupplier.email}
+                                    onClear={() => {
+                                        handleChangePurchaseOrderField("supplierId", null);
+                                        setSelectSupplier(undefined);
+                                    }} />
+                            )}
                         </div>
-                    </div>
-
-                    <div className="purchase-order-section">
-                        <h2 className="purchase-order-section-title">Chi nhánh nhập</h2>
-                        <CustomSelect
-                            placeholder="Chọn chi nhánh"
-                            value={selectedBranch}
-                            onChange={(val) => setSelectedBranch(val as string)}
-                            showSelectedInTrigger={true}
-                        >
-                            {branchOptions.map((opt) => (
-                                <SelectOption
-                                    key={opt.value}
-                                    value={opt.value}
-                                    label={opt.label}
-                                />
-                            ))}
-                        </CustomSelect>
                     </div>
 
                     <div className="purchase-order-section">
@@ -704,15 +942,15 @@ const PurchaseOrderCreate: React.FC = () => {
                             </label>
                             <CustomSelect
                                 placeholder="Nhân viên phụ trách"
-                                value={responsiblePerson}
-                                onChange={(val) => setResponsiblePerson(val as string)}
+                                value={purchaseOrderRequest.assignedToAccountId ? purchaseOrderRequest.assignedToAccountId.toString() : null}
+                                onChange={(val) => handleChangePurchaseOrderField("assignedToAccountId", Number(val))}
                                 showSelectedInTrigger={true}
                             >
-                                {employeeOptions.map((opt) => (
+                                {employees.map((opt) => (
                                     <SelectOption
-                                        key={opt.value}
-                                        value={opt.value}
-                                        label={opt.label}
+                                        key={opt.id}
+                                        value={opt.id.toString()}
+                                        label={opt.fullName}
                                     />
                                 ))}
                             </CustomSelect>
@@ -720,10 +958,10 @@ const PurchaseOrderCreate: React.FC = () => {
 
                         <div className="purchase-order-form-group">
                             <DateField
-                                type="date"
+                                type="datetime"
                                 label="Ngày nhập dự kiến"
-                                value={expectedDate}
-                                onChange={(val) => setExpectedDate(val as string)}
+                                value={purchaseOrderRequest.expectedReceiptDate}
+                                onChange={(val) => handleChangePurchaseOrderField("expectedReceiptDate", val as string)}
                                 placeholder="Chọn ngày nhập dự kiến"
                             />
                         </div>
@@ -732,8 +970,8 @@ const PurchaseOrderCreate: React.FC = () => {
                             <Input
                                 type="text"
                                 label="Mã đơn đặt hàng nhập"
-                                value={orderCode}
-                                onChange={(val) => setOrderCode(val as string)}
+                                value={purchaseOrderRequest.purchaseOrderCode}
+                                onChange={(val) => handleChangePurchaseOrderField("purchaseOrderCode", val as string)}
                                 placeholder="Nhập mã đơn"
                             />
                         </div>
@@ -742,8 +980,8 @@ const PurchaseOrderCreate: React.FC = () => {
                             <Input
                                 type="text"
                                 label="Tham chiếu"
-                                value={reference}
-                                onChange={(val) => setReference(val as string)}
+                                value={purchaseOrderRequest.refference}
+                                onChange={(val) => handleChangePurchaseOrderField("refference", val as string)}
                                 placeholder="Nhập mã tham chiếu"
                             />
                         </div>
@@ -753,14 +991,14 @@ const PurchaseOrderCreate: React.FC = () => {
                         <Input
                             type="textarea"
                             label="Ghi chú"
-                            value={note}
-                            onChange={(val) => setNote(val as string)}
+                            value={purchaseOrderRequest.description}
+                            onChange={(val) => handleChangePurchaseOrderField("description", val as string)}
                             placeholder="VD: Nhận hàng ghi công nợ"
                             rows={4}
                         />
                     </div>
 
-                    <div className="purchase-order-section">
+                    {/* <div className="purchase-order-section">
                         <div className="purchase-order-tag-header">
                             <span>Tag</span>
                             <button className="purchase-order-tag-list-btn">
@@ -790,7 +1028,7 @@ const PurchaseOrderCreate: React.FC = () => {
                                 ))}
                             </div>
                         )}
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
@@ -798,35 +1036,21 @@ const PurchaseOrderCreate: React.FC = () => {
                 <Button
                     className="purchase-order-btn purchase-order-btn-secondary"
                     label="Tạo & duyệt đơn đặt hàng"
-                    onClick={handleSaveDraft}
+                    onClick={() => handleSubmitOrder("PENDING")}
                 />
 
                 <Button
                     className="purchase-order-btn purchase-order-btn-primary"
                     label="Tạo đơn đặt hàng"
-                    onClick={handleCreateOrder}
+                    onClick={() => handleSubmitOrder("DRAFT")}
                 />
             </div>
 
             <EditPriceProductItem
                 open={isOpenEditPriceModal}
-                value={selectedProductFixPrice?.price ?? 0}
+                value={selectedProductFixPrice?.priceAfterDiscount ?? selectedProductFixPrice?.price ?? 0}
                 onClose={() => setIsOpenEditPriceModal(false)}
-                onSave={(data) => {
-                    setOrderItems((prev) =>
-                        prev.map((p) =>
-                            p.id === selectedProductFixPrice?.id
-                                ? { ...p, 
-                                    ...{
-                                        price: data.priceAfterDiscount,
-                                        discountType: data.discountType,
-                                        discountValue: data.discountValue,
-                                        priceAfterDiscount: data.priceAfterDiscount
-                                } }
-                                : p
-                        )
-                    );
-                }}
+                onSave={(data) => handleSavePriceDiscount(data)}
             />
         </div>
     );

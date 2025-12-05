@@ -11,7 +11,7 @@ interface EditPriceProductItemProps {
     onClose: () => void;
     onSave: (data: {
         price: number;
-        discountType: "fixed" | "percent";
+        discountType: "FIXED" | "PERCENT" | null;
         discountValue: number;
         priceAfterDiscount: number
     }) => void;
@@ -24,9 +24,7 @@ export default function EditPriceProductItem({
     onSave,
 }: EditPriceProductItemProps) {
     const [basePrice, setBasePrice] = useState(value);
-    const [discountType, setDiscountType] = useState<"fixed" | "percent">(
-        "fixed"
-    );
+    const [discountType, setDiscountType] = useState<"FIXED" | "PERCENT" | null>(null);
     const [discountValue, setDiscountValue] = useState(0);
     const [error, setError] = useState("");
 
@@ -37,7 +35,7 @@ export default function EditPriceProductItem({
     if (!open) return null;
 
     const finalPrice =
-        discountType === "fixed"
+        (discountType === "FIXED" && discountType != null)
             ? Math.max(basePrice - discountValue, 0)
             : Math.max(basePrice - (basePrice * discountValue) / 100, 0);
 
@@ -51,13 +49,13 @@ export default function EditPriceProductItem({
         let newValue = Number(String(value).replace(/\D/g, ''));
         let message = "";
 
-        if (discountType === "fixed") {
+        if (discountType === "FIXED") {
             if (newValue > basePrice) {
                 message = "Giảm cố định không được vượt quá giá gốc!";
             }
         }
 
-        if (discountType === "percent") {
+        if (discountType === "PERCENT") {
             if (newValue < 0 || newValue > 100) {
                 newValue = 100;
                 message = "Giảm theo phần trăm phải nằm trong khoảng 0 - 100%";
@@ -105,13 +103,13 @@ export default function EditPriceProductItem({
                         showSelectedInTrigger={true}
                     >
                         <SelectOption
-                            key="fixed"
-                            value="fixed"
+                            key="FIXED"
+                            value="FIXED"
                             label="Giảm giá theo giá trị"
                         />
                         <SelectOption
-                            key="percent"
-                            value="percent"
+                            key="PERCENT"
+                            value="PERCENT"
                             label="Giám giá theo %"
                         />
                     </CustomSelect>

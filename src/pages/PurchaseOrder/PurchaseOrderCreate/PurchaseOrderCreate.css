@@ -11,7 +11,7 @@
   gap: 12px;
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 5;
 }
 
 .purchase-order-back-btn {
@@ -215,14 +215,28 @@
   white-space: nowrap;
 }
 
+.purchase-order-price_edit {
+  display: flex;
+  flex-direction: column;
+}
+
 .btn-edit-price-product-item {
   border: none;
+}
+
+.btn-edit-price-product-item:disabled {
+  color: rgb(134, 134, 134);
+}
+
+.btn-edit-price-product-item:disabled:hover {
+  text-decoration-line: line-through;
+  background: none;
+  cursor: text
 }
 
 .btn-edit-price-product-item:hover {
   text-decoration: underline;
 }
-
 
 .purchase-order-product-item-right {
   display: flex;

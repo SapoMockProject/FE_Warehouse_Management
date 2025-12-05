@@ -1,6 +1,6 @@
 export interface CustomSelectProps {
   placeholder?: string;
-  value: string | string[];
+  value: string | string[] | null;
   onChange: (value: string | string[]) => void;
   disabled?: boolean;
   className?: string;

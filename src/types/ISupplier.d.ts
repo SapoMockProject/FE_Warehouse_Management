@@ -1,15 +1,16 @@
 export interface ISupplierResponse {
-	id: number;
+	id?: number;
 	name: string;
 	supplierCode: string;
 	address: string;
 	phone: string;
 	email: string;
-	taxCode: string;
-	website: string;
-	note: string;
-	deleted: boolean;
+	taxCode?: string;
+	website?: string;
+	note?: string;
+	deleted?: boolean;
 	onClick?: (id: string) => void;
+	onClear?:  () => void
 }
 
 export interface ISupplierCreateRequest {

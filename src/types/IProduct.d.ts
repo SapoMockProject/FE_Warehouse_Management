@@ -42,8 +42,8 @@ export interface ProductVariantItem {
 	quantityInStock: number;
 	image: string | null;
 	unit?: string;
-	quantityPurchase?: number;
-	discountType?: "fixed" | "percent";
+	quantityPurchase: number;
+	discountType?: "FIXED" | "PERCENT" | null;
 	discountValue?: number;
 	priceAfterDiscount?: number;
 	onClick?: (id: string) => void;

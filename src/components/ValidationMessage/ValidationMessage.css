@@ -1,0 +1,36 @@
+.validation-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  font-size: 0.875rem;
+  animation: slideDown 0.2s ease-out;
+}
+
+.validation-message--error {
+  color: rgb(252, 39, 39);
+}
+
+.validation-message--warning {
+  color: rgb(131, 25, 25);
+}
+
+.validation-message__icon {
+  flex-shrink: 0;
+}
+
+.validation-message__text {
+  flex: 1;
+  font-weight: 500;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
