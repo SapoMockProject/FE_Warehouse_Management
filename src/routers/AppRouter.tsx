@@ -6,8 +6,11 @@ import { Dashboard } from "../pages/Dashboard/Dashboard";
 import EmployeeList from "../pages/Employee/EmployeeList";
 import Login from "../pages/Login/Login";
 import PurchaseOrderPage from "../pages/PurchaseOrder/PurchaseOrderCreate/PurchaseOrderCreate";
-import PurchaseOrderList from "../pages/PurchaseOrder/PurchaseOrderList/PurchaseOrderList";
 import SupplierList from "../pages/Supplier/SupplierList";
+import PurchaseOrderList from "../pages/PurchaseOrder/PurchaseOrderList/PurchaseOrderList";
+import AddProductForm from "../pages/Product/CreateProduct/AddProductForm";
+import UpdateProduct from "../pages/Product/UpdateProduct/UpdateProduct";
+import ProductList from "../pages/Product/ProductList";
 
 export const AppRouter = () => {
 	return (
@@ -22,6 +25,9 @@ export const AppRouter = () => {
 							<Route path="/purchase-order/create" element={<PurchaseOrderPage />} />
 							<Route path="/employees" element={<EmployeeList />} />
 							<Route path="/suppliers" element={<SupplierList />} />
+							<Route path="/edit/:id" element={<UpdateProduct />} />
+							<Route path="/add" element={<AddProductForm />} />
+							<Route path="/products" element={<ProductList />} />
 						</Route>
 						<Route path="/login" element={<Login />} />
 					</Routes>
@@ -29,4 +35,5 @@ export const AppRouter = () => {
 			</ContainerComponent>
 		</BrowserRouter>
 	);
+
 };
