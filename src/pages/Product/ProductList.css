@@ -1,0 +1,242 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f8;
+  margin: 0;
+  padding: 0;
+}
+
+.product-container {
+  padding: 30px 40px;
+}
+
+/* ===================== HEADER ===================== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.header-right button {
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #d0d4d9;
+  background: white;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.header-right .primary {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+}
+
+/* ===================== TABS ===================== */
+.tabs {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 18px;
+}
+
+.tab {
+  padding: 12px 22px;
+  font-size: 15px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.tab.active {
+  color: #0d6efd;
+  font-weight: bold;
+  border-bottom: 3px solid #0d6efd;
+}
+
+/* ===================== FILTER BAR ===================== */
+.filter-bar {
+  background: white;
+  padding: 18px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filter-bar select {
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  font-size: 14px;
+  min-width: 160px;
+}
+
+.search-filter-bar input {
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+  font-size: 14px;
+  min-width: 390px;
+}
+.search-filter-bar input[type="text"] {
+  padding: 13px 14px;
+}
+
+.btn-filter {
+  padding: 12px 14px;
+  border: 1px solid #ced4da;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+/* ===================== TABLE ===================== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.07);
+}
+
+th {
+  background: #f9fafb;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 15px;
+  border-bottom: 1px solid #e5e7eb;
+  color: #374151;
+}
+
+td {
+  padding: 16px 15px;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 14px;
+}
+
+td,
+th {
+  text-align: center;
+  /* Căn giữa theo chiều ngang */
+  vertical-align: middle;
+  /* Căn giữa theo chiều dọc */
+  padding: 14px;
+}
+
+.product-info {
+  display: flex;
+  align-items: center;
+  /* Căn giữa theo chiều dọc */
+  justify-content: center;
+  /* Căn giữa theo chiều ngang */
+  gap: 8px;
+  /* Khoảng cách giữa ảnh và text */
+}
+
+.product-info img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.product-info a {
+  color: #0d6efd;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.select-checkbox {
+  text-align: left;
+  font-weight: 500;
+}
+.update-link {
+  margin: 0 16px;
+  border: none;
+  background: #f9fafb;
+  color: #0d6efd;
+}
+.update-link:hover {
+  border-bottom: 1px solid #0d6efd;
+  color: #368eec;
+}
+.delete-link {
+  text-decoration: none;
+  color: #0d6efd;
+  font-size: 13px;
+}
+.delete-link:hover {
+  border-bottom: 1px solid #0d6efd;
+  color: #368eec;
+}
+/* ===================== PAGINATION ===================== */
+
+.vesion-product-variant {
+  color: #a3a7ad;
+}
+
+/* pagation */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 5px;
+  gap: 10px;
+}
+
+.text-info {
+  color: #333;
+  font-size: 14px;
+}
+
+.display-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+}
+
+select {
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination button {
+  border: none;
+  background: none;
+  color: #ccc;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.pagination .page-number {
+  background-color: #007bff;
+  color: white;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+}
+
+.pagination .page-number:hover {
+  background-color: #0056b3;
+}
