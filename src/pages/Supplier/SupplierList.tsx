@@ -32,7 +32,7 @@ export default function SupplierList() {
 				params: {
 					page,
 					limit,
-					query
+					query,
 				},
 			});
 			const data = response.data;
@@ -82,7 +82,10 @@ export default function SupplierList() {
 						placeholder="Tìm kiếm...."
 						type="search"
 						value={inputValue}
-						onChange={(value) => setInputValue(value as string)}
+						onChange={(value) => {
+							setInputValue(value as string);
+							setPage(0);
+						}}
 					/>
 				</div>
 				<div>
@@ -106,14 +109,14 @@ export default function SupplierList() {
 									<td>{supplier.phone}</td>
 									<td>
 										<TagComponent
-											onClick={() => handleChangeStatus(supplier.id)}
-											message={getSupplierStatusText(supplier.deleted)}
-											variant={getSupplierStatusVariant(supplier.deleted)}
+											onClick={() => handleChangeStatus(supplier.id as number)}
+											message={getSupplierStatusText(supplier.deleted as boolean)}
+											variant={getSupplierStatusVariant(supplier.deleted as boolean)}
 										/>
 									</td>
 									<td className="supplier-list-table-action">
 										<UpdateSupplier supplier={supplier} refreshData={refreshData} />
-										<PopConfirm onClickConfirm={() => handleDeleteSupplier(supplier.id)}>
+										<PopConfirm onClickConfirm={() => handleDeleteSupplier(supplier.id as number)}>
 											<Button label="Xóa" variant="danger" type="button" size="sm" />
 										</PopConfirm>
 									</td>
