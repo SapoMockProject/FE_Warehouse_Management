@@ -6,7 +6,7 @@ export interface Product {
 	size?: string;
 	price: number;
 	image?: string | null;
-	quantityInStock?: numver;
+	quantityInStock?: number;
 	unit?: string;
 }
 

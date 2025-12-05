@@ -9,13 +9,10 @@ import { StatusSelect } from "../../../components/Select/Status/StatusSelect";
 import { ORDER_PRODUCT_REQUEST_STATUSES } from "../../../constants/status.constant";
 import type { DateRange } from "../../../types/DateFieldProps";
 import type { PurchaseOrderRequest } from "../../../types/IPurchaseOrder";
-import { mockOrders, mockProducts } from "../mock-data";
 import "./PurchaseOrderList.css";
 
-const mockData = mockOrders as PurchaseOrderRequest[];
-
 export default function PurchaseOrderRequest() {
-	const [orders] = useState<PurchaseOrderRequest[]>(mockData);
+	const [orders] = useState<PurchaseOrderRequest[]>([]);
 
 	const [page, setPage] = useState(0);
 	const [size, setSize] = useState(10);
@@ -120,7 +117,7 @@ export default function PurchaseOrderRequest() {
 							<ProductSelect
 								value={selectedProducts}
 								onChange={setSelectedProducts}
-								products={mockProducts}
+								products={[]}
 								renderProductLabel={(product) => `${product.name}`}
 								placeholder="Chọn sản phẩm"
 							/>
