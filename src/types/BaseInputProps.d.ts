@@ -10,5 +10,5 @@ export interface BaseInputProps {
   required?: boolean;
   className?: string;
   readonly?: boolean;
-  onKeyDown?: (e: React.KeyboardEventHandler<HTMLInputElement>) => void;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }

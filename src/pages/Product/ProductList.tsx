@@ -99,7 +99,7 @@ const ProductList = () => {
           <Button label="Xuất file" variant="secondary" size="md" />
           <Button label="Nhập file" variant="secondary" size="md" />
 
-          <Link to="/add">
+          <Link to="/products/create">
             <Button label="+ Thêm sản phẩm" variant="primary" size="md" />
           </Link>
         </div>
