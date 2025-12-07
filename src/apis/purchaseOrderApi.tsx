@@ -42,3 +42,16 @@ export const getPurchaseOrderById = async (id: number) => {
     })
     return res.data
 };
+
+export const updatePurchaseOrderStatus = async (id: number, status: string) => {
+    const res = await axiosConfiguration.put<BaseResponse<PurchaseOrderItemResponse>>(`/purchase-orders/${id}/${status}`,
+        null,
+        {
+            headers: {
+                "X-Request-Id": uuidv4(),
+                Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+        }
+    );
+    return res.data;
+};

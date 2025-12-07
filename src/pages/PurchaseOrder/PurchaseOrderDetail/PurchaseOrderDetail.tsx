@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./PurchaseOrderDetail.css"
 import "../PurchaseOrderCreate/PurchaseOrderCreate.css";
 import Button from "../../../components/Button/Button";
-import { getPurchaseOrderById } from "../../../apis/purchaseOrderApi";
+import { getPurchaseOrderById, updatePurchaseOrderStatus } from "../../../apis/purchaseOrderApi";
 import type { PurchaseOrderItemResponse, PurchaseOrderResponse } from "../../../types/IPurchaseOrder";
 import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import { PURCHASE_ORDER_STATUSES } from "../../../constants/status.constant";
@@ -34,7 +34,7 @@ const PurchaseOrderDetail: React.FC = () => {
     };
 
     const handleBackBtn = () => {
-        navigate("/purchase-order");
+        navigate("/purchase-orders");
     };
 
     const handleEdit = () => {
@@ -55,10 +55,6 @@ const PurchaseOrderDetail: React.FC = () => {
     };
 
     const handleApprove = async () => {
-        if (!window.confirm("Bạn có chắc chắn muốn duyệt đơn đặt hàng này?")) {
-            return;
-        }
-
         try {
             await updatePurchaseOrderStatus(Number(id), "PENDING");
             await fetchPurchaseOrderDetail();

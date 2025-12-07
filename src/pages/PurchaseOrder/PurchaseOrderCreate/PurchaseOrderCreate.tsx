@@ -308,7 +308,7 @@ const PurchaseOrderCreate: React.FC = () => {
     }, [])
 
     const handleBackBtn = () => {
-        navigate("/purchase-order");
+        navigate("/purchase-orders");
     };
 
     const handleSearchProductInputClick = () => {
