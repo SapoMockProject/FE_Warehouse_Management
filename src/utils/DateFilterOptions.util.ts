@@ -122,3 +122,26 @@ export const calculateDateRange = (preset: string): DateRange | undefined => {
     }
 };
 
+export const formatDateTime = (dateString?: string | null): string => {
+  if (!dateString) return "N/A";
+  
+  try {
+    const date = new Date(dateString);
+    
+    if (isNaN(date.getTime())) {
+      return "N/A";
+    }
+    
+    return date.toLocaleString("vi-VN", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  } catch (error) {
+    console.error("Error formatting datetime:", error);
+    return "N/A";
+  }
+};
+

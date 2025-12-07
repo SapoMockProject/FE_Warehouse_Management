@@ -1,3 +1,5 @@
+import type { ProductResponse, VariantResponse } from "./IProduct";
+
 export interface PurchaseOrderRequest {
   supplierId: number | null;
   status: "DRAFT" | "PENDING" | "IMPORTED_ALL" | "IMPORTED_PARTIAL" | "CANCELED";
@@ -29,10 +31,28 @@ export interface PurchaseOrderItemRequest {
   subtotalPriceItem: number;
 }
 
-export interface PurchaseOrderItemResponse extends PurchaseOrderRequest, PurchaseOrderItemRequest{
-  receivedQuantity?: number | null;         
-  rejectedQuantity?: number | null;       
-  rejectionReason?: string;    
+export interface PurchaseOrderResponse extends PurchaseOrderRequest {
+  id: number;
+  purchaseOrderCode: string;
+  supplierResponse: ISupplierResponse;
+  infoEmployeeIsAssigned: IUserResponse | null;
+  totalQuantity: number;
+  createdDate: string;
+  items: PurchaseOrderItemResponse[];
+}
+
+export interface PurchaseOrderItemResponse {
+  id: number;
+  productVariant: VariantResponse
+  product: ProductResponse
+  quantityPurchase: number
+  receivedQuantity?: number | null;
+  rejectedQuantity?: number | null;
+  rejectionReason?: string;
+  discountType: "FIXED" | "PERCENT" | null;
+  discountValueItem?: number | null;
+  price: number;
+  subtotalPriceItem: number;
 }
 
 

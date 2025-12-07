@@ -14,5 +14,31 @@ export const createPurchaseOrder = async (bodyRequest: PurchaseOrderRequest) => 
                 "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
             }
         })
-    return res
+    return res.data
+};
+
+export const getAllPurchaseOrders = async (page: number, limit: number, query: string, sortDir: string) => {
+    const res = await axiosConfiguration.get<BaseResponse<PagedModel<PurchaseOrderItemResponse>>>("/purchase-orders", {
+        headers: {
+            "X-Request-Id": uuidv4(),
+            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+        params: {
+            page,
+            limit,
+            query,
+            sortDir
+        },
+    })
+    return res.data
+};
+
+export const getPurchaseOrderById = async (id: number) => {
+    const res = await axiosConfiguration.get<BaseResponse<PurchaseOrderItemResponse>>(`/purchase-orders/${id}`, {
+        headers: {
+            "X-Request-Id": uuidv4(),
+            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+        }
+    })
+    return res.data
 };
