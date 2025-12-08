@@ -15,5 +15,5 @@ export const getAllSupliers = async (page: number, limit: number, query: string)
             query
         },
     })
-    return res.data
+    return res.data;
 };

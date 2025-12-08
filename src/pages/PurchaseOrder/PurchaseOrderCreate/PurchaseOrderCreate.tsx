@@ -146,7 +146,9 @@ const PurchaseOrderCreate: React.FC = () => {
         try {
             const res = await getAllProducts(page, sizeSearch, keyword);
             const data = res.data;
-
+            
+            console.log("product before convert:", data.content);
+            
             const productVariantList = convertToProductVariants(data.content);
             console.log("Convert product variant: ", productVariantList);
 
@@ -306,7 +308,7 @@ const PurchaseOrderCreate: React.FC = () => {
     }, [])
 
     const handleBackBtn = () => {
-        navigate("/purchase-order");
+        navigate("/purchase-orders");
     };
 
     const handleSearchProductInputClick = () => {
@@ -549,8 +551,9 @@ const PurchaseOrderCreate: React.FC = () => {
         console.log("orderitem : ", orderItems);
 
         try {
-            // const response = await createPurchaseOrder(bodyRequest);
+            const response = await createPurchaseOrder(bodyRequest);
             console.log("Kết quả backend:", response);
+            navigate(`/purchase-orders/${response.data.id}`)
         } catch (err) {
             console.error("Lỗi tạo đơn đặt hàng:", err);
         }
@@ -775,7 +778,7 @@ const PurchaseOrderCreate: React.FC = () => {
                                                 </td>
 
                                                 <td className="purchase-order-total align_right">
-                                                    {((item?.quantityPurchase || 0) * (item?.priceAfterDiscount || 0)).toLocaleString("vi-VN")}đ
+                                                    {((item.quantityPurchase || 1) * (item.priceAfterDiscount != null ? item.priceAfterDiscount : item.price)).toLocaleString("vi-VN")}đ
                                                 </td>
 
                                                 <td>

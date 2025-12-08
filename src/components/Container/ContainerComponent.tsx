@@ -1,9 +1,10 @@
 import React from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 export default function ContainerComponent({ children }: { children: React.ReactNode }) {
 	const navigate = useNavigate();
 	const [params] = useSearchParams();
+	const location = useLocation();
 	React.useEffect(() => {
 		const token = localStorage.getItem("token");
 		if (!token) {
@@ -15,11 +16,9 @@ export default function ContainerComponent({ children }: { children: React.React
 			localStorage.removeItem("token");
 			navigate("/login");
 		}
-		if (token) {
-			if (window.location.pathname === "/login") {
-				navigate("/");
-			}
+		if (location.pathname === "/login") {
+			navigate("/");
 		}
-	}, [navigate]);
+	}, [navigate, params, location]);
 	return <>{children}</>;
 }

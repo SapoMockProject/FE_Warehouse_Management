@@ -4,10 +4,10 @@ import type { ProductResponse } from "../types/IProduct";
 import type { PagedModel } from "../types/PagedModel";
 
 export const getAllProducts = async (page: number, size: number, keyword: string) => {
-    const res = await axiosConfiguration.get<BaseResponse<PagedModel<ProductResponse>>>("/product", {
-        // headers: {
-        //     Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-        // },
+    const res = await axiosConfiguration.get<BaseResponse<PagedModel<ProductResponse>>>("/products", {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+        },
         params: {
             page,
             size,

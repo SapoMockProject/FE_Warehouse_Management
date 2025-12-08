@@ -1,6 +1,6 @@
-import { useParams } from "react-router-dom";
-import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 export default function UpdateProduct() {
   const { id } = useParams(); // lấy id từ URL

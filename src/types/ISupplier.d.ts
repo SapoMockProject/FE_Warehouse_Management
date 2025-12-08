@@ -1,5 +1,5 @@
 export interface ISupplierResponse {
-	id?: number;
+	id: number;
 	name: string;
 	supplierCode: string;
 	address: string;
