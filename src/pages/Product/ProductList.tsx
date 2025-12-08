@@ -10,7 +10,7 @@ import { CustomSelect } from "../../components/Select/CustomSelect/CustomSelect"
 import { SelectOption } from "../../components/Select/SelectOption/SelectOption";
 
 const ProductList = () => {
-  const API_URL = "http://localhost:8080/api/v1/product";
+  const API_URL = "http://localhost:8080/api/v1/products";
 
   const [item, setItem] = useState<Product[]>([]);
   const [page, setPage] = useState(0);
@@ -58,6 +58,7 @@ const ProductList = () => {
       });
 
       const data = response.data?.data;
+      console.log(data);
 
       setItem(data?.content || []);
       setTotalPages(data?.page?.totalPages || 0);
@@ -142,7 +143,7 @@ const ProductList = () => {
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* ================= TABLE ================= */}
-      <table>
+      <table className="products-table">
         <thead>
           {selectedIds.length > 0 ? (
             <tr>
@@ -203,7 +204,7 @@ const ProductList = () => {
                 <td>
                   <div className="product-list-product-info">
                     <img
-                      src={p.image}
+                      src={p.thumbnail}
                       alt={p.name}
                       style={{
                         width: 50,
@@ -212,15 +213,15 @@ const ProductList = () => {
                         borderRadius: 6,
                       }}
                     />
-                    <Link to={`/edit/${p.id}`}>{p.name}</Link>
+                    <Link to={`/products/${p.id}`}>{p.name}</Link>
                   </div>
                 </td>
 
                 <td>
-                  {p.quantityInStock}
+                  {p.quantity}
                   <br />
                   <span className="product-list-vesion-product-variant">
-                    ({p?.attributes?.length} Phiên bản)
+                    ({p.variantCount} Phiên bản)
                   </span>
                 </td>
 
