@@ -2,7 +2,7 @@ import type { ProductResponse, VariantResponse } from "./IProduct";
 
 export interface PurchaseOrderRequest {
   supplierId: number | null;
-  status: "DRAFT" | "PENDING" | "IMPORTED_ALL" | "IMPORTED_PARTIAL" | "CANCELED";
+  status: "DRAFT" | "PENDING" | "IMPORTED_ALL" | "IMPORTED_PARTIAL" | "CANCELLED";
   expectedReceiptDate: string;
   assignedToAccountId: number | null;
   description: string;

@@ -27,7 +27,7 @@ const PurchaseOrderDetail: React.FC = () => {
             setLoading(true);
             const response = await getPurchaseOrderById(Number(id));
             setPurchaseOrder(response.data);
-        } catch (error) {
+        } catch (error) {``
             console.error("Lỗi khi tải chi tiết đơn đặt hàng:", error);
         } finally {
             setLoading(false);
@@ -71,16 +71,17 @@ const PurchaseOrderDetail: React.FC = () => {
     const getVariantName = (item: PurchaseOrderItemResponse): string => {
         const options = [];
 
-        if (item.product.option1name && item.productVariant.option1value) {
+        if (item.productVariant.option1value) {
             options.push(`${item.productVariant.option1value}`);
         }
-        if (item.product.option2name && item.productVariant.option2value) {
+        if (item.productVariant.option2value) {
             options.push(`${item.productVariant.option2value}`);
         }
-        if (item.product.option3name && item.productVariant.option3value) {
+        if (item.productVariant.option3value) {
             options.push(`${item.productVariant.option3value}`);
         }
-
+        console.log(options);
+        
         return options.join(" / ");
     };
 
@@ -398,6 +399,7 @@ const PurchaseOrderDetail: React.FC = () => {
 
                         <Button
                             label="Sửa đơn"
+                            icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#000000"><g fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1"/><path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3l8.385-8.415zM16 5l3 3"/></g></svg>}
                             onClick={handleEdit}
                             size="md"
                             variant="tertiary"
@@ -406,6 +408,7 @@ const PurchaseOrderDetail: React.FC = () => {
                         {purchaseOrder.status === "DRAFT" && (
                             <Button
                                 label="Duyệt đơn"
+                                icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#000000" d="M10.543 1.793a1 1 0 0 1 1.414 0l2.5 2.5a1 1 0 0 1 0 1.414l-2.5 2.5a1 1 0 1 1-1.414-1.414l.758-.759a7 7 0 1 0 7.645 7.842a1 1 0 1 1 1.984.248a9 9 0 1 1-9.572-10.101l-.815-.816a1 1 0 0 1 0-1.414Zm5.664 8a1 1 0 0 1 0 1.414l-4.5 4.5a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L11 13.586l3.793-3.793a1 1 0 0 1 1.414 0Z"/></svg>}
                                 onClick={handleApprove}
                                 size="md"
                                 variant="tertiary"
@@ -415,6 +418,7 @@ const PurchaseOrderDetail: React.FC = () => {
                         {(purchaseOrder.status === "PENDING" || purchaseOrder.status === "IMPORTED_PARTIAL") && (
                             <Button
                                 label="Nhập hàng"
+                                icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#3095f3" d="M22 3H2v6h1v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9h1V3zM4 5h16v2H4V5zm15 15H5V9h14v11zm-6-10v5.17l2.59-2.58L17 14l-5 5l-5-5l1.41-1.42L11 15.17V10h2z"/></svg>}
                                 onClick={handleReceive}
                                 variant="primary"
                                 size="md"
