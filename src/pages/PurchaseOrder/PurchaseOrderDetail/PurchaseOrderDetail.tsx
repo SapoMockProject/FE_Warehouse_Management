@@ -7,6 +7,7 @@ import { getPurchaseOrderById, updatePurchaseOrderStatus } from "../../../apis/p
 import type { PurchaseOrderItemResponse, PurchaseOrderResponse } from "../../../types/IPurchaseOrder";
 import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import { PURCHASE_ORDER_STATUSES } from "../../../constants/status.constant";
+import SupplierInfoCard from "../../../components/Supplier/SupplierCard/SupplierCard";
 
 const PurchaseOrderDetail: React.FC = () => {
     const navigate = useNavigate();
@@ -67,18 +68,17 @@ const PurchaseOrderDetail: React.FC = () => {
         navigate(`/purchase-orders/${id}/receive`);
     };
 
-    // Hàm tạo tên variant từ options
     const getVariantName = (item: PurchaseOrderItemResponse): string => {
         const options = [];
 
         if (item.product.option1name && item.productVariant.option1value) {
-            options.push(`${item.product.option1name}: ${item.productVariant.option1value}`);
+            options.push(`${item.productVariant.option1value}`);
         }
         if (item.product.option2name && item.productVariant.option2value) {
-            options.push(`${item.product.option2name}: ${item.productVariant.option2value}`);
+            options.push(`${item.productVariant.option2value}`);
         }
         if (item.product.option3name && item.productVariant.option3value) {
-            options.push(`${item.product.option3name}: ${item.productVariant.option3value}`);
+            options.push(`${item.productVariant.option3value}`);
         }
 
         return options.join(" / ");
@@ -247,7 +247,7 @@ const PurchaseOrderDetail: React.FC = () => {
                                                         {item.discountValueItem && item.discountValueItem > 0 ? (
                                                             <div className="purchase-order-price_edit">
                                                                 <div>
-                                                                    {(item. price- item.discountValueItem).toLocaleString("vi-VN")}đ
+                                                                    {(item.price - item.discountValueItem).toLocaleString("vi-VN")}đ
                                                                 </div>
                                                                 <div style={{ textDecoration: "line-through", color: "#999", fontSize: "12px" }}>
                                                                     {item.price.toLocaleString("vi-VN")}đ
@@ -310,33 +310,18 @@ const PurchaseOrderDetail: React.FC = () => {
                 <div className="purchase-order-right-panel">
                     <div className="purchase-order-section">
                         <h2 className="purchase-order-section-title">Nhà cung cấp</h2>
-                        {purchaseOrder.supplierResponse && (
-                            <div className="supplier-info-display">
-                                <div className="supplier-info-row">
-                                    <strong>Tên:</strong> {purchaseOrder.supplierResponse.name}
-                                </div>
-                                {purchaseOrder.supplierResponse.supplierCode && (
-                                    <div className="supplier-info-row">
-                                        <strong>Mã NCC:</strong> {purchaseOrder.supplierResponse.supplierCode}
-                                    </div>
-                                )}
-                                {purchaseOrder.supplierResponse.phone && (
-                                    <div className="supplier-info-row">
-                                        <strong>SĐT:</strong> {purchaseOrder.supplierResponse.phone}
-                                    </div>
-                                )}
-                                {purchaseOrder.supplierResponse.email && (
-                                    <div className="supplier-info-row">
-                                        <strong>Email:</strong> {purchaseOrder.supplierResponse.email}
-                                    </div>
-                                )}
-                                {purchaseOrder.supplierResponse.address && (
-                                    <div className="supplier-info-row">
-                                        <strong>Địa chỉ:</strong> {purchaseOrder.supplierResponse.address}
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                        <div className="purchase-order-search-wrapper">
+
+                            <SupplierInfoCard
+                                id={purchaseOrder.supplierResponse.id}
+                                name={purchaseOrder.supplierResponse.name}
+                                supplierCode={purchaseOrder.supplierResponse.supplierCode}
+                                address={purchaseOrder.supplierResponse.address}
+                                phone={purchaseOrder.supplierResponse.phone}
+                                email={purchaseOrder.supplierResponse.email}
+                            />
+
+                        </div>
                     </div>
 
                     <div className="purchase-order-section">
@@ -401,39 +386,40 @@ const PurchaseOrderDetail: React.FC = () => {
             </div>
 
             <div className="purchase-order-footer">
-                {purchaseOrder.status !== "CANCELLED" && purchaseOrder.status !== "COMPLETED" && (
+                {purchaseOrder.status !== "CANCELLED" && purchaseOrder.status !== "IMPORTED_ALL" && (
                     <>
                         <Button
-                            className="purchase-order-btn"
                             label="Hủy đơn"
+                            icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20 " viewBox="0 0 1024 1024"><path fill="#ffffff" d="M512 0C229.232 0 0 229.232 0 512c0 282.784 229.232 512 512 512c282.784 0 512-229.216 512-512C1024 229.232 794.784 0 512 0zm0 961.008c-247.024 0-448-201.984-448-449.01c0-247.024 200.976-448 448-448s448 200.977 448 448s-200.976 449.01-448 449.01zm181.008-630.016c-12.496-12.496-32.752-12.496-45.248 0L512 466.752l-135.76-135.76c-12.496-12.496-32.752-12.496-45.264 0c-12.496 12.496-12.496 32.752 0 45.248L466.736 512l-135.76 135.76c-12.496 12.48-12.496 32.769 0 45.249c12.496 12.496 32.752 12.496 45.264 0L512 557.249l135.76 135.76c12.496 12.496 32.752 12.496 45.248 0c12.496-12.48 12.496-32.769 0-45.249L557.248 512l135.76-135.76c12.512-12.512 12.512-32.768 0-45.248z"/></svg>}
                             onClick={handleCancel}
-                            variant="secondary"
+                            size="md"
+                            variant="danger"
+                        />
+
+                        <Button
+                            label="Sửa đơn"
+                            onClick={handleEdit}
+                            size="md"
+                            variant="tertiary"
                         />
 
                         {purchaseOrder.status === "DRAFT" && (
                             <Button
-                                className="purchase-order-btn"
                                 label="Duyệt đơn"
                                 onClick={handleApprove}
-                                variant="primary"
+                                size="md"
+                                variant="tertiary"
                             />
                         )}
 
-                        {(purchaseOrder.status === "PENDING" || purchaseOrder.status === "PARTIAL") && (
+                        {(purchaseOrder.status === "PENDING" || purchaseOrder.status === "IMPORTED_PARTIAL") && (
                             <Button
-                                className="purchase-order-btn"
                                 label="Nhập hàng"
                                 onClick={handleReceive}
                                 variant="primary"
+                                size="md"
                             />
                         )}
-
-                        <Button
-                            className="purchase-order-btn"
-                            label="Sửa đơn"
-                            onClick={handleEdit}
-                            variant="primary"
-                        />
                     </>
                 )}
             </div>
