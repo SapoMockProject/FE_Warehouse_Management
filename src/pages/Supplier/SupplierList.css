@@ -46,3 +46,13 @@ input[type="checkbox"] {
 .supplier_query {
     margin-top: 20px;
 }
+
+.supplier-list-table-body tr:hover {
+    background-color: #F9F9F9;
+    cursor: pointer;
+}
+
+.supplier-link-to-detail {
+    text-decoration: underline;
+    color: #436EFD;
+}

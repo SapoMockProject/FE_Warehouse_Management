@@ -1,18 +1,16 @@
 import React from "react";
-import Button from "../../components/Button/Button";
+import { Link } from "react-router-dom";
+import Input from "../../components/Input/Input";
 import Pagination from "../../components/Pagination/Pagination";
 import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
+import { useDebounce } from "../../hooks/useDebounce";
 import type { BaseResponse } from "../../types/BaseResponse";
 import type { ISupplierResponse } from "../../types/ISupplier";
 import type { PagedModel } from "../../types/PagedModel";
-import "./SupplierList.css";
 import { getSupplierStatusText, getSupplierStatusVariant } from "../../utils/Supplier.util";
-import TagComponent from "./Tag/TagComponent";
 import CreateSupplier from "./CreateSupplier/CreateSupplier";
-import PopConfirm from "../../components/PopConfirm/PopConfirm";
-import UpdateSupplier from "./UpdateSupplier/UpdateSupplier";
-import Input from "../../components/Input/Input";
-import { useDebounce } from "../../hooks/useDebounce";
+import "./SupplierList.css";
+import TagComponent from "./Tag/TagComponent";
 
 export default function SupplierList() {
 	const [supplies, setSuppliers] = React.useState<ISupplierResponse[]>([]);
@@ -43,19 +41,7 @@ export default function SupplierList() {
 		fetchSuppliers();
 	}, [reload, page, limit, sortOrder, query]);
 	const refreshData = () => setReload(!reload);
-	const handleDeleteSupplier = async (supplierId: number) => {
-		try {
-			await axiosConfiguration.delete(`/suppliers/${supplierId}`, {
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-				},
-			});
-			refreshData();
-			console.log("Supplier deleted successfully");
-		} catch (error) {
-			console.error("Error deleting supplier:", error);
-		}
-	};
+	
 	const handleChangeStatus = async (supplierId: number) => {
 		try {
 			await axiosConfiguration.patch(`/suppliers/deleted/${supplierId}`, null, {
@@ -97,14 +83,17 @@ export default function SupplierList() {
 								<th>Email</th>
 								<th>Số điện thoại</th>
 								<th>Trạng thái</th>
-								<th>Hành động</th>
 							</tr>
 						</thead>
 						<tbody className="supplier-list-table-body">
 							{supplies.map((supplier) => (
 								<tr key={supplier.id}>
 									<td>{supplier.supplierCode}</td>
-									<td>{supplier.name}</td>
+									<td>
+										<Link to={`/suppliers/${supplier.id}`} className="supplier-link-to-detail">
+											{supplier.name}
+										</Link>
+									</td>
 									<td>{supplier.email}</td>
 									<td>{supplier.phone}</td>
 									<td>
@@ -113,12 +102,6 @@ export default function SupplierList() {
 											message={getSupplierStatusText(supplier.deleted as boolean)}
 											variant={getSupplierStatusVariant(supplier.deleted as boolean)}
 										/>
-									</td>
-									<td className="supplier-list-table-action">
-										<UpdateSupplier supplier={supplier} refreshData={refreshData} />
-										<PopConfirm onClickConfirm={() => handleDeleteSupplier(supplier.id as number)}>
-											<Button label="Xóa" variant="danger" type="button" size="sm" />
-										</PopConfirm>
 									</td>
 								</tr>
 							))}

@@ -12,6 +12,7 @@ import AddProductForm from "../pages/Product/CreateProduct/AddProductForm";
 import UpdateProduct from "../pages/Product/UpdateProduct/UpdateProduct";
 import ProductList from "../pages/Product/ProductList";
 import PurchaseOrderDetail from "../pages/PurchaseOrder/PurchaseOrderDetail/PurchaseOrderDetail";
+import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
 
 export const AppRouter = () => {
 	return (
@@ -22,11 +23,16 @@ export const AppRouter = () => {
 						<Route path="/" element={<Navigate to="/dashboard" />} />
 						<Route element={<DefaultLayout />}>
 							<Route path="/dashboard" element={<Dashboard />} />
+
 							<Route path="/purchase-orders" element={<PurchaseOrderList />} />
 							<Route path="/purchase-orders/:id" element={<PurchaseOrderDetail />} />
 							<Route path="/purchase-orders/create" element={<PurchaseOrderPage />} />
+							
 							<Route path="/employees" element={<EmployeeList />} />
+
 							<Route path="/suppliers" element={<SupplierList />} />
+							<Route path="/suppliers/:id" element={<DetailSupplier />} />
+
 							<Route path="/edit/:id" element={<UpdateProduct />} />
 							<Route path="/products/create" element={<AddProductForm />} />
 							<Route path="/products" element={<ProductList />} />

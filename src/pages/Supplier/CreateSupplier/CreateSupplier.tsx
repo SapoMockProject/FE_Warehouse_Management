@@ -4,7 +4,7 @@ import useModalComponent from "../../../hooks/Modal/useModalComponent";
 import type { ISupplierCreateRequest } from "../../../types/ISupplier";
 import InputSupplier from "../InputSupplier/InputSupplier";
 import "./CreateSupplier.css";
-import { axiosConfiguration } from "../../../configurations/AxiosConfiguration";
+import { createSupplier } from "../../../apis/supplierApi";
 
 export default function CreateSupplier() {
 	const [openModal, closeModal, ModalComponent] = useModalComponent();
@@ -25,11 +25,7 @@ export default function CreateSupplier() {
 	}
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		await axiosConfiguration.post("/suppliers", supplierData, {
-			headers: {
-				Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-			},
-		});
+		await createSupplier(supplierData);
 		closeModal();
 	}
 	return (
