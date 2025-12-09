@@ -101,7 +101,7 @@ const ProductList = () => {
 			{error && <p style={{ color: "red" }}>{error}</p>}
 
 			{/* ================= TABLE ================= */}
-			<table>
+			<table className="products-table">
 				<thead>
 					{selectedIds.length > 0 ? (
 						<tr>
@@ -149,7 +149,7 @@ const ProductList = () => {
 												borderRadius: 6,
 											}}
 										/>
-										<Link to={`/edit/${p.id}`}>{p.name}</Link>
+										<Link to={`/products/${p.id}`}>{p.name}</Link>
 									</div>
 								</td>
 
