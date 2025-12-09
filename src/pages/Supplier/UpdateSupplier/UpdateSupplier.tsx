@@ -1,13 +1,23 @@
 import React from "react";
-import useModalComponent from "../../../hooks/Modal/useModalComponent";
-import InputSupplier from "../InputSupplier/InputSupplier";
 import Button from "../../../components/Button/Button";
-import type { ISupplierResponse, ISupplierUpdateRequest } from "../../../types/ISupplier";
 import { axiosConfiguration } from "../../../configurations/AxiosConfiguration";
+import useModalComponent from "../../../hooks/Modal/useModalComponent";
+import type { ISupplierResponse, ISupplierUpdateRequest } from "../../../types/ISupplier";
+import InputSupplier from "../InputSupplier/InputSupplier";
+import type { BaseResponse } from "../../../types/BaseResponse";
 
-export default function UpdateSupplier({ supplier, refreshData }: { supplier: ISupplierResponse; refreshData: () => void }) {
+export default function UpdateSupplier({ supplier, refreshData }: { supplier: ISupplierResponse; refreshData?: (supplier: ISupplierResponse) => void }) {
 	const [openModal, closeModal, ModalComponent] = useModalComponent();
-	const [supplierData, setSupplierData] = React.useState<ISupplierUpdateRequest>({ ...supplier });
+	const [supplierData, setSupplierData] = React.useState<ISupplierUpdateRequest>({
+		name: supplier.name,
+		address: supplier.address,
+		phone: supplier.phone,
+		email: supplier.email,
+		taxCode: supplier.taxCode || "",
+		website: supplier.website || "",
+		note: supplier.note || "",
+		supplierCode: supplier.supplierCode,
+	});
 	function handleInputChange(field: keyof ISupplierUpdateRequest, value: string) {
 		setSupplierData({
 			...supplierData,
@@ -16,13 +26,15 @@ export default function UpdateSupplier({ supplier, refreshData }: { supplier: IS
 	}
 	async function handleSubmit(e: React.FormEvent) {
 		e.preventDefault();
-		await axiosConfiguration.put(`/suppliers/${supplier.id}`, supplierData, {
+		const res: BaseResponse<ISupplierResponse> = await axiosConfiguration.put(`/suppliers/${supplier.id}`, supplierData, {
 			headers: {
 				Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
 			},
 		});
 		closeModal();
-        refreshData();
+		if (refreshData) {
+			refreshData(res.data);
+		}
 	}
 	return (
 		<>

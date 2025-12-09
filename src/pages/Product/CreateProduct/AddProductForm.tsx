@@ -1,19 +1,17 @@
-import axios from "axios";
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { getAllCategories } from "../../../apis/categoryApi";
+import { createProduct } from "../../../apis/productApi";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
+import type { Category } from "../../../types/ICategory";
 import "./CreateProduct.css";
 
 interface Attribute {
 	name: string;
 	values: string[];
-}
-
-interface Category {
-	id: number;
-	name: string;
 }
 
 const AddProductForm: React.FC = () => {
@@ -31,20 +29,15 @@ const AddProductForm: React.FC = () => {
 
 	const fileRef = React.useRef<HTMLInputElement | null>(null);
 
+	const navigate = useNavigate();
+
 	React.useEffect(() => {
 		const fetchCategories = async () => {
-			try {
-				const res = await axios.get("http://localhost:8080/api/v1/categories");
-				console.log(res.data.data.content);
-				setAllCategories(res.data.data.content);
-			} catch (err) {
-				console.error("Lỗi khi tải danh mục:", err);
-			}
+			const res = await getAllCategories();
+			setAllCategories(res.content || []);
 		};
 		fetchCategories();
 	}, []);
-
-	/* ------------ FILE HANDLING ------------ */
 	const handleFiles = (newFiles: FileList | null) => {
 		if (!newFiles) return;
 		const arr = Array.from(newFiles);
@@ -59,8 +52,6 @@ const AddProductForm: React.FC = () => {
 	const removeFile = (idx: number) => {
 		setFiles((prev) => prev.filter((_, i) => i !== idx));
 	};
-
-	/* ------------ ATTRIBUTES ------------ */
 	const addAttribute = () => {
 		setAttributes((prev) => {
 			if (prev.length >= 3) return prev;
@@ -86,8 +77,6 @@ const AddProductForm: React.FC = () => {
 			prev.map((attr, i) => (i === aIndex ? { ...attr, values: attr.values.filter((_, j) => j !== vIndex) } : attr))
 		);
 	};
-
-	/* ------------ COMBINATIONS ------------ */
 	function generateCombinations(attributes: Attribute[]) {
 		const result: { option1value: string; option2value: string; option3value: string }[] = [];
 		const arr1 = attributes[0]?.values || [""];
@@ -120,17 +109,6 @@ const AddProductForm: React.FC = () => {
 
 	const handleSave = async () => {
 		try {
-			// const payload = {
-			// 	name,
-			// 	description,
-			// 	categoryId: categories,
-			// 	option1name: attributes?.[0]?.name || "",
-			// 	option2name: attributes?.[1]?.name || "",
-			// 	option3name: attributes?.[2]?.name || "",
-			// 	imageUrl: files[0],
-			// 	variants: buildVariants(),
-			// }
-			// console.log(payload);
 			const formData = new FormData();
 			formData.append("name", name);
 			formData.append("description", description);
@@ -148,23 +126,14 @@ const AddProductForm: React.FC = () => {
 				formData.append(`variants[${i}].option2value`, variantsFormData[i].option2value);
 				formData.append(`variants[${i}].option3value`, variantsFormData[i].option3value);
 			}
-			for (const pair of formData.entries()) {
-				console.log(pair[0]+ ', ' + pair[1]); 
-			}
-			const token = localStorage.getItem("token");
-			await axios.post("http://localhost:8080/api/v1/products", formData, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-					"Content-Type": "multipart/form-data",
-				},
-			});
+			await createProduct(formData);
+			navigate("/products");
 		} catch (err) {
 			console.error(err);
 		}
 	};
 
 	const handleReset = () => {
-		if (!window.confirm("Xóa toàn bộ dữ liệu?")) return;
 		setName("");
 		setSku("");
 		setPrice(0);

@@ -3,16 +3,26 @@ import type { BaseResponse } from "../types/BaseResponse";
 import type { ProductResponse } from "../types/IProduct";
 import type { PagedModel } from "../types/PagedModel";
 
-export const getAllProducts = async (page: number, size: number, keyword: string) => {
-    const res = await axiosConfiguration.get<BaseResponse<PagedModel<ProductResponse>>>("/products", {
-        headers: {
-            Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-        },
-        params: {
-            page,
-            size,
-            keyword,
-        },
-    });
-    return res.data
-}
+export const getAllProducts = async (page: number, size: number, query: string) => {
+	const res = await axiosConfiguration.get<BaseResponse<PagedModel<ProductResponse>>>("/products", {
+		headers: {
+			Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+		},
+		params: {
+			page,
+			size,
+			query,
+		},
+	});
+	return res.data;
+};
+
+export const createProduct = async (formData: FormData) => {
+	const token = localStorage.getItem("token");
+	return await axiosConfiguration.post("/products", formData, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+			"Content-Type": "multipart/form-data",
+		},
+	});
+};

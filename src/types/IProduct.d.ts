@@ -10,17 +10,6 @@ export interface Product {
 	unit?: string;
 }
 
-export interface ProductResponse {
-	id: number;
-	name: string;
-	description: string;
-	option1name: string | null;
-	option2name: string | null;
-	option3name: string | null;
-	variants: VariantResponse[];
-	unit?: string;
-}
-
 export interface VariantResponse {
 	id: number;
 	sku: string;
@@ -57,4 +46,19 @@ export interface ProductSelectProps {
 	className?: string;
 	searchable?: boolean;
 	renderProductLabel?: (product: Product) => string;
+}
+export interface ProductResponse {
+  id: number;
+  name: string;
+  categoryName: string;
+  description: string;
+  option1name: string;
+  option2name: string;
+  option3name: string;
+  variants: ProductVariantResponse[];
+  variantCount: number;
+  thumbnail: string;
+  quantity: number;
+  createdDate: string;
+  createdBy: string;
 }

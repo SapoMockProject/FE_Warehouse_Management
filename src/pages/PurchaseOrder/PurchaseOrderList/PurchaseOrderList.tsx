@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { getAllProducts } from "../../../apis/productApi";
+import { getAllPurchaseOrders } from "../../../apis/purchaseOrderApi";
 import Button from "../../../components/Button/Button";
 import DateField from "../../../components/DateField/DateField";
 import Input from "../../../components/Input/Input";
@@ -7,15 +9,12 @@ import Pagination from "../../../components/Pagination/Pagination";
 import { ProductSelect } from "../../../components/Select/Product/ProductSelect";
 import { StatusSelect } from "../../../components/Select/Status/StatusSelect";
 import { PURCHASE_ORDER_STATUSES } from "../../../constants/status.constant";
-import type { DateRange } from "../../../types/DateFieldProps";
-import { getAllPurchaseOrders } from "../../../apis/purchaseOrderApi";
-import { mockProducts } from "../mock-data";
-import "./PurchaseOrderList.css";
-import { formatDateTime } from "../../../utils/DateFilterOptions.util";
-import type { PurchaseOrderResponse } from "../../../types/IPurchaseOrder";
 import { useDebounce } from "../../../hooks/useDebounce";
-import { getAllProducts } from "../../../apis/productApi";
+import type { DateRange } from "../../../types/DateFieldProps";
 import type { ProductResponse } from "../../../types/IProduct";
+import type { PurchaseOrderResponse } from "../../../types/IPurchaseOrder";
+import { formatDateTime } from "../../../utils/DateFilterOptions.util";
+import "./PurchaseOrderList.css";
 
 interface PurchaseOrderListState {
   orders: PurchaseOrderResponse[];
@@ -67,7 +66,6 @@ export default function PurchaseOrderRequest() {
   const fetchProducts = async () => {
     try {
       const res = await getAllProducts()
-
       setProducts(res.data.content|| []);
     } catch (error) {
       console.error("Failed to load products:", error);
