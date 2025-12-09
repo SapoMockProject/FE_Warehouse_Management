@@ -13,6 +13,7 @@ import PurchaseOrderEdit from "../pages/PurchaseOrder/PurchaseOrderUpdate/Purcha
 import AddProductForm from "../pages/Product/CreateProduct/AddProductForm";
 import UpdateProduct from "../pages/Product/UpdateProduct/UpdateProduct";
 import ProductList from "../pages/Product/ProductList";
+import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
 
 
 export const AppRouter = () => {
