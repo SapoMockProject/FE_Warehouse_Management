@@ -396,24 +396,27 @@ const PurchaseOrderCreate: React.FC = () => {
 			)
 		);
 
-		setPurchaseOrderRequest((prev) => ({
-			...prev,
-			items: prev.items.map((item) => {
-				if (item.productVariantId === productId) {
-					const orderItem = orderItems.find((oi) => oi.id === productId);
-					const quantity = orderItem?.quantityPurchase || item.quantity;
-					const discountValue = data.discountValue != null ? data.discountValue : 0;
-					return {
-						...item,
-						price: data.price,
-						discountType: data.discountType,
-						discountValueItem: data.discountValue,
-						subtotalPriceItem: (data.price - discountValue) * quantity,
-					};
-				}
-				return item;
-			}),
-		}));
+        setPurchaseOrderRequest(prev => ({
+            ...prev,
+            items: prev.items.map(item => {
+                if (item.productVariantId === productId) {
+                    const orderItem = orderItems.find(oi => oi.id === productId);
+                    const quantity = orderItem?.quantityPurchase || item.quantity;
+                    let  discountValue = data.discountValue != null ? data.discountValue : 0;
+                    if (data.discountType === "PERCENT")
+                        discountValue = data.price * discountValue/100
+                    
+                    return {
+                        ...item,
+                        price: data.price,
+                        discountType: data.discountType,
+                        discountValueItem: data.discountValue,
+                        subtotalPriceItem: (data.price - discountValue) * quantity
+                    };
+                }
+                return item;
+            })
+        }));
 
 		setIsOpenEditPriceModal(false);
 	};

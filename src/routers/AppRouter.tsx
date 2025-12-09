@@ -5,14 +5,15 @@ import { DefaultLayout } from "../layouts/DefaultLayout";
 import { Dashboard } from "../pages/Dashboard/Dashboard";
 import EmployeeList from "../pages/Employee/EmployeeList";
 import Login from "../pages/Login/Login";
-import PurchaseOrderPage from "../pages/PurchaseOrder/PurchaseOrderCreate/PurchaseOrderCreate";
 import SupplierList from "../pages/Supplier/SupplierList";
 import PurchaseOrderList from "../pages/PurchaseOrder/PurchaseOrderList/PurchaseOrderList";
+import PurchaseOrderDetail from "../pages/PurchaseOrder/PurchaseOrderDetail/PurchaseOrderDetail";
+import PurchaseOrderCreate from "../pages/PurchaseOrder/PurchaseOrderCreate/PurchaseOrderCreate";
+import PurchaseOrderEdit from "../pages/PurchaseOrder/PurchaseOrderUpdate/PurchaseOrderUpdate";
 import AddProductForm from "../pages/Product/CreateProduct/AddProductForm";
 import UpdateProduct from "../pages/Product/UpdateProduct/UpdateProduct";
 import ProductList from "../pages/Product/ProductList";
-import PurchaseOrderDetail from "../pages/PurchaseOrder/PurchaseOrderDetail/PurchaseOrderDetail";
-import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
+
 
 export const AppRouter = () => {
 	return (
@@ -26,8 +27,8 @@ export const AppRouter = () => {
 
 							<Route path="/purchase-orders" element={<PurchaseOrderList />} />
 							<Route path="/purchase-orders/:id" element={<PurchaseOrderDetail />} />
-							<Route path="/purchase-orders/create" element={<PurchaseOrderPage />} />
-							
+							<Route path="/purchase-orders/create" element={<PurchaseOrderCreate />} />
+							<Route path="/purchase-orders/:id/edit" element={<PurchaseOrderEdit />} />
 							<Route path="/employees" element={<EmployeeList />} />
 
 							<Route path="/suppliers" element={<SupplierList />} />
