@@ -4,6 +4,14 @@
   font-weight: 500;
   transition: 0.25s;
   white-space: nowrap;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-icon svg{
+  display: block;
 }
 
 .btn-label {

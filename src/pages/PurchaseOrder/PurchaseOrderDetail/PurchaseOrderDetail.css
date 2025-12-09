@@ -30,22 +30,3 @@
     background-color: #fee4e2;
     color: #d32f2f;
 }
-
-.supplier-info-display {
-    padding: 12px;
-    background-color: #fafafa;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-}
-
-.supplier-info-row {
-    padding: 6px 0;
-    font-size: 14px;
-}
-
-.supplier-info-row strong {
-    color: #666;
-    margin-right: 8px;
-    min-width: 80px;
-    display: inline-block;
-}
