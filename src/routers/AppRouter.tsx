@@ -15,6 +15,7 @@ import UpdateProduct from "../pages/Product/UpdateProduct/UpdateProduct";
 import ProductList from "../pages/Product/ProductList";
 import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
 import DetailEmployee from "../pages/Employee/DetailEmployee/DetailEmployee";
+import NotFoundPage from "../pages/NotFound/NotFound";
 
 export const AppRouter = () => {
   return (
@@ -52,6 +53,7 @@ export const AppRouter = () => {
             </Route>
           </Route>
           <Route path="/login" element={<Login />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </ContainerComponent>
     </BrowserRouter>
