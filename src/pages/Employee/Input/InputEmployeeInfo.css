@@ -1,0 +1,18 @@
+.employee-input-wrapper {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	align-items: flex-start;
+	gap: 10px;
+}
+
+.employee-input-label {
+	font-size: 1rem;
+	font-weight: 500;
+	color: #374151;
+}
+
+.employee-input-readOnly {
+	background-color: #E8EAEB;
+	cursor: default;
+}

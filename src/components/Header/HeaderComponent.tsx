@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
-import "./HeaderComponent.css";
-import { AuthenticationContext } from "../../contexts/AuthenticationContext";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthenticationContext } from "../../contexts/AuthenticationContext";
+import "./HeaderComponent.css";
 
 export const HeaderComponent = () => {
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -31,14 +31,15 @@ export const HeaderComponent = () => {
 	}, []);
 
 	const user = React.useContext(AuthenticationContext);
+	if (!user) return null;
 
 	return (
 		<div className="top-bar">
 			<div className="top-bar-content">
 				<div className="top-bar-content-right" ref={dropdownRef}>
 					<div className="user-info" onClick={toggleDropdown}>
-						{user?.avatar ? (
-							<img className="avatar-small" src={user.avatar} alt="User Avatar" />
+						{user?.user.avatar ? (
+							<img className="avatar-small" src={user.user.avatar} alt="User Avatar" />
 						) : (
 							<svg className="avatar-small" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24">
 								<path
@@ -47,7 +48,7 @@ export const HeaderComponent = () => {
 								/>
 							</svg>
 						)}
-						<span className="username">{user?.fullName}</span>
+						<span className="username">{user?.user.fullName}</span>
 						<svg
 							className={`dropdown-icon ${isDropdownOpen ? "open" : ""}`}
 							width="16"
@@ -78,9 +79,9 @@ export const HeaderComponent = () => {
 
 					{isDropdownOpen && (
 						<div className="dropdown-menu">
-							<div className="dropdown-item user-profile">
-								{user?.avatar ? (
-									<img className="avatar-small" src={user.avatar} alt="User Avatar" />
+							<div className="dropdown-item user-profile" onClick={() => navigate("/account")}>
+								{user?.user.avatar ? (
+									<img className="avatar-small" src={user.user.avatar} alt="User Avatar" />
 								) : (
 									<svg
 										className="avatar-small"
@@ -96,8 +97,8 @@ export const HeaderComponent = () => {
 									</svg>
 								)}
 								<div className="user-details">
-									<div className="user-name">{user?.fullName}</div>
-									<div className="user-email">{user?.email}</div>
+									<div className="user-name">{user?.user.fullName}</div>
+									<div className="user-email">{user?.user.email}</div>
 								</div>
 							</div>
 							<div className="dropdown-divider"></div>

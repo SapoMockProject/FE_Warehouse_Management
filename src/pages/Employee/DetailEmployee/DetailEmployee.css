@@ -1,0 +1,70 @@
+.employee-detail-container {
+    width: 100%;
+}
+
+.employee-detail-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: block;
+    text-align: center;
+}
+
+.employee-detail-wrapper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 40px;
+    width: 80%;
+    margin: 0 auto;
+    background-color: white;
+    padding: 50px;
+}
+.employee-detail-avatar-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+.employee-detail-image-input {
+    display: none;
+}
+
+.employee-detail-avatar-wrapper img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.employee-detail-info-wrapper {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.employee-detail-input-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 40px;
+}
+
+.employee-detail-button {
+    background-color: blue;
+    color: white;
+    width: 200px;
+}
+
+.button-wrapper {
+    justify-content: center;
+}
+
+.employee-detail-button:hover {
+    cursor: pointer;
+    color: blue;
+}

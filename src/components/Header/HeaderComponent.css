@@ -92,7 +92,7 @@
 }
 
 .dropdown-item.user-profile {
-  cursor: default;
+  cursor: pointer;
 }
 
 .dropdown-item.user-profile:hover {
