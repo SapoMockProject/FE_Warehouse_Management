@@ -14,7 +14,7 @@ export function AuthenticationProvider() {
 		const fetchUser = async () => {
 			const response = await getMyInfo();
 			setUser(() => ({
-				user: (response.data as BaseResponse<IUserResponse>).data,
+				user: (response as BaseResponse<IUserResponse>).data,
 				refreshUser: refreshUser,
 			}));
 		};
