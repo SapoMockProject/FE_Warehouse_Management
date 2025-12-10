@@ -23,5 +23,34 @@ export const updateEmployee = async (id: number, data: IUserCreateRequest) => {
 			Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
 		},
 	});
-    return response.data;
+	return response.data;
+};
+
+export const uploadAvatar = async (formData: FormData) => {
+	const token = localStorage.getItem("token") || "";
+	const response = await axiosConfiguration.patch("/users/avatar", formData, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+			"Content-Type": "multipart/form-data",
+		},
+	});
+	return response.data;
+};
+
+export const getMyInfo = async () => {
+	const token = localStorage.getItem("token");
+	const response = await axiosConfiguration.get("/users/me", {
+		headers: {
+			Authorization: `Bearer ${token || ""}`,
+		},
+	});
+	return response.data;
+};
+
+export const deleteEmployee = async (id: number) => {
+	await axiosConfiguration.delete(`/users/${id}`, {
+		headers: {
+			Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+		},
+	});
 };

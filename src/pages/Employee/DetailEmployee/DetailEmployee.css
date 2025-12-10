@@ -20,7 +20,7 @@
     background-color: white;
     padding: 50px;
 }
-.employee-detail-image-wrapper {
+.employee-detail-avatar-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -28,11 +28,16 @@
     gap: 20px;
 }
 
-.employee-detail-image-wrapper img {
+.employee-detail-image-input {
+    display: none;
+}
+
+.employee-detail-avatar-wrapper img {
     width: 150px;
     height: 150px;
     border-radius: 50%;
     object-fit: cover;
+    cursor: pointer;
 }
 
 .employee-detail-info-wrapper {
