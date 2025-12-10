@@ -134,9 +134,9 @@ export const SidebarComponent = () => {
 						<span className="menu-name">Nhập hàng</span>
 					</NavLink>
 
-					{(user?.role === Role.ADMIN_SYSTEM ||
-						user?.role === Role.COORDINATOR ||
-						(user?.role === Role.STORE_KEEPER) && (
+					{(user?.user?.role === Role.ADMIN_SYSTEM ||
+						user?.user?.role === Role.COORDINATOR ||
+						user?.user?.role === Role.STORE_KEEPER) && (
 							<NavLink to="/suppliers" className="sidebar-link" title="Supplier">
 								<div className="menu-icon">
 									<svg
@@ -155,9 +155,9 @@ export const SidebarComponent = () => {
 								</div>
 								<span className="menu-name">Nhà cung cấp</span>
 							</NavLink>
-						))}
+						)}
 
-					{user?.role === Role.ADMIN_SYSTEM && (
+					{user?.user?.role === Role.ADMIN_SYSTEM && (
 						<NavLink to="/employees" className="sidebar-link" title="Employee">
 							<div className="menu-icon">
 								<svg
