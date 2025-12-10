@@ -2,7 +2,6 @@ import { axiosConfiguration } from "../configurations/AxiosConfiguration";
 import type { BaseResponse } from "../types/BaseResponse";
 import type { PurchaseOrderRequest, PurchaseOrderResponse } from "../types/IPurchaseOrder";
 import type { PagedModel } from "../types/PagedModel";
-import { v4 as uuidv4 } from "uuid"
 
 
 export const createPurchaseOrder = async (bodyRequest: PurchaseOrderRequest) => {
@@ -10,7 +9,6 @@ export const createPurchaseOrder = async (bodyRequest: PurchaseOrderRequest) => 
         bodyRequest,
         {
             headers: {
-                "X-Request-Id": uuidv4(),
                 "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
             }
         })
@@ -20,7 +18,6 @@ export const createPurchaseOrder = async (bodyRequest: PurchaseOrderRequest) => 
 export const getAllPurchaseOrders = async (page: number, limit: number, query: string, sortDir: string) => {
     const res = await axiosConfiguration.get<BaseResponse<PagedModel<PurchaseOrderResponse>>>("/purchase-orders", {
         headers: {
-            "X-Request-Id": uuidv4(),
             "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
         },
         params: {
@@ -36,7 +33,6 @@ export const getAllPurchaseOrders = async (page: number, limit: number, query: s
 export const getPurchaseOrderById = async (id: number) => {
     const res = await axiosConfiguration.get<BaseResponse<PurchaseOrderResponse>>(`/purchase-orders/${id}`, {
         headers: {
-            "X-Request-Id": uuidv4(),
             "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
         }
     })
@@ -48,7 +44,6 @@ export const updatePurchaseOrderStatus = async (id: number, status: string) => {
         null,
         {
             headers: {
-                "X-Request-Id": uuidv4(),
                 Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
             },
         }
@@ -61,7 +56,6 @@ export const updatePurchaseOrder = async (id: number, data: PurchaseOrderRequest
         data,
         {
             headers: {
-                "X-Request-Id": uuidv4(),
                 Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
             },
         }
