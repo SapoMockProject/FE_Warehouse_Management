@@ -16,46 +16,35 @@ import ProductList from "../pages/Product/ProductList";
 import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
 import DetailEmployee from "../pages/Employee/DetailEmployee/DetailEmployee";
 import NotFoundPage from "../pages/NotFound/NotFound";
+import GoodsReceiptCreate from "../pages/GoodsReceipt/GoodsReceiptCreate/GoodsReceiptCreate";
 
 export const AppRouter = () => {
-  return (
-    <BrowserRouter>
-      <ContainerComponent>
-        <Routes>
-          <Route element={<AuthenticationProvider />}>
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-            <Route element={<DefaultLayout />}>
-              <Route path="/dashboard" element={<Dashboard />} />
-
-              <Route path="/purchase-orders" element={<PurchaseOrderList />} />
-              <Route
-                path="/purchase-orders/:id"
-                element={<PurchaseOrderDetail />}
-              />
-              <Route
-                path="/purchase-orders/create"
-                element={<PurchaseOrderCreate />}
-              />
-              <Route
-                path="/purchase-orders/:id/edit"
-                element={<PurchaseOrderEdit />}
-              />
-
-              <Route path="/employees" element={<EmployeeList />} />
-              <Route path="/account" element={<DetailEmployee />} />
-
-              <Route path="/suppliers" element={<SupplierList />} />
-              <Route path="/suppliers/:id" element={<DetailSupplier />} />
-
-              <Route path="/products/:id" element={<UpdateProduct />} />
-              <Route path="/products/create" element={<AddProductForm />} />
-              <Route path="/products" element={<ProductList />} />
-            </Route>
-          </Route>
-          <Route path="/login" element={<Login />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </ContainerComponent>
-    </BrowserRouter>
-  );
+	return (
+		<BrowserRouter>
+			<ContainerComponent>
+				<Routes>
+					<Route element={<AuthenticationProvider />}>
+						<Route element={<DefaultLayout />}>
+							<Route path="/" element={<Navigate to="/dashboard" />} />
+							<Route path="/dashboard" element={<Dashboard />} />
+							<Route path="/purchase-orders" element={<PurchaseOrderList />} />
+							<Route path="/purchase-orders/:id" element={<PurchaseOrderDetail />} />
+							<Route path="/purchase-orders/create" element={<PurchaseOrderCreate />} />
+							<Route path="/purchase-orders/:id/edit" element={<PurchaseOrderEdit />} />
+							<Route path="/goods-receipts/create" element={<GoodsReceiptCreate />} />
+							<Route path="/employees" element={<EmployeeList />} />
+							<Route path="/account" element={<DetailEmployee />} />
+							<Route path="/suppliers" element={<SupplierList />} />
+							<Route path="/suppliers/:id" element={<DetailSupplier />} />
+							<Route path="/edit/:id" element={<UpdateProduct />} />
+							<Route path="/products/create" element={<AddProductForm />} />
+							<Route path="/products" element={<ProductList />} />
+						</Route>
+					</Route>
+					<Route path="/login" element={<Login />} />
+					<Route path="*" element={<NotFoundPage />} />
+				</Routes>
+			</ContainerComponent>
+		</BrowserRouter>
+	);
 };
