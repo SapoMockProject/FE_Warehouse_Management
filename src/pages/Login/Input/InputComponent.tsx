@@ -11,9 +11,10 @@ export interface IInputProps {
 	error?: string;
 	title?: string;
 	required?: boolean;
+	onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
-export default function InputComponent({ type, placeholder, value, onChange, error, title, required }: IInputProps) {
+export default function InputComponent({ type, placeholder, value, onChange, error, title, required, onKeyDown }: IInputProps) {
 	const [showPassword, setShowPassword] = React.useState(false);
 	return (
 		<div className="input_login_container">
@@ -29,6 +30,7 @@ export default function InputComponent({ type, placeholder, value, onChange, err
 					placeholder={placeholder}
 					value={value}
 					onChange={onChange}
+					onKeyDown={onKeyDown}
 				/>
 				{type === "password" && (
 					<img

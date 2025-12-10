@@ -129,31 +129,32 @@ th {
   font-weight: 500;
 }
 
-.product-list-select-checkbox {
-  text-align: left;
+.products-table .product-list-select-checkbox {
+  display: flex;
   font-weight: 500;
 }
 
-.product-list-update-link {
+.product-list-select-checkbox .product-list-update-link {
   margin: 0 16px;
   border: none;
   background: #f9fafb;
   color: #0d6efd;
   cursor: pointer;
+  margin-top: -4px;
 }
 
-.product-list-update-link:hover {
+.product-list-select-checkbox .product-list-update-link:hover {
   border-bottom: 1px solid #0d6efd;
   color: #368eec;
 }
 
-.product-list-delete-link {
+.product-list-select-checkbox .product-list-delete-link {
   text-decoration: none;
-  /* color: #0d6efd; */
+  margin-top: -4px;
   font-size: 13px;
 }
 
-.product-list-delete-link:hover {
+.product-list-select-checkbox .product-list-delete-link:hover {
   border-bottom: 1px solid #0d6efd;
   color: #368eec;
 }
