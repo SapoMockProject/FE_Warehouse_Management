@@ -1,10 +1,12 @@
 import type { AxiosError } from "axios";
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 import { loginGoogle } from "../../apis/authApi";
 import Button from "../../components/Button/Button";
 import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
 import type { BaseResponse } from "../../types/BaseResponse";
+import { getErrorMessage } from "../../utils/StatusResponseMessage.util";
 import InputComponent from "./Input/InputComponent";
 import "./Login.css";
 
@@ -17,35 +19,29 @@ export default function Login() {
 			setErrors((prev) => ({ ...prev, username: "Vui lòng nhập username" }));
 			return;
 		}
-		if (!loginValue.password) {
-			setErrors((prev) => ({ ...prev, password: "Vui lòng nhập mật khẩu" }));
-			return;
-		}
 		if (loginValue.username.length < 8) {
 			setErrors((prev) => ({ ...prev, username: "Username phải có ít nhất 8 ký tự" }));
+			return;
+		}
+		setErrors((prev) => ({ ...prev, username: "" }));
+		if (!loginValue.password) {
+			setErrors((prev) => ({ ...prev, password: "Vui lòng nhập mật khẩu" }));
 			return;
 		}
 		if (loginValue.password.length < 8) {
 			setErrors((prev) => ({ ...prev, password: "Mật khẩu phải có ít nhất 8 ký tự" }));
 			return;
 		}
+		setErrors((prev) => ({ ...prev, password: "" }));
 		try {
 			const response = await axiosConfiguration.post("/auth/login", loginValue);
 			const token = response.data.data.token;
 			localStorage.setItem("token", token);
 			navigate("/dashboard");
 		} catch (error) {
-			const status = (error as AxiosError).status;
-			if (status === 401) {
-				setErrors({ username: "Sai username hoặc mật khẩu", password: "Sai username hoặc mật khẩu" });
-				return;
-			}
-			if (status === 500) {
-				setErrors({ username: "Lỗi máy chủ, vui lòng thử lại sau", password: "Lỗi máy chủ, vui lòng thử lại sau" });
-				return;
-			}
-			const message = ((error as AxiosError).response?.data as BaseResponse<string>).message;
-			setErrors({ username: message, password: message });
+			const code = ((error as AxiosError).response?.data as BaseResponse<number>).data;
+			const message = getErrorMessage(code);
+			toast.error(message);
 		}
 	};
 	const handleRedirect = () => {
@@ -74,6 +70,19 @@ export default function Login() {
 	}, [navigate]);
 	return (
 		<>
+			<ToastContainer
+				position="top-right"
+				autoClose={5000}
+				hideProgressBar={false}
+				newestOnTop={false}
+				closeOnClick={false}
+				rtl={false}
+				pauseOnFocusLoss
+				draggable
+				pauseOnHover
+				theme="light"
+				transition={Bounce}
+			/>
 			<div className="container">
 				<div className="content">
 					<div className="logo">
