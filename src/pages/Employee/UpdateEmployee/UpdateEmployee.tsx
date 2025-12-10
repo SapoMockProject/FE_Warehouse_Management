@@ -1,13 +1,13 @@
 import React from "react";
+import { updateEmployee } from "../../../apis/employeeApi";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
-import { axiosConfiguration } from "../../../configurations/AxiosConfiguration";
+import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
 import useModalComponent from "../../../hooks/Modal/useModalComponent";
 import { type IUserCreateRequest, type IUserResponse } from "../../../types/IUser.d";
-import "./UpdateEmployee.css";
 import { handleGetRoleOptions } from "../../../utils/Employee.util";
-import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
+import "./UpdateEmployee.css";
 
 export default function UpdateEmployee({ realoadFunc, employee }: { realoadFunc: () => void; employee: IUserResponse }) {
 	const [employeeData, setEmployeeData] = React.useState<IUserCreateRequest>({
@@ -27,11 +27,7 @@ export default function UpdateEmployee({ realoadFunc, employee }: { realoadFunc:
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		await axiosConfiguration.put(`/users/${employee.id}`, employeeData, {
-			headers: {
-				Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-			},
-		});
+		await updateEmployee(employee.id, employeeData);
 		closeModal();
 		realoadFunc();
 	};

@@ -1,16 +1,14 @@
 import React from "react";
+import { deleteEmployee, getAllEmployees } from "../../apis/employeeApi";
 import Button from "../../components/Button/Button";
+import Input from "../../components/Input/Input";
+import Pagination from "../../components/Pagination/Pagination";
+import { useDebounce } from "../../hooks/useDebounce";
 import type { IUserResponse } from "../../types/IUser";
-import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
-import type { BaseResponse } from "../../types/BaseResponse";
-import type { PagedModel } from "../../types/PagedModel";
-import "./EmployeeList.css";
 import { getNameOfRole } from "../../utils/Employee.util";
 import CreateEmployee from "./CreateEmployee/CreateEmployee";
+import "./EmployeeList.css";
 import UpdateEmployee from "./UpdateEmployee/UpdateEmployee";
-import Pagination from "../../components/Pagination/Pagination";
-import Input from "../../components/Input/Input";
-import { useDebounce } from "../../hooks/useDebounce";
 
 export default function EmployeeList() {
 	const [employees, setEmployees] = React.useState<IUserResponse[]>([]);
@@ -23,17 +21,7 @@ export default function EmployeeList() {
 	const query = useDebounce(inputValue, 1000);
 	React.useEffect(() => {
 		const fetchEmployees = async () => {
-			const response = await axiosConfiguration.get<BaseResponse<PagedModel<IUserResponse>>>("/users", {
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-				},
-				params: {
-					page,
-					limit,
-					query
-				},
-			});
-			const data = response.data;
+			const data = await getAllEmployees(page, limit, query);
 			setEmployees(data.data.content);
 			setPage(data.data.page.number);
 			setTotalPages(data.data.page.totalPages);
@@ -41,11 +29,7 @@ export default function EmployeeList() {
 		fetchEmployees();
 	}, [reload, page, limit, sortOrder, query]);
 	const deleteUser = async (id: number) => {
-		await axiosConfiguration.delete(`/users/${id}`, {
-			headers: {
-				Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-			},
-		});
+		await deleteEmployee(id);
 		setReload(!reload);
 	};
 
