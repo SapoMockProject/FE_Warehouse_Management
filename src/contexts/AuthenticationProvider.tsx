@@ -7,8 +7,9 @@ import { Outlet } from "react-router-dom";
 
 export function AuthenticationProvider() {
 	const token = localStorage.getItem("token");
-	const [user, setUser] = React.useState<IUserResponse | null>(null);
-	console.log(window.location.href);
+	const [user, setUser] = React.useState<({ user: IUserResponse } & { refreshUser: () => void }) | null>(null);
+	const [reload, setReload] = React.useState(false);
+	const refreshUser = () => setReload((prev) => !prev);
 	React.useEffect(() => {
 		if (!user) {
 			const fetchUser = async () => {
@@ -17,12 +18,14 @@ export function AuthenticationProvider() {
 						Authorization: `Bearer ${token || ""}`,
 					},
 				});
-				setUser((response.data as BaseResponse<IUserResponse>).data);
+				setUser(() => ({
+					user: (response.data as BaseResponse<IUserResponse>).data,
+					refreshUser: refreshUser,
+				}));
 			};
 			fetchUser();
 		}
-		console.log("AuthenticationProvider - user:", user);
-	}, [token, user]);
+	}, [token, user, reload]);
 	return (
 		<>
 			<AuthenticationContext.Provider value={user}>

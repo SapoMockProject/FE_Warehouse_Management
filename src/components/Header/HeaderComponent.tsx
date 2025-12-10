@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import "./HeaderComponent.css";
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { useNavigate } from "react-router-dom";
+import type { IUserResponse } from "../../types/IUser";
 
 export const HeaderComponent = () => {
 	const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -30,7 +31,7 @@ export const HeaderComponent = () => {
 		};
 	}, []);
 
-	const user = React.useContext(AuthenticationContext);
+	const { user }= React.useContext(AuthenticationContext) as { user: IUserResponse; refreshUser: () => void };
 
 	return (
 		<div className="top-bar">
@@ -78,7 +79,7 @@ export const HeaderComponent = () => {
 
 					{isDropdownOpen && (
 						<div className="dropdown-menu">
-							<div className="dropdown-item user-profile">
+							<div className="dropdown-item user-profile" onClick={() => navigate("/account")}>
 								{user?.avatar ? (
 									<img className="avatar-small" src={user.avatar} alt="User Avatar" />
 								) : (

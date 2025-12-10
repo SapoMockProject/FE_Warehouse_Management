@@ -14,6 +14,7 @@ import AddProductForm from "../pages/Product/CreateProduct/AddProductForm";
 import UpdateProduct from "../pages/Product/UpdateProduct/UpdateProduct";
 import ProductList from "../pages/Product/ProductList";
 import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
+import DetailEmployee from "../pages/Employee/DetailEmployee/DetailEmployee";
 
 export const AppRouter = () => {
   return (
@@ -38,7 +39,9 @@ export const AppRouter = () => {
                 path="/purchase-orders/:id/edit"
                 element={<PurchaseOrderEdit />}
               />
+
               <Route path="/employees" element={<EmployeeList />} />
+              <Route path="/account" element={<DetailEmployee />} />
 
               <Route path="/suppliers" element={<SupplierList />} />
               <Route path="/suppliers/:id" element={<DetailSupplier />} />
