@@ -65,7 +65,7 @@ const PurchaseOrderDetail: React.FC = () => {
     };
 
     const handleReceive = () => {
-        navigate(`/goods-receipts/create`, {
+        navigate(`/goods-receipts/create?purchase_order_id=${purchaseOrder?.id}`, {
             state: {
                 purchaseOrderData: purchaseOrder
             },
@@ -84,7 +84,6 @@ const PurchaseOrderDetail: React.FC = () => {
         if (item.productVariant.option3value) {
             options.push(`${item.productVariant.option3value}`);
         }
-        console.log(options);
 
         return options.join(" / ");
     };
@@ -289,7 +288,7 @@ const PurchaseOrderDetail: React.FC = () => {
                                     Chiết khấu
                                 </span>
                                 <span className="purchase-order-payment-currency">
-                                    -{purchaseOrder.totalDiscountValue.toLocaleString("vi-VN")}đ
+                                    {purchaseOrder.discountValue != null ? purchaseOrder.discountValue.toLocaleString("vi-VN") : 0}đ
                                 </span>
                             </div>
                             <div className="purchase-order-payment-row">
