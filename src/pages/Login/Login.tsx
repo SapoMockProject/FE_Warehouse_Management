@@ -1,11 +1,12 @@
+import type { AxiosError } from "axios";
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { loginGoogle } from "../../apis/authApi";
+import Button from "../../components/Button/Button";
+import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
+import type { BaseResponse } from "../../types/BaseResponse";
 import InputComponent from "./Input/InputComponent";
 import "./Login.css";
-import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
-import { useNavigate } from "react-router-dom";
-import Button from "../../components/Button/Button";
-import { loginGoogle } from "../../apis/authApi";
-import type { BaseResponse } from "../../types/BaseResponse";
 
 export default function Login() {
 	const [loginValue, setLoginValue] = React.useState({ username: "", password: "" });
@@ -28,10 +29,24 @@ export default function Login() {
 			setErrors((prev) => ({ ...prev, password: "Mật khẩu phải có ít nhất 8 ký tự" }));
 			return;
 		}
-		const response = await axiosConfiguration.post("/auth/login", loginValue);
-		const token = response.data.data.token;
-		localStorage.setItem("token", token);
-		navigate("/dashboard");
+		try {
+			const response = await axiosConfiguration.post("/auth/login", loginValue);
+			const token = response.data.data.token;
+			localStorage.setItem("token", token);
+			navigate("/dashboard");
+		} catch (error) {
+			const status = (error as AxiosError).status;
+			if (status === 401) {
+				setErrors({ username: "Sai username hoặc mật khẩu", password: "Sai username hoặc mật khẩu" });
+				return;
+			}
+			if (status === 500) {
+				setErrors({ username: "Lỗi máy chủ, vui lòng thử lại sau", password: "Lỗi máy chủ, vui lòng thử lại sau" });
+				return;
+			}
+			const message = ((error as AxiosError).response?.data as BaseResponse<string>).message;
+			setErrors({ username: message, password: message });
+		}
 	};
 	const handleRedirect = () => {
 		window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?
@@ -50,10 +65,10 @@ export default function Login() {
 		if (code && prompt) {
 			const fetchToken = async () => {
 				const response = await loginGoogle(code);
-				const token = (response as BaseResponse<{token: string}>).data.token;
+				const token = (response as BaseResponse<{ token: string }>).data.token;
 				localStorage.setItem("token", token);
 				navigate("/dashboard");
-			}
+			};
 			fetchToken();
 		}
 	}, [navigate]);
@@ -74,6 +89,11 @@ export default function Login() {
 							error={errors.username}
 							title="Username"
 							required
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									login();
+								}
+							}}
 							onChange={(e) => setLoginValue((prev) => ({ ...prev, username: e.target.value }))}
 						/>
 						<InputComponent
@@ -83,6 +103,11 @@ export default function Login() {
 							error={errors.password}
 							title="Mật khẩu"
 							required
+							onKeyDown={(e) => {
+								if (e.key === "Enter") {
+									login();
+								}
+							}}
 							onChange={(e) => setLoginValue((prev) => ({ ...prev, password: e.target.value }))}
 						/>
 						<button onClick={login} className="login_button">
@@ -95,7 +120,7 @@ export default function Login() {
 							onClick={handleRedirect}
 							className="login_google_btn"
 							label="Login With Google"
-							icon={<img width={20} height={20} src={'/google-icon-logo-svgrepo-com.svg'} alt="Google Icon" />}
+							icon={<img width={20} height={20} src={"/google-icon-logo-svgrepo-com.svg"} alt="Google Icon" />}
 						/>
 					</div>
 				</div>
