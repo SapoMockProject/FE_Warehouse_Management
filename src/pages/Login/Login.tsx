@@ -9,6 +9,7 @@ import type { BaseResponse } from "../../types/BaseResponse";
 import { getErrorMessage } from "../../utils/StatusResponseMessage.util";
 import InputComponent from "./Input/InputComponent";
 import "./Login.css";
+import type { AuthenticationResponse } from "../../types/IUser";
 
 export default function Login() {
 	const [loginValue, setLoginValue] = React.useState({ username: "", password: "" });
@@ -35,7 +36,11 @@ export default function Login() {
 		setErrors((prev) => ({ ...prev, password: "" }));
 		try {
 			const response = await axiosConfiguration.post("/auth/login", loginValue);
-			const token = response.data.data.token;
+			const token = (response.data as BaseResponse<AuthenticationResponse>).data.token;
+			if (token === null || token === undefined) {
+				toast.info("Vui lòng check email để kích hoạt tài khoản của bạn!");
+				return;
+			}
 			localStorage.setItem("token", token);
 			navigate("/dashboard");
 		} catch (error) {

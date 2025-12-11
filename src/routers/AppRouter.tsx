@@ -17,6 +17,7 @@ import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
 import DetailEmployee from "../pages/Employee/DetailEmployee/DetailEmployee";
 import NotFoundPage from "../pages/NotFound/NotFound";
 import GoodsReceiptCreate from "../pages/GoodsReceipt/GoodsReceiptCreate/GoodsReceiptCreate";
+import VerifyAccountPage from "../pages/VerifyAccount/VerifyAccount";
 
 export const AppRouter = () => {
 	return (
@@ -41,6 +42,7 @@ export const AppRouter = () => {
 							<Route path="/products" element={<ProductList />} />
 						</Route>
 					</Route>
+					<Route path="/verify-account" element={<VerifyAccountPage />} />
 					<Route path="/login" element={<Login />} />
 					<Route path="*" element={<NotFoundPage />} />
 				</Routes>

@@ -54,3 +54,8 @@ export const deleteEmployee = async (id: number) => {
 		},
 	});
 };
+
+export const verifyAccount = async (token: string) => {
+	const response = await axiosConfiguration.post("/auth/verify-account", { token });
+	return response.data;
+};
