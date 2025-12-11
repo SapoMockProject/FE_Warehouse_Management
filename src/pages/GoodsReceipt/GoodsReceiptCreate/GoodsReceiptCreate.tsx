@@ -39,7 +39,7 @@ const GoodsReceiptCreate: React.FC = () => {
         supplierId: null,
         description: "",
         assignedToAccountId: null,
-        receiptDate: "",
+        receiptDate: new Date().toISOString(),
         refference: "",
         goodsReceiptCode: "",
         discountType: null,
@@ -54,7 +54,6 @@ const GoodsReceiptCreate: React.FC = () => {
     }
 
     const [goodsReceiptRequest, setGoodsReceiptRequest] = useState<GoodsReceiptRequest>(bodyRequest);
-    console.log(goodsReceiptRequest);
 
     const [orderItems, setOrderItems] = useState<ProductVariantItem[]>([]);
     const [loading, setLoading] = useState(false);
@@ -144,6 +143,8 @@ const GoodsReceiptCreate: React.FC = () => {
                 receiptDate: "",
                 refference: purchaseOrderData.refference || "",
                 goodsReceiptCode: "",
+                discountType: purchaseOrderData.discountType || null,
+                discountValue: purchaseOrderData.discountValue,
                 totalDiscountValue: purchaseOrderData.totalDiscountValue,
                 totalLineItemsPriceBeforeDiscount: purchaseOrderData.totalLineItemsPriceBeforeDiscount,
                 totalLineItemsPriceAfterDiscount: purchaseOrderData.totalLineItemsPriceAfterDiscount,
@@ -443,7 +444,6 @@ const GoodsReceiptCreate: React.FC = () => {
         goodsReceiptRequest.totalLandedCost,
     ]);
 
-    // Handler functions
     const handleBackBtn = () => {
         if (purchaseOrderData) {
             navigate(`/purchase-orders/${purchaseOrderData.id}`);
@@ -667,17 +667,20 @@ const GoodsReceiptCreate: React.FC = () => {
         setError(error);
 
         if (Object.keys(error).length > 0) return;
+        const receiptDateIso = goodsReceiptRequest.receiptDate
+            ? new Date(goodsReceiptRequest.receiptDate).toISOString()
+            : new Date().toISOString();
 
         const bodyRequest: GoodsReceiptRequest = {
             ...goodsReceiptRequest,
-            receiptDate: goodsReceiptRequest.receiptDate || new Date().toISOString()
+            receiptDate: receiptDateIso
         };
 
         console.log("Body request goods receipt: ", bodyRequest);
 
         try {
             const response = await createGoodsReceipt(bodyRequest);
-            console.log("Kết quả backend:", response); 
+            console.log("Kết quả backend:", response);
 
             if (response.data) {
                 navigate(`/goods-receipts/${response.data.id}`);
@@ -972,198 +975,198 @@ const GoodsReceiptCreate: React.FC = () => {
 
                     {purchaseOrderData && (
                         <div className="purchase-order-section">
-                        <div className="payment-section-header">
-                            <h2 className="purchase-order-section-title">Thông tin thanh toán</h2>
-                            <Button
-                                label={showPaymentForm ? "Thanh toán sau" : "Thêm thanh toán"}
-                                onClick={handleTogglePaymentForm}
-                                variant={showPaymentForm ? "secondary" : "primary"}
-                                size="md"
-                            />
-                        </div>
-
-                        {!showPaymentForm ? (
-                            <div className="payment-later-notice">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="#faad14"
-                                    strokeWidth="2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <circle cx="12" cy="12" r="10" />
-                                    <line x1="12" y1="8" x2="12" y2="12" />
-                                    <line x1="12" y1="16" x2="12.01" y2="16" />
-                                </svg>
-                                <div>
-                                    <strong>Thanh toán sau</strong>
-                                    <p>Phiếu nhập hàng sẽ được ghi nhận với trạng thái chưa thanh toán</p>
-                                </div>
+                            <div className="payment-section-header">
+                                <h2 className="purchase-order-section-title">Thông tin thanh toán</h2>
+                                <Button
+                                    label={showPaymentForm ? "Thanh toán sau" : "Thêm thanh toán"}
+                                    onClick={handleTogglePaymentForm}
+                                    variant={showPaymentForm ? "secondary" : "primary"}
+                                    size="md"
+                                />
                             </div>
-                        ) : (
-                            <div className="payment-details-form">
-                                <div className="purchase-order-form-group">
-                                    <label style={{ display: "inline-block", marginBottom: "4px" }}>
-                                        Phương thức thanh toán <span style={{ color: "red" }}>*</span>
-                                    </label>
-                                    <CustomSelect
-                                        placeholder="Chọn phương thức thanh toán"
-                                        value={goodsReceiptRequest.transactionInfo?.paymentMethodId?.toString() || null}
-                                        onChange={(val) => handlePaymentFieldChange("paymentMethodId", Number(val))}
-                                        showSelectedInTrigger={true}
+
+                            {!showPaymentForm ? (
+                                <div className="payment-later-notice">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="20"
+                                        height="20"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="#faad14"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
                                     >
-                                        {paymentMethods.map((method) => (
-                                            <SelectOption
-                                                key={method.id}
-                                                value={method.id.toString()}
-                                                label={method.name}
-                                            />
-                                        ))}
-                                    </CustomSelect>
-                                    {error.paymentMethod && (
-                                        <ValidationMessage
-                                            show={true}
-                                            message={error.paymentMethod}
-                                            type="error"
-                                        />
-                                    )}
-                                </div>
-
-                                <div className="purchase-order-form-group">
-                                    <Input
-                                        type="number"
-                                        label={
-                                            <>
-                                                Số tiền thanh toán <span style={{ color: "red" }}>*</span>
-                                            </>
-                                        }
-                                        value={goodsReceiptRequest.transactionInfo?.amount || 0}
-                                        onChange={(val) => handlePaymentFieldChange("amount", Number(val))}
-                                        placeholder="Nhập số tiền thanh toán"
-                                    />
-                                    {error.paymentAmount && (
-                                        <ValidationMessage
-                                            show={true}
-                                            message={error.paymentAmount}
-                                            type="error"
-                                        />
-                                    )}
-                                    <div style={{
-                                        marginTop: "8px",
-                                        display: "flex",
-                                        gap: "8px",
-                                        flexWrap: "wrap"
-                                    }}>
-                                        <Button
-                                            label="25%"
-                                            onClick={() => handlePaymentFieldChange("amount", Math.round(goodsReceiptRequest.totalPrice * 0.25))}
-                                            variant="tertiary"
-                                            size="sm"
-                                        />
-                                        <Button
-                                            label="50%"
-                                            onClick={() => handlePaymentFieldChange("amount", Math.round(goodsReceiptRequest.totalPrice * 0.5))}
-                                            variant="tertiary"
-                                            size="sm"
-                                        />
-                                        <Button
-                                            label="75%"
-                                            onClick={() => handlePaymentFieldChange("amount", Math.round(goodsReceiptRequest.totalPrice * 0.75))}
-                                            variant="tertiary"
-                                            size="sm"
-                                        />
-                                        <Button
-                                            label="100%"
-                                            onClick={() => handlePaymentFieldChange("amount", goodsReceiptRequest.totalPrice)}
-                                            variant="tertiary"
-                                            size="sm"
-                                        />
+                                        <circle cx="12" cy="12" r="10" />
+                                        <line x1="12" y1="8" x2="12" y2="12" />
+                                        <line x1="12" y1="16" x2="12.01" y2="16" />
+                                    </svg>
+                                    <div>
+                                        <strong>Thanh toán sau</strong>
+                                        <p>Phiếu nhập hàng sẽ được ghi nhận với trạng thái chưa thanh toán</p>
                                     </div>
                                 </div>
-
-                                <div className="purchase-order-form-group">
-                                    <DateField
-                                        type="datetime"
-                                        label={
-                                            <>
-                                                Ngày ghi nhận giao dịch <span style={{ color: "red" }}>*</span>
-                                            </>
-                                        }
-                                        value={goodsReceiptRequest.transactionInfo?.processedOn || ""}
-                                        onChange={(val) => handlePaymentFieldChange("processedOn", val as string)}
-                                        placeholder="Chọn ngày ghi nhận"
-                                    />
-                                    {error.processedOn && (
-                                        <ValidationMessage
-                                            show={true}
-                                            message={error.processedOn}
-                                            type="error"
-                                        />
-                                    )}
-                                </div>
-
-                                <div className="purchase-order-form-group">
-                                    <Input
-                                        type="text"
-                                        label="Mã tham chiếu"
-                                        value={goodsReceiptRequest.transactionInfo?.referenceCode || ""}
-                                        onChange={(val) => handlePaymentFieldChange("referenceCode", val as string)}
-                                        placeholder="Nhập mã tham chiếu giao dịch (tùy chọn)"
-                                    />
-                                </div>
-
-                                <div className="payment-summary-box">
-                                    <div className="payment-summary-row">
-                                        <span>Tổng tiền nhập:</span>
-                                        <strong>{goodsReceiptRequest.totalPrice.toLocaleString("vi-VN")}đ</strong>
-                                    </div>
-                                    <div className="payment-summary-row">
-                                        <span>Đã thanh toán:</span>
-                                        <strong className="text-success">
-                                            {(goodsReceiptRequest.transactionInfo?.amount || 0).toLocaleString("vi-VN")}đ
-                                        </strong>
-                                    </div>
-                                    <div className="payment-summary-row">
-                                        <span>Còn lại:</span>
-                                        <strong className={
-                                            (goodsReceiptRequest.totalPrice - (goodsReceiptRequest.transactionInfo?.amount || 0)) > 0
-                                                ? "text-warning"
-                                                : "text-success"
-                                        }>
-                                            {(goodsReceiptRequest.totalPrice - (goodsReceiptRequest.transactionInfo?.amount || 0)).toLocaleString("vi-VN")}đ
-                                        </strong>
-                                    </div>
-                                </div>
-
-                                {(goodsReceiptRequest.totalPrice - (goodsReceiptRequest.transactionInfo?.amount || 0)) > 0 && (
-                                    <div className="payment-partial-notice">
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            width="16"
-                                            height="16"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="#1890ff"
-                                            strokeWidth="2"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
+                            ) : (
+                                <div className="payment-details-form">
+                                    <div className="purchase-order-form-group">
+                                        <label style={{ display: "inline-block", marginBottom: "4px" }}>
+                                            Phương thức thanh toán <span style={{ color: "red" }}>*</span>
+                                        </label>
+                                        <CustomSelect
+                                            placeholder="Chọn phương thức thanh toán"
+                                            value={goodsReceiptRequest.transactionInfo?.paymentMethodId?.toString() || null}
+                                            onChange={(val) => handlePaymentFieldChange("paymentMethodId", Number(val))}
+                                            showSelectedInTrigger={true}
                                         >
-                                            <circle cx="12" cy="12" r="10" />
-                                            <line x1="12" y1="16" x2="12" y2="12" />
-                                            <line x1="12" y1="8" x2="12.01" y2="8" />
-                                        </svg>
-                                        <span>Thanh toán một phần. Số tiền còn lại sẽ được ghi nhận là công nợ.</span>
+                                            {paymentMethods.map((method) => (
+                                                <SelectOption
+                                                    key={method.id}
+                                                    value={method.id.toString()}
+                                                    label={method.name}
+                                                />
+                                            ))}
+                                        </CustomSelect>
+                                        {error.paymentMethod && (
+                                            <ValidationMessage
+                                                show={true}
+                                                message={error.paymentMethod}
+                                                type="error"
+                                            />
+                                        )}
                                     </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                    )}  
-                    
+
+                                    <div className="purchase-order-form-group">
+                                        <Input
+                                            type="number"
+                                            label={
+                                                <>
+                                                    Số tiền thanh toán <span style={{ color: "red" }}>*</span>
+                                                </>
+                                            }
+                                            value={goodsReceiptRequest.transactionInfo?.amount || 0}
+                                            onChange={(val) => handlePaymentFieldChange("amount", Number(val))}
+                                            placeholder="Nhập số tiền thanh toán"
+                                        />
+                                        {error.paymentAmount && (
+                                            <ValidationMessage
+                                                show={true}
+                                                message={error.paymentAmount}
+                                                type="error"
+                                            />
+                                        )}
+                                        <div style={{
+                                            marginTop: "8px",
+                                            display: "flex",
+                                            gap: "8px",
+                                            flexWrap: "wrap"
+                                        }}>
+                                            <Button
+                                                label="25%"
+                                                onClick={() => handlePaymentFieldChange("amount", Math.round(goodsReceiptRequest.totalPrice * 0.25))}
+                                                variant="tertiary"
+                                                size="sm"
+                                            />
+                                            <Button
+                                                label="50%"
+                                                onClick={() => handlePaymentFieldChange("amount", Math.round(goodsReceiptRequest.totalPrice * 0.5))}
+                                                variant="tertiary"
+                                                size="sm"
+                                            />
+                                            <Button
+                                                label="75%"
+                                                onClick={() => handlePaymentFieldChange("amount", Math.round(goodsReceiptRequest.totalPrice * 0.75))}
+                                                variant="tertiary"
+                                                size="sm"
+                                            />
+                                            <Button
+                                                label="100%"
+                                                onClick={() => handlePaymentFieldChange("amount", goodsReceiptRequest.totalPrice)}
+                                                variant="tertiary"
+                                                size="sm"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="purchase-order-form-group">
+                                        <DateField
+                                            type="datetime"
+                                            label={
+                                                <>
+                                                    Ngày ghi nhận giao dịch <span style={{ color: "red" }}>*</span>
+                                                </>
+                                            }
+                                            value={goodsReceiptRequest.transactionInfo?.processedOn || ""}
+                                            onChange={(val) => handlePaymentFieldChange("processedOn", val as string)}
+                                            placeholder="Chọn ngày ghi nhận"
+                                        />
+                                        {error.processedOn && (
+                                            <ValidationMessage
+                                                show={true}
+                                                message={error.processedOn}
+                                                type="error"
+                                            />
+                                        )}
+                                    </div>
+
+                                    <div className="purchase-order-form-group">
+                                        <Input
+                                            type="text"
+                                            label="Mã tham chiếu"
+                                            value={goodsReceiptRequest.transactionInfo?.referenceCode || ""}
+                                            onChange={(val) => handlePaymentFieldChange("referenceCode", val as string)}
+                                            placeholder="Nhập mã tham chiếu giao dịch (tùy chọn)"
+                                        />
+                                    </div>
+
+                                    <div className="payment-summary-box">
+                                        <div className="payment-summary-row">
+                                            <span>Tổng tiền nhập:</span>
+                                            <strong>{goodsReceiptRequest.totalPrice.toLocaleString("vi-VN")}đ</strong>
+                                        </div>
+                                        <div className="payment-summary-row">
+                                            <span>Đã thanh toán:</span>
+                                            <strong className="text-success">
+                                                {(goodsReceiptRequest.transactionInfo?.amount || 0).toLocaleString("vi-VN")}đ
+                                            </strong>
+                                        </div>
+                                        <div className="payment-summary-row">
+                                            <span>Còn lại:</span>
+                                            <strong className={
+                                                (goodsReceiptRequest.totalPrice - (goodsReceiptRequest.transactionInfo?.amount || 0)) > 0
+                                                    ? "text-warning"
+                                                    : "text-success"
+                                            }>
+                                                {(goodsReceiptRequest.totalPrice - (goodsReceiptRequest.transactionInfo?.amount || 0)).toLocaleString("vi-VN")}đ
+                                            </strong>
+                                        </div>
+                                    </div>
+
+                                    {(goodsReceiptRequest.totalPrice - (goodsReceiptRequest.transactionInfo?.amount || 0)) > 0 && (
+                                        <div className="payment-partial-notice">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                width="16"
+                                                height="16"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="#1890ff"
+                                                strokeWidth="2"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                            >
+                                                <circle cx="12" cy="12" r="10" />
+                                                <line x1="12" y1="16" x2="12" y2="12" />
+                                                <line x1="12" y1="8" x2="12.01" y2="8" />
+                                            </svg>
+                                            <span>Thanh toán một phần. Số tiền còn lại sẽ được ghi nhận là công nợ.</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                 </div>
                 <div className="purchase-order-right-panel">
                     {purchaseOrderData && (

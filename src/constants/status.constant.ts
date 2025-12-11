@@ -10,3 +10,13 @@ export const GOODS_RECEIPT_STATUSES = [
   { value: 'pending', label: 'Chờ nhập' },
   { value: 'completed', label: 'Đã nhập' },
 ];
+
+export const RECEIPT_STATUSES = [
+  { value: "received", label: "Đã nhập", class: "received" },
+  { value: "not_received", label: "Chưa nhập", class: "not_received" },
+];
+
+export const TRANSACTION_STATUSES = [
+  { value: "PENDING", label: "Chờ thanh toán", class: "pending" },
+  { value: "PAID", label: "Đã thanh toán", class: "paid" },
+];

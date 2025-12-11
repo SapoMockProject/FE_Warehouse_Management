@@ -1,0 +1,291 @@
+/* GoodsReceiptList.css */
+/* Có thể import hoặc dùng chung với PurchaseOrderList.css */
+
+.purchase-order-list-page {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Page Header */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #000;
+    margin: 0;
+}
+
+/* Filters Section */
+.filters-section {
+    background: #fff;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 16px;
+}
+
+.filters-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 250px;
+}
+
+.search-input {
+    width: 100%;
+}
+
+.filter-group {
+    min-width: 180px;
+}
+
+/* Bulk Actions Bar */
+.bulk-actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    padding: 12px;
+    background-color: #e6f7ff;
+    border-radius: 6px;
+    border: 1px solid #91d5ff;
+}
+
+.selected-count {
+    font-size: 14px;
+    color: #0050b3;
+    font-weight: 500;
+}
+
+.bulk-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Table Container */
+.table-container {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Data Table */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table thead {
+    background-color: #fafafa;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.data-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
+.data-table tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.table-row-clickable {
+    cursor: pointer;
+}
+
+.table-row-clickable:hover {
+    background-color: #fafafa;
+}
+
+.data-table td {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #333;
+}
+
+.text-center {
+    text-align: center !important;
+}
+
+.text-right {
+    text-align: right !important;
+}
+
+/* Status Badges */
+.status-badge,
+.receipt-status-badge,
+.payment-status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Status Badges */
+.status-draft {
+    background-color: #f0f0f0;
+    color: #666;
+}
+
+.status-completed {
+    background-color: #f6ffed;
+    color: #52c41a;
+}
+
+/* Receipt Status Badges - MỚI */
+.receipt-status-received {
+    background-color: #e6f7ff;
+    color: #1890ff;
+}
+
+.receipt-status-not-received {
+    background-color: #fff1f0;
+    color: #ff4d4f;
+}
+
+/* Payment Status Badges - MỚI */
+.payment-status-paid {
+    background-color: #f6ffed;
+    color: #52c41a;
+}
+
+.payment-status-partial {
+    background-color: #fffbe6;
+    color: #faad14;
+}
+
+.payment-status-unpaid {
+    background-color: #fff1f0;
+    color: #ff4d4f;
+}
+
+/* Payment Detail - MỚI */
+.payment-detail {
+    font-size: 12px;
+    color: #999;
+    margin-top: 4px;
+}
+
+/* Empty State */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.empty-icon {
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-text {
+    font-size: 16px;
+    color: #999;
+    margin-bottom: 20px;
+}
+
+/* Loading State */
+.loading-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    font-size: 16px;
+    color: #999;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.pagination-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.total-items {
+    color: #999;
+    font-size: 13px;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .data-table {
+        font-size: 13px;
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 10px 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .purchase-order-list-page {
+        padding: 16px;
+    }
+
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .filters-row {
+        flex-direction: column;
+    }
+
+    .search-box,
+    .filter-group {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .bulk-actions-bar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .bulk-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        min-width: 900px;
+    }
+}

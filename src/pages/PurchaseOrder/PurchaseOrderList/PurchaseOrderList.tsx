@@ -20,12 +20,10 @@ interface PurchaseOrderListState {
   orders: PurchaseOrderResponse[];
   loading: boolean;
   error: string | null;
-
   page: number;
   size: number;
   totalPages: number;
   sortOrder: string;
-
   activeTab: string;
   searchQuery: string;
   selectedProducts: string[];
@@ -65,28 +63,57 @@ export default function PurchaseOrderRequest() {
 
   const fetchProducts = async () => {
     try {
-      const res = await getAllProducts()
-      setProducts(res.data.content|| []);
+      const res = await getAllProducts();
+      setProducts(res.data.content || []);
     } catch (error) {
       console.error("Failed to load products:", error);
     }
-  }
+  };
 
-  const fetchOrders = async (page: number, size: number, searchQuery: string, sortOrder: string) => {
-    updateState({ loading: true, error: null });
+  const fetchOrders = async () => {
+    if (state.orders.length === 0) {
+      updateState({ loading: true, error: null });
+    }
 
     try {
+      // Xử lý status từ activeTab hoặc selectedStatuses
+      let statusParam: string | undefined = undefined;
+      
+      if (state.activeTab !== "all") {
+        // Nếu có activeTab, ưu tiên activeTab
+        const statusMapping: Record<string, string> =
+          PURCHASE_ORDER_STATUSES.reduce((acc, item) => {
+            acc[item.value] = item.label;
+            return acc;
+          }, {} as Record<string, string>);
+        statusParam = statusMapping[state.activeTab];
+      } else if (state.selectedStatuses.length > 0) {
+        // Nếu không có activeTab, dùng selectedStatuses (chỉ lấy cái đầu tiên)
+        statusParam = state.selectedStatuses[0];
+      }
+
+      const fromDate = state.dateRange.start || undefined;
+      const toDate = state.dateRange.end || undefined;
+
+      const productVariantId = state.selectedProducts.length > 0
+        ? state.selectedProducts[0]
+        : undefined;
+
       const response = await getAllPurchaseOrders(
-        page,
-        size,
-        searchQuery,
-        sortOrder
+        state.page,
+        state.size,
+        query,
+        state.sortOrder,
+        statusParam,
+        fromDate,
+        toDate,
+        productVariantId
       );
 
       const data = response.data;
       updateState({
-        orders: data.content,
-        totalPages: data.page.totalPages,
+        orders: data.content || data,
+        totalPages: data.page?.totalPages || Math.ceil((data.length || 0) / state.size),
         loading: false,
       });
 
@@ -104,42 +131,22 @@ export default function PurchaseOrderRequest() {
     fetchProducts();
   }, []);
 
-
   useEffect(() => {
-    fetchOrders(state.page, state.size, query, state.sortOrder);
-  }, [state.page, state.size, query, state.sortOrder]);
+    fetchOrders();
+  }, [
+    state.page,
+    state.size,
+    query,
+    state.sortOrder,
+    state.activeTab,
+    state.selectedStatuses,
+    state.selectedProducts,
+    state.dateRange,
+  ]);
 
   const getFilteredOrders = () => {
-    let filtered = state.orders;
-
-    if (state.activeTab !== "all") {
-      filtered = filtered.filter((o) => {
-        const statusMapping: Record<string, string> =
-          PURCHASE_ORDER_STATUSES.reduce((acc, item) => {
-            acc[item.value] = item.label;
-            return acc;
-          }, {} as Record<string, string>);
-        return o.status === statusMapping[state.activeTab];
-      });
-    }
-
-    if (state.selectedStatuses.length > 0) {
-      filtered = filtered.filter((o) =>
-        state.selectedStatuses.includes(o.status)
-      );
-    }
-
-    if (state.dateRange.start && state.dateRange.end) {
-      filtered = filtered.filter((o) => {
-        if (!o.createdDate) return true;
-        const orderDate = new Date(o.createdDate);
-        const startDate = new Date(state.dateRange.start);
-        const endDate = new Date(state.dateRange.end);
-        return orderDate >= startDate && orderDate <= endDate;
-      });
-    }
-
-    return filtered;
+    // Không cần filter ở client vì BE đã filter hết
+    return state.orders;
   };
 
   const filteredOrders = getFilteredOrders();
@@ -173,6 +180,20 @@ export default function PurchaseOrderRequest() {
     updateState({ [field]: value, page: 0 } as Partial<PurchaseOrderListState>);
   };
 
+  const handleTabChange = (tab: string) => {
+    const updates: Partial<PurchaseOrderListState> = {
+      activeTab: tab,
+      page: 0,
+    };
+
+    // Reset selectedStatuses khi đổi tab
+    if (tab !== "all") {
+      updates.selectedStatuses = [];
+    }
+
+    updateState(updates);
+  };
+
   const handleStateChange = <K extends keyof PurchaseOrderListState>(
     field: K,
     value: PurchaseOrderListState[K]
@@ -202,9 +223,10 @@ export default function PurchaseOrderRequest() {
           <li className="opr_status all">
             <Button
               label="Tất cả"
-              onClick={() => handleFilterChange("activeTab", "all")}
-              className={`opr_status-btn ${state.activeTab === "all" ? "btn-active" : ""
-                }`}
+              onClick={() => handleTabChange("all")}
+              className={`opr_status-btn ${
+                state.activeTab === "all" ? "btn-active" : ""
+              }`}
               size="md"
             />
           </li>
@@ -212,9 +234,10 @@ export default function PurchaseOrderRequest() {
           <li className="opr_status draft">
             <Button
               label="Đơn nháp"
-              className={`opr_status-btn ${state.activeTab === "draft" ? "btn-active" : ""
-                }`}
-              onClick={() => handleFilterChange("activeTab", "draft")}
+              className={`opr_status-btn ${
+                state.activeTab === "draft" ? "btn-active" : ""
+              }`}
+              onClick={() => handleTabChange("draft")}
               size="md"
             />
           </li>
@@ -222,9 +245,10 @@ export default function PurchaseOrderRequest() {
           <li className="opr_status pending">
             <Button
               label="Chờ nhập"
-              className={`opr_status-btn ${state.activeTab === "pending" ? "btn-active" : ""
-                }`}
-              onClick={() => handleFilterChange("activeTab", "pending")}
+              className={`opr_status-btn ${
+                state.activeTab === "pending" ? "btn-active" : ""
+              }`}
+              onClick={() => handleTabChange("pending")}
               size="md"
             />
           </li>
@@ -232,9 +256,10 @@ export default function PurchaseOrderRequest() {
           <li className="opr_status completed">
             <Button
               label="Đã nhập"
-              className={`opr_status-btn ${state.activeTab === "completed" ? "btn-active" : ""
-                }`}
-              onClick={() => handleFilterChange("activeTab", "completed")}
+              className={`opr_status-btn ${
+                state.activeTab === "completed" ? "btn-active" : ""
+              }`}
+              onClick={() => handleTabChange("completed")}
               size="md"
             />
           </li>
@@ -242,9 +267,10 @@ export default function PurchaseOrderRequest() {
           <li className="opr_status cancelled">
             <Button
               label="Đã hủy"
-              className={`opr_status-btn ${state.activeTab === "cancelled" ? "btn-active" : ""
-                }`}
-              onClick={() => handleFilterChange("activeTab", "cancelled")}
+              className={`opr_status-btn ${
+                state.activeTab === "cancelled" ? "btn-active" : ""
+              }`}
+              onClick={() => handleTabChange("cancelled")}
               size="md"
             />
           </li>
