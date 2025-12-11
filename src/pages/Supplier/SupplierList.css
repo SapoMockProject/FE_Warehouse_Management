@@ -45,6 +45,15 @@ input[type="checkbox"] {
 
 .supplier_query {
     margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.supplier_query .supplier_daterange {
+    padding-top: 0;
+    padding-bottom: 0;
 }
 
 .supplier-list-table-body tr:hover {

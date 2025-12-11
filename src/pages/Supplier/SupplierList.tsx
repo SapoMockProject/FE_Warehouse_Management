@@ -1,10 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import DateField from "../../components/DateField/DateField";
 import Input from "../../components/Input/Input";
 import Pagination from "../../components/Pagination/Pagination";
 import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
 import { useDebounce } from "../../hooks/useDebounce";
 import type { BaseResponse } from "../../types/BaseResponse";
+import type { DateRange } from "../../types/DateFieldProps";
 import type { ISupplierResponse } from "../../types/ISupplier";
 import type { PagedModel } from "../../types/PagedModel";
 import { getSupplierStatusText, getSupplierStatusVariant } from "../../utils/Supplier.util";
@@ -20,6 +22,7 @@ export default function SupplierList() {
 	const [limit, setLimit] = React.useState<number>(10);
 	const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
 	const [inputValue, setInputValue] = React.useState<string>("");
+	const [dateRange, setDateRange] = React.useState<DateRange>({ start: "", end: "" });
 	const query = useDebounce(inputValue, 1000);
 	React.useEffect(() => {
 		const fetchSuppliers = async () => {
@@ -73,6 +76,7 @@ export default function SupplierList() {
 							setPage(0);
 						}}
 					/>
+					<DateField className="supplier_daterange" onChange={() => {}} value={dateRange} type="daterange" />
 				</div>
 				<div>
 					<table className="supplier-list-table">

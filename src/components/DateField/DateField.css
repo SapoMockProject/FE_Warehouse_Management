@@ -48,7 +48,7 @@
   position: absolute;
   top: calc(100% + 4px);
   left: calc(-70%);
-  right: calc(-70%);
+  /* right: calc(-70%); */
   background: rgb(255, 255, 255);
   border: 1px solid #d1d5db;
   border-radius: 8px;
