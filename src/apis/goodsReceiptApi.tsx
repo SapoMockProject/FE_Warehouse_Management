@@ -1,6 +1,7 @@
 import { axiosConfiguration } from "../configurations/AxiosConfiguration";
 import type { BaseResponse } from "../types/BaseResponse";
 import type { GoodsReceiptRequest, GoodsReceiptResponse } from "../types/IGoodsReceipt";
+import type { TransactionRequest } from "../types/ITransaction";
 import type { PagedModel } from "../types/PagedModel";
 
 export const createGoodsReceipt = async (bodyRequest: GoodsReceiptRequest) => {
@@ -70,6 +71,17 @@ export const getGoodsReceiptById = async (id: number) => {
 export const receiveGoods = async (id: number) => {
     const res = await axiosConfiguration.put<BaseResponse<GoodsReceiptResponse>>(`/goods-receipts/${id}/receive`,
         null,
+        {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+            }
+        })
+    return res.data
+};
+
+export const payBillGoodsReceipt = async (id: number, bodyRequest: TransactionRequest) => {
+    const res = await axiosConfiguration.put<BaseResponse<GoodsReceiptResponse>>(`/goods-receipts/${id}/pay`,
+        bodyRequest,
         {
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,

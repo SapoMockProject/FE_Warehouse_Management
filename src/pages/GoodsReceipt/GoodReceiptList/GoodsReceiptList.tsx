@@ -123,15 +123,14 @@ const GoodsReceiptList: React.FC = () => {
         }
     };
 
-        const getVariantName = (variant: VariantResponse) => {
-            const options = [];
-            if (variant.option1value) options.push(variant.option1value);
-            if (variant.option2value) options.push(variant.option2value);
-            if (variant.option3value) options.push(variant.option3value);
-            return options.join(" / ");
-        };
-    
-        
+    const getVariantName = (variant: VariantResponse) => {
+        const options = [];
+        if (variant.option1value) options.push(variant.option1value);
+        if (variant.option2value) options.push(variant.option2value);
+        if (variant.option3value) options.push(variant.option3value);
+        return options.join(" / ");
+    };
+
     useEffect(() => {
         fetchProductVariants();
     }, []);
@@ -315,7 +314,7 @@ const GoodsReceiptList: React.FC = () => {
                             <CustomSelect
                                 placeholder="Chọn sản phẩm"
                                 value={state.selectedProductVariants}
-                                onChange={(variants) => handleFilterChange("selectedProductVariants", variants)}       
+                                onChange={(variants) => handleFilterChange("selectedProductVariants", variants)}
                                 showSelectedInTrigger={true}
                                 multiple={true}
                             >
@@ -323,7 +322,7 @@ const GoodsReceiptList: React.FC = () => {
                                     <SelectOption
                                         key={variant.id}
                                         value={variant.id.toString()}
-                                        label={variant.productName + " - " +getVariantName(variant)}
+                                        label={variant.productName + " - " + getVariantName(variant)}
                                     />
                                 ))}
                             </CustomSelect>
