@@ -2,14 +2,13 @@ import type { AxiosError } from "axios";
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Bounce, toast, ToastContainer } from "react-toastify";
-import { loginGoogle } from "../../apis/authApi";
+import { loginAccount, loginGoogle } from "../../apis/authApi";
 import Button from "../../components/Button/Button";
-import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
 import type { BaseResponse } from "../../types/BaseResponse";
+import type { AuthenticationResponse } from "../../types/IUser";
 import { getErrorMessage } from "../../utils/StatusResponseMessage.util";
 import InputComponent from "./Input/InputComponent";
 import "./Login.css";
-import type { AuthenticationResponse } from "../../types/IUser";
 
 export default function Login() {
 	const [loginValue, setLoginValue] = React.useState({ username: "", password: "" });
@@ -35,8 +34,8 @@ export default function Login() {
 		}
 		setErrors((prev) => ({ ...prev, password: "" }));
 		try {
-			const response = await axiosConfiguration.post("/auth/login", loginValue);
-			const token = (response.data as BaseResponse<AuthenticationResponse>).data.token;
+			const response = await loginAccount(loginValue);
+			const token = (response as BaseResponse<AuthenticationResponse>).data.token;
 			if (token === null || token === undefined) {
 				toast.info("Vui lòng check email để kích hoạt tài khoản của bạn!");
 				return;
@@ -63,16 +62,22 @@ export default function Login() {
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get("code");
 		const prompt = urlParams.get("prompt");
+		console.log("Code from Google:", code);
 		if (code && prompt) {
 			const fetchToken = async () => {
 				const response = await loginGoogle(code);
-				const token = (response as BaseResponse<{ token: string }>).data.token;
+				const token = (response as BaseResponse<AuthenticationResponse>).data.token;
+				if (token === null || token === undefined) {
+					console.log("Token is ", token);
+					toast.info("Vui lòng check email để kích hoạt tài khoản của bạn!");
+					return;
+				}
 				localStorage.setItem("token", token);
 				navigate("/dashboard");
 			};
 			fetchToken();
 		}
-	}, [navigate]);
+	}, []);
 	return (
 		<>
 			<ToastContainer
