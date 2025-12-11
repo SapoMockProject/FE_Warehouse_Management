@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAllProducts } from "../../../apis/productApi";
 import { getAllPurchaseOrders } from "../../../apis/purchaseOrderApi";
 import Button from "../../../components/Button/Button";
 import DateField from "../../../components/DateField/DateField";
 import Input from "../../../components/Input/Input";
 import Pagination from "../../../components/Pagination/Pagination";
-import { ProductSelect } from "../../../components/Select/Product/ProductSelect";
 import { StatusSelect } from "../../../components/Select/Status/StatusSelect";
 import { PURCHASE_ORDER_STATUSES } from "../../../constants/status.constant";
 import { useDebounce } from "../../../hooks/useDebounce";
 import type { DateRange } from "../../../types/DateFieldProps";
-import type { ProductResponse } from "../../../types/IProduct";
+import type { VariantResponse } from "../../../types/IProduct";
 import type { PurchaseOrderResponse } from "../../../types/IPurchaseOrder";
 import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import "./PurchaseOrderList.css";
+import { getAllProductVariants } from "../../../apis/productVariantApi";
+import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
+import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
 
 interface PurchaseOrderListState {
   orders: PurchaseOrderResponse[];
@@ -26,7 +27,7 @@ interface PurchaseOrderListState {
   sortOrder: string;
   activeTab: string;
   searchQuery: string;
-  selectedProducts: string[];
+  selectedvariants: string[];
   selectedStatuses: string[];
   dateRange: DateRange;
 }
@@ -44,7 +45,7 @@ export default function PurchaseOrderRequest() {
     sortOrder: "desc",
     activeTab: "all",
     searchQuery: "",
-    selectedProducts: [],
+    selectedvariants: [],
     selectedStatuses: [],
     dateRange: {
       start: "",
@@ -55,18 +56,18 @@ export default function PurchaseOrderRequest() {
 
   const query = useDebounce(state.searchQuery, 1000);
 
-  const [products, setProducts] = useState<ProductResponse[]>([]);
+  const [variants, setVariants] = useState<VariantResponse[]>([]);
 
   const updateState = (updates: Partial<PurchaseOrderListState>) => {
     setState((prev) => ({ ...prev, ...updates }));
   };
 
-  const fetchProducts = async () => {
+  const fetchProductVariants = async () => {
     try {
-      const res = await getAllProducts();
-      setProducts(res.data.content || []);
+      const res = await getAllProductVariants(0, 999);
+      setVariants(res.data.content || []);
     } catch (error) {
-      console.error("Failed to load products:", error);
+      console.error("Failed to load variants:", error);
     }
   };
 
@@ -76,11 +77,9 @@ export default function PurchaseOrderRequest() {
     }
 
     try {
-      // Xử lý status từ activeTab hoặc selectedStatuses
       let statusParam: string | undefined = undefined;
-      
+
       if (state.activeTab !== "all") {
-        // Nếu có activeTab, ưu tiên activeTab
         const statusMapping: Record<string, string> =
           PURCHASE_ORDER_STATUSES.reduce((acc, item) => {
             acc[item.value] = item.label;
@@ -88,16 +87,16 @@ export default function PurchaseOrderRequest() {
           }, {} as Record<string, string>);
         statusParam = statusMapping[state.activeTab];
       } else if (state.selectedStatuses.length > 0) {
-        // Nếu không có activeTab, dùng selectedStatuses (chỉ lấy cái đầu tiên)
         statusParam = state.selectedStatuses[0];
       }
 
       const fromDate = state.dateRange.start || undefined;
       const toDate = state.dateRange.end || undefined;
 
-      const productVariantId = state.selectedProducts.length > 0
-        ? state.selectedProducts[0]
-        : undefined;
+      const productVariantId =
+        state.selectedvariants.length > 0
+          ? state.selectedvariants[0]
+          : undefined;
 
       const response = await getAllPurchaseOrders(
         state.page,
@@ -113,7 +112,8 @@ export default function PurchaseOrderRequest() {
       const data = response.data;
       updateState({
         orders: data.content || data,
-        totalPages: data.page?.totalPages || Math.ceil((data.length || 0) / state.size),
+        totalPages:
+          data.page?.totalPages || Math.ceil((data.content.length || 0) / state.size),
         loading: false,
       });
 
@@ -127,8 +127,16 @@ export default function PurchaseOrderRequest() {
     }
   };
 
+  const getVariantName = (variant: VariantResponse) => {
+    const options = [];
+    if (variant.option1value) options.push(variant.option1value);
+    if (variant.option2value) options.push(variant.option2value);
+    if (variant.option3value) options.push(variant.option3value);
+    return options.join(" / ");
+  };
+
   useEffect(() => {
-    fetchProducts();
+    fetchProductVariants();
   }, []);
 
   useEffect(() => {
@@ -140,7 +148,7 @@ export default function PurchaseOrderRequest() {
     state.sortOrder,
     state.activeTab,
     state.selectedStatuses,
-    state.selectedProducts,
+    state.selectedvariants,
     state.dateRange,
   ]);
 
@@ -224,9 +232,8 @@ export default function PurchaseOrderRequest() {
             <Button
               label="Tất cả"
               onClick={() => handleTabChange("all")}
-              className={`opr_status-btn ${
-                state.activeTab === "all" ? "btn-active" : ""
-              }`}
+              className={`opr_status-btn ${state.activeTab === "all" ? "btn-active" : ""
+                }`}
               size="md"
             />
           </li>
@@ -234,9 +241,8 @@ export default function PurchaseOrderRequest() {
           <li className="opr_status draft">
             <Button
               label="Đơn nháp"
-              className={`opr_status-btn ${
-                state.activeTab === "draft" ? "btn-active" : ""
-              }`}
+              className={`opr_status-btn ${state.activeTab === "draft" ? "btn-active" : ""
+                }`}
               onClick={() => handleTabChange("draft")}
               size="md"
             />
@@ -245,9 +251,8 @@ export default function PurchaseOrderRequest() {
           <li className="opr_status pending">
             <Button
               label="Chờ nhập"
-              className={`opr_status-btn ${
-                state.activeTab === "pending" ? "btn-active" : ""
-              }`}
+              className={`opr_status-btn ${state.activeTab === "pending" ? "btn-active" : ""
+                }`}
               onClick={() => handleTabChange("pending")}
               size="md"
             />
@@ -256,9 +261,8 @@ export default function PurchaseOrderRequest() {
           <li className="opr_status completed">
             <Button
               label="Đã nhập"
-              className={`opr_status-btn ${
-                state.activeTab === "completed" ? "btn-active" : ""
-              }`}
+              className={`opr_status-btn ${state.activeTab === "completed" ? "btn-active" : ""
+                }`}
               onClick={() => handleTabChange("completed")}
               size="md"
             />
@@ -267,9 +271,8 @@ export default function PurchaseOrderRequest() {
           <li className="opr_status cancelled">
             <Button
               label="Đã hủy"
-              className={`opr_status-btn ${
-                state.activeTab === "cancelled" ? "btn-active" : ""
-              }`}
+              className={`opr_status-btn ${state.activeTab === "cancelled" ? "btn-active" : ""
+                }`}
               onClick={() => handleTabChange("cancelled")}
               size="md"
             />
@@ -301,15 +304,25 @@ export default function PurchaseOrderRequest() {
             </div>
 
             <div style={{ flex: "0 0 auto" }}>
-              <ProductSelect
-                value={state.selectedProducts}
-                onChange={(products) =>
-                  handleFilterChange("selectedProducts", products)
-                }
-                products={products}
-                renderProductLabel={(product) => `${product.name}`}
+              <CustomSelect
                 placeholder="Chọn sản phẩm"
-              />
+                value={state.selectedvariants}
+                onChange={(variants) =>
+                  handleFilterChange("selectedvariants", variants)
+                }
+                showSelectedInTrigger={true}
+                multiple={true}
+              >
+                {variants.map((variant) => (
+                  <SelectOption
+                    key={variant.id}
+                    value={variant.id.toString()}
+                    label={
+                      variant.productName + " - " + getVariantName(variant)
+                    }
+                  />
+                ))}
+              </CustomSelect>
             </div>
 
             <div style={{ flex: "0 1 auto" }}>

@@ -9,8 +9,7 @@ import Input from "../../../components/Input/Input";
 import SupplierInfoCard from "../../../components/Supplier/SupplierCard/SupplierCard";
 import { ValidationMessage } from "../../../components/ValidationMessage/ValidationMessage";
 import { formatDateTime } from "../../../utils/DateFilterOptions.util";
-// import { getGoodsReceiptById, receiveGoods, addPayment } from "../../../apis/goodsReceiptApi";
-import { getGoodsReceiptById } from "../../../apis/goodsReceiptApi";
+import { getGoodsReceiptById, receiveGoods } from "../../../apis/goodsReceiptApi";
 import { getAllPaymentMethods } from "../../../apis/paymentMethodApi";
 import type { PaymentMethod } from "../../../types/IPaymentMethod";
 import type { TransactionRequest } from "../../../types/ITransaction";
@@ -84,19 +83,18 @@ const GoodsReceiptDetail: React.FC = () => {
     const handleReceiveGoods = async () => {
         if (!goodsReceipt) return;
 
-        if (window.confirm("Xác nhận đã nhập hàng vào kho?")) {
-            setProcessingReceive(true);
-            try {
-                // await receiveGoods(goodsReceipt.id);
-                await fetchGoodsReceipt();
-                alert("Đã nhập hàng vào kho thành công!");
-            } catch (err) {
-                console.error("Error receiving goods:", err);
-                alert("Có lỗi xảy ra khi nhập hàng vào kho");
-            } finally {
-                setProcessingReceive(false);
-            }
+        setProcessingReceive(true);
+        try {
+            await receiveGoods(goodsReceipt.id);
+            await fetchGoodsReceipt();
+            alert("Đã nhập hàng vào kho thành công!");
+        } catch (err) {
+            console.error("Error receiving goods:", err);
+            // alert("Có lỗi xảy ra khi nhập hàng vào kho");
+        } finally {
+            setProcessingReceive(false);
         }
+
     };
 
     const handleTogglePaymentForm = () => {
@@ -366,8 +364,9 @@ const GoodsReceiptDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="purchase-order-section">
-                        {goodsReceipt.transactions && goodsReceipt.transactions.length > 0 && (
+
+                    {goodsReceipt.transactions && goodsReceipt.transactions.length > 0 && (
+                        <div className="purchase-order-section">
                             <div style={{ marginBottom: "16px" }}>
                                 <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>
                                     Lịch sử thanh toán
@@ -395,9 +394,11 @@ const GoodsReceiptDetail: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
-                        )}
+                        </div>
+                    )}
 
-                        {showPaymentForm && (
+                    {showPaymentForm && (
+                        <div className="purchase-order-section">
                             <div className="payment-details-form">
                                 <div className="purchase-order-form-group">
                                     <label style={{ display: "inline-block", marginBottom: "4px" }}>
@@ -469,18 +470,18 @@ const GoodsReceiptDetail: React.FC = () => {
                                     style={{ width: "100%" }}
                                 />
                             </div>
-                        )}
+                        </div>
+                    )}
 
-                        {remaining === 0 && (
-                            <div className="payment-complete-notice">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#52c41a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                    <polyline points="22 4 12 14.01 9 11.01" />
-                                </svg>
-                                <span>Đã thanh toán đủ</span>
-                            </div>
-                        )}
-                    </div>
+                    {remaining === 0 && (
+                        <div className="payment-complete-notice">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#52c41a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                            <span>Đã thanh toán đủ</span>
+                        </div>
+                    )}
                 </div>
 
                 <div className="purchase-order-right-panel">
@@ -544,7 +545,7 @@ const GoodsReceiptDetail: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 

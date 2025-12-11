@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./GoodsReceiptCreate.css";
 import type {
-    ProductResponse,
     ProductVariantItem,
+    VariantResponse,
 } from "../../../types/IProduct";
 import Input from "../../../components/Input/Input";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
@@ -15,7 +15,6 @@ import { ProductItemSearch } from "../../../components/ProductItemSearch/Product
 import type { ISupplierResponse } from "../../../types/ISupplier";
 import SupplierItem from "../../../components/Supplier/SupplierItem/SupplierItem";
 import SupplierInfoCard from "../../../components/Supplier/SupplierCard/SupplierCard";
-import { getAllProducts } from "../../../apis/productApi";
 import { getAllSupliers } from "../../../apis/supplierApi";
 import type { IUserResponse } from "../../../types/IUser";
 import { getAllEmployees } from "../../../apis/employeeApi";
@@ -27,7 +26,8 @@ import type { PaymentMethod } from "../../../types/IPaymentMethod";
 import type { PurchaseOrderItemResponse } from "../../../types/IPurchaseOrder";
 import { getAllPaymentMethods } from "../../../apis/paymentMethodApi";
 import { createGoodsReceipt } from "../../../apis/goodsReceiptApi";
-// import { createGoodsReceipt } ;
+import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
+import { getAllProductVariants } from "../../../apis/productVariantApi";
 
 const GoodsReceiptCreate: React.FC = () => {
     const navigate = useNavigate();
@@ -59,14 +59,13 @@ const GoodsReceiptCreate: React.FC = () => {
     const [loading, setLoading] = useState(false);
 
     const [inputValue, setInputValue] = useState<string>("");
-    const [isOpenSearchProduct, setIsOpenSearchProduct] = useState<boolean>(false);
-    const [searchProducts, setSearchProducts] = useState<ProductVariantItem[]>([]);
-    const [pageSearchProduct, setPageSearchProduct] = useState<number>(0);
-    const [hasMoreProduct, setHasMoreProduct] = useState(true);
-    const [loadingProduct, setLoadingProduct] = useState(false);
+    const [isOpenSearchVariant, setIsOpenSearchVariant] = useState<boolean>(false);
+    const [searchProductVariants, setSearchProductVariants] = useState<ProductVariantItem[]>([]);
+    const [pageSearchVariant, setPageSearchVariant] = useState<number>(0);
+    const [hasMoreProduct, setHasMoreVariant] = useState(true);
+    const [loadingVariant, setLoadingVariant] = useState(false);
     const dropdownProductRef = useRef<HTMLDivElement>(null);
     const observerProductRef = useRef<HTMLDivElement | null>(null);
-    const sizeSearch = 3;
 
     const [inputSearchSupplier, setInputSearchSupplier] = useState("");
     const [isOpenSearchSupplier, setIsOpenSearchSupplier] = useState<boolean>(false);
@@ -89,34 +88,31 @@ const GoodsReceiptCreate: React.FC = () => {
     const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(false);
     const [showPaymentForm, setShowPaymentForm] = useState(false);
 
+    const user = React.useContext(AuthenticationContext);
+
+    const getVariantName = (variant: VariantResponse) => {
+        const options = [];
+        if (variant.option1value) options.push(variant.option1value);
+        if (variant.option2value) options.push(variant.option2value);
+        if (variant.option3value) options.push(variant.option3value);
+        return options.join(" / ");
+    };
+
     useEffect(() => {
         if (purchaseOrderData) {
             setLoading(true);
 
             const convertedItems: ProductVariantItem[] = purchaseOrderData.items.map((item: any) => {
-                const options = [];
-
-                if (item.productVariant.option1value) {
-                    options.push(`${item.productVariant.option1value}`);
-                }
-                if (item.productVariant.option2value) {
-                    options.push(`${item.productVariant.option2value}`);
-                }
-                if (item.productVariant.option3value) {
-                    options.push(`${item.productVariant.option3value}`);
-                }
-
-                const variantName = options.join(" / ");
-
+                const variantName = getVariantName(item.productVariant)
                 return {
                     id: item.productVariant.id,
                     productId: item.product.id,
-                    name: item.product.name,
+                    productName: item.product.name,
                     variantName: variantName,
                     sku: item.productVariant.sku,
                     price: item.price,
-                    quantityInStock: item.productVariant.stock,
-                    image: item.productVariant.imageUrl,
+                    stock: item.productVariant.stock,
+                    imageUrl: item.productVariant.imageUrl,
                     quantityPurchase: item.quantityPurchase,
                     discountType: item.discountType,
                     discountValue: item.discountValueItem,
@@ -162,50 +158,33 @@ const GoodsReceiptCreate: React.FC = () => {
     }, [purchaseOrderData]);
 
     const convertToProductVariants = (
-        products: ProductResponse[]
+        variants: VariantResponse[]
     ): ProductVariantItem[] => {
         const result: ProductVariantItem[] = [];
-
-        products.forEach((product) => {
-            product.variants.forEach((variant) => {
-                const options = [];
-
-                if (product.option1name && variant.option1value) {
-                    options.push(`${product.option1name}: ${variant.option1value}`);
-                }
-                if (product.option2name && variant.option2value) {
-                    options.push(`${product.option2name}: ${variant.option2value}`);
-                }
-                if (product.option3name && variant.option3value) {
-                    options.push(`${product.option3name}: ${variant.option3value}`);
-                }
-
-                const variantName = options.join(" / ");
-
-                result.push({
-                    id: variant.id,
-                    productId: product.id,
-                    name: product.name,
-                    variantName: variantName,
-                    sku: variant.sku,
-                    price: variant.price,
-                    quantityInStock: variant.stock,
-                    image: variant.imageUrl,
-                    quantityPurchase: 0
-                });
+        variants.forEach((variant) => {
+            const variantName = getVariantName(variant);
+            result.push({
+                id: variant.id,
+                productId: variant.productId,
+                productName: variant.productName,
+                variantName: variantName,
+                sku: variant.sku,
+                price: variant.price,
+                stock: variant.stock,
+                imageUrl: variant.imageUrl,
+                quantityPurchase: 0
             });
         });
-
         return result;
     };
 
-    const fetchProducts = async (page: number, keyword: string) => {
-        if (loadingProduct) return;
+    const fetchProductVariants = async (page: number, keyword: string) => {
+        if (loadingVariant) return;
 
-        setLoadingProduct(true);
+        setLoadingVariant(true);
 
         try {
-            const res = await getAllProducts(page, sizeSearch, keyword);
+            const res = await getAllProductVariants(page, 5, keyword);
             const data = res.data;
 
             const productVariantList = convertToProductVariants(data.content);
@@ -213,27 +192,27 @@ const GoodsReceiptCreate: React.FC = () => {
             const totalPage = data.page.totalPages;
 
             if (!productVariantList || productVariantList.length === 0) {
-                setHasMoreProduct(false);
-                setLoadingProduct(false);
+                setHasMoreVariant(false);
+                setLoadingVariant(false);
                 return;
             }
 
-            setSearchProducts((prev) => [...prev, ...productVariantList]);
+            setSearchProductVariants((prev) => [...prev, ...productVariantList]);
 
             if (page + 1 >= totalPage) {
-                setHasMoreProduct(false);
+                setHasMoreVariant(false);
             }
         } catch (error) {
             console.error("Error fetch products:", error);
         }
 
-        setLoadingProduct(false);
+        setLoadingVariant(false);
     };
 
     const fetchSuppliers = async (page: number, query: string) => {
         setLoadingSupplier(true);
         try {
-            const res = await getAllSupliers(page, sizeSearch, query);
+            const res = await getAllSupliers(page, 5, query);
 
             const data = res.data;
 
@@ -299,7 +278,7 @@ const GoodsReceiptCreate: React.FC = () => {
                 dropdownProductRef.current &&
                 !dropdownProductRef.current.contains(event.target as Node)
             ) {
-                setIsOpenSearchProduct(false);
+                setIsOpenSearchVariant(false);
             }
         };
 
@@ -322,35 +301,35 @@ const GoodsReceiptCreate: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (!isOpenSearchProduct) return;
+        if (!isOpenSearchVariant) return;
 
         const delayDebounce = setTimeout(() => {
-            setSearchProducts([]);
-            setPageSearchProduct(0);
-            setHasMoreProduct(true);
-            fetchProducts(0, inputValue);
+            setSearchProductVariants([]);
+            setPageSearchVariant(0);
+            setHasMoreVariant(true);
+            fetchProductVariants(0, inputValue);
         }, 500);
 
         return () => clearTimeout(delayDebounce);
     }, [inputValue]);
 
     useEffect(() => {
-        if (!isOpenSearchProduct) return;
+        if (!isOpenSearchVariant) return;
 
         const load = async () => {
-            await fetchProducts(pageSearchProduct, inputValue);
+            await fetchProductVariants(pageSearchVariant, inputValue);
         };
 
         load();
-    }, [pageSearchProduct, isOpenSearchProduct]);
+    }, [pageSearchVariant, isOpenSearchVariant]);
 
     useEffect(() => {
         if (!observerProductRef.current) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0].isIntersecting && hasMoreProduct && !loadingProduct) {
-                    setPageSearchProduct((prev) => prev + 1);
+                if (entries[0].isIntersecting && hasMoreProduct && !loadingVariant) {
+                    setPageSearchVariant((prev) => prev + 1);
                 }
             },
             { threshold: 1 }
@@ -359,7 +338,7 @@ const GoodsReceiptCreate: React.FC = () => {
         observer.observe(observerProductRef.current);
 
         return () => observer.disconnect();
-    }, [hasMoreProduct, loadingProduct]);
+    }, [hasMoreProduct, loadingVariant]);
 
     useEffect(() => {
         if (!isOpenSearchSupplier) return;
@@ -452,31 +431,31 @@ const GoodsReceiptCreate: React.FC = () => {
         }
     };
 
-    const handleSearchProductInputClick = () => {
-        if (!isOpenSearchProduct) {
-            setIsOpenSearchProduct((prev) => (prev ? prev : true));
-            setSearchProducts([]);
-            setPageSearchProduct(0);
-            setHasMoreProduct(true);
+    const handleSearchVariant = () => {
+        if (!isOpenSearchVariant) {
+            setIsOpenSearchVariant((prev) => (prev ? prev : true));
+            setSearchProductVariants([]);
+            setPageSearchVariant(0);
+            setHasMoreVariant(true);
         }
     };
 
-    const handleProductSelect = (productVariantId: number) => {
-        const product = searchProducts.find((p) => p.id === productVariantId);
+    const handleSelectVariant = (productVariantId: number) => {
+        const variant = searchProductVariants.find((p) => p.id === productVariantId);
 
-        if (product && !orderItems.find((item) => item.id === productVariantId)) {
+        if (variant && !orderItems.find((item) => item.id === productVariantId)) {
             setOrderItems((prev) => [
                 ...prev,
-                { ...product, quantityPurchase: 1 }
+                { ...variant, quantityPurchase: 1 }
             ]);
 
             const newItem: GoodsReceiptItemRequest = {
-                productVariantId: product.id,
+                productVariantId: variant.id,
                 receivedQuantity: 1,
-                price: product.price,
+                price: variant.price,
                 discountType: null,
                 discountValueItem: null,
-                subtotalPriceItem: product.price
+                subtotalPriceItem: variant.price
             };
 
             setGoodsReceiptRequest(prev => ({
@@ -485,7 +464,7 @@ const GoodsReceiptCreate: React.FC = () => {
             }));
 
             setError({});
-            setIsOpenSearchProduct(false);
+            setIsOpenSearchVariant(false);
         }
     };
 
@@ -667,12 +646,16 @@ const GoodsReceiptCreate: React.FC = () => {
         setError(error);
 
         if (Object.keys(error).length > 0) return;
+
         const receiptDateIso = goodsReceiptRequest.receiptDate
             ? new Date(goodsReceiptRequest.receiptDate).toISOString()
             : new Date().toISOString();
 
+        const accountId = goodsReceiptRequest.assignedToAccountId ? goodsReceiptRequest.assignedToAccountId : user.user.id
+
         const bodyRequest: GoodsReceiptRequest = {
             ...goodsReceiptRequest,
+            assignedToAccountId: accountId,
             receiptDate: receiptDateIso
         };
 
@@ -738,27 +721,27 @@ const GoodsReceiptCreate: React.FC = () => {
                                     type="search"
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e as string)}
-                                    onClick={handleSearchProductInputClick}
+                                    onClick={handleSearchVariant}
                                     placeholder="Tìm theo tên, mã SKU, quét mã Barcode..."
                                     className="input-search-product"
                                 />
-                                {isOpenSearchProduct && (
+                                {isOpenSearchVariant && (
                                     <div className="purchase-order-dropdown">
                                         <div className="purchase-order-dropdown-item">
-                                            {searchProducts.map((p) => (
+                                            {searchProductVariants.map((p) => (
                                                 <ProductItemSearch
                                                     key={p.id}
                                                     id={p.id}
                                                     productId={p.productId}
-                                                    image={p.image}
-                                                    name={p.name}
+                                                    imageUrl={p.imageUrl}
+                                                    productName={p.productName}
                                                     variantName={p.variantName}
                                                     sku={p.sku}
                                                     unit={p.unit}
                                                     price={p.price}
-                                                    quantityInStock={p.quantityInStock}
+                                                    stock={p.stock}
                                                     quantityPurchase={1}
-                                                    onClick={(id) => handleProductSelect(Number(id))}
+                                                    onClick={(id) => handleSelectVariant(Number(id))}
                                                 />
                                             ))}
 
@@ -771,7 +754,7 @@ const GoodsReceiptCreate: React.FC = () => {
                                                     paddingTop: "10px",
                                                 }}
                                             >
-                                                {loadingProduct
+                                                {loadingVariant
                                                     ? ""
                                                     : hasMoreProduct
                                                         ? "Cuộn để tải thêm"
@@ -819,14 +802,8 @@ const GoodsReceiptCreate: React.FC = () => {
                                                 <td>
                                                     <div className="purchase-order-product-info">
                                                         <div className="purchase-order-product-image-placeholder">
-                                                            {item.image ? (
-                                                                <img
-                                                                    src={item.image}
-                                                                    alt={item.name}
-                                                                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                                                />
-                                                            ) : (
-                                                                <svg
+                                                            {item.imageUrl ? (<img src={item.imageUrl} alt={item.imageUrl} />)
+                                                                : (<svg
                                                                     xmlns="http://www.w3.org/2000/svg"
                                                                     width="20"
                                                                     height="20"
@@ -850,13 +827,13 @@ const GoodsReceiptCreate: React.FC = () => {
                                                                             fill="#ababab"
                                                                         />
                                                                     </g>
-                                                                </svg>
-                                                            )}
+                                                                </svg>)
+                                                            }
                                                         </div>
 
                                                         <div className="purchase-order-product-text">
                                                             <div className="purchase-order-product-name">
-                                                                {item.name}
+                                                                {item.productName}
                                                             </div>
                                                             <div className="purchase-order-product-sku">
                                                                 SKU: {item.sku}
