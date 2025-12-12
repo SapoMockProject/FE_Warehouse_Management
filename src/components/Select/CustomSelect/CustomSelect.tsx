@@ -13,6 +13,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 	children,
 	showSelectedInTrigger = false,
 	renderTrigger,
+	onScroll
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [searchQuery, setSearchQuery] = useState("");
@@ -93,7 +94,7 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 						</div>
 					)}
 
-					<div className="custom-select-options">
+					<div className="custom-select-options" onScroll={onScroll}>
 						{React.Children.map(children, (child) => {
 							if (React.isValidElement(child)) {
 								return React.cloneElement(child as React.ReactElement<SelectOptionProps>, {

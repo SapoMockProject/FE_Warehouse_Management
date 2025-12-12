@@ -17,6 +17,9 @@ import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
 import DetailEmployee from "../pages/Employee/DetailEmployee/DetailEmployee";
 import NotFoundPage from "../pages/NotFound/NotFound";
 import GoodsReceiptCreate from "../pages/GoodsReceipt/GoodsReceiptCreate/GoodsReceiptCreate";
+import GoodsReceiptList from "../pages/GoodsReceipt/GoodReceiptList/GoodsReceiptList";
+import GoodsReceiptDetail from "../pages/GoodsReceipt/GoodsReceiptDetail/GoodsReceiptDetail";
+import VerifyAccountPage from "../pages/VerifyAccount/VerifyAccount";
 
 export const AppRouter = () => {
 	return (
@@ -31,6 +34,8 @@ export const AppRouter = () => {
 							<Route path="/purchase-orders/:id" element={<PurchaseOrderDetail />} />
 							<Route path="/purchase-orders/create" element={<PurchaseOrderCreate />} />
 							<Route path="/purchase-orders/:id/edit" element={<PurchaseOrderEdit />} />
+							<Route path="/goods-receipts" element={<GoodsReceiptList />} />
+							<Route path="/goods-receipts/:id" element={<GoodsReceiptDetail />} />
 							<Route path="/goods-receipts/create" element={<GoodsReceiptCreate />} />
 							<Route path="/employees" element={<EmployeeList />} />
 							<Route path="/account" element={<DetailEmployee />} />
@@ -41,6 +46,7 @@ export const AppRouter = () => {
 							<Route path="/products" element={<ProductList />} />
 						</Route>
 					</Route>
+					<Route path="/verify-account" element={<VerifyAccountPage />} />
 					<Route path="/login" element={<Login />} />
 					<Route path="*" element={<NotFoundPage />} />
 				</Routes>

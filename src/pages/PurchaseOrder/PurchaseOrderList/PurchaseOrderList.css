@@ -112,10 +112,15 @@
     padding: 8px 16px;
 }
 
+.row_highlight .td_highlight a {
+    color: #008cff;
+}
+
 .opr-badge {
     padding: 4px 10px;
     border-radius: 14px;
     font-size: 0.875rem;
+    font-weight: 500;
     display: inline-block;
 }
 
@@ -129,9 +134,14 @@
     color: #8d6e00;
 }
 
-.opr-badge-completed {
-    background-color: #e9f9e1;
-    color: #187800;
+.opr-badge-import_all {
+    background-color: #e2e2e2;
+    color: #808080;
+}
+
+.opr-badge-import_partial {
+    background-color: #defad0;
+    color: #019925;
 }
 
 .opr-badge-cancelled {

@@ -14,7 +14,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 const ProductList = () => {
   const [item, setItem] = React.useState<ProductResponse[]>([]);
   const [page, setPage] = React.useState(0);
-  const [size, setSize] = React.useState(10);
+  const [limit, setLimit] = React.useState(10);
   const [totalPages, setTotalPages] = React.useState(0);
   const [sortOrder, setSortOrder] = React.useState("asc");
   const [loading, setLoading] = React.useState(false);
@@ -27,7 +27,7 @@ const ProductList = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await getAllProducts(page, size, query);
+        const response = await getAllProducts(page, limit, query);
         setItem(response?.data.content || []);
         setTotalPages(response?.data.page?.totalPages || 0);
       } catch (err) {
@@ -38,7 +38,7 @@ const ProductList = () => {
       }
     };
     fetchData();
-  }, [page, size, sortOrder, query]);
+  }, [page, limit, sortOrder, query]);
 
   const toggleSelectAll = () => {
     if (selectAll) setSelectedIds([]);
@@ -206,11 +206,11 @@ const ProductList = () => {
       <Pagination
         page={page}
         totalPages={totalPages}
-        size={size}
+        size={limit}
         sortOrder={sortOrder}
         onPageChange={setPage}
         onSizeChange={(newSize) => {
-          setSize(newSize);
+          setLimit(newSize);
           setPage(0);
         }}
         onSortChange={(newSort) => {

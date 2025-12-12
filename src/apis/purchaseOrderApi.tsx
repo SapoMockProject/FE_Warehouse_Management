@@ -15,21 +15,36 @@ export const createPurchaseOrder = async (bodyRequest: PurchaseOrderRequest) => 
     return res.data
 };
 
-export const getAllPurchaseOrders = async (page: number, limit: number, query: string, sortDir: string) => {
-    const res = await axiosConfiguration.get<BaseResponse<PagedModel<PurchaseOrderResponse>>>("/purchase-orders", {
-        headers: {
-            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
-        },
-        params: {
-            page,
-            limit,
-            query,
-            sortDir
-        },
-    })
-    return res.data
+export const getAllPurchaseOrders = async (
+    page: number,
+    size: number,
+    query: string,
+    sortDir: string,
+    status?: string,
+    fromDate?: string,
+    toDate?: string,
+    productVariantId?: string
+) => {
+    const res = await axiosConfiguration.get<BaseResponse<PagedModel<PurchaseOrderResponse>>>(
+        "/purchase-orders",
+        {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+            params: {
+                page,
+                size,
+                query,
+                sortDir,
+                ...(status && { status }),
+                ...(fromDate && { fromDate }),
+                ...(toDate && { toDate }),
+                ...(productVariantId && { productVariantId }),
+            },
+        }
+    );
+    return res.data;
 };
-
 export const getPurchaseOrderById = async (id: number) => {
     const res = await axiosConfiguration.get<BaseResponse<PurchaseOrderResponse>>(`/purchase-orders/${id}`, {
         headers: {

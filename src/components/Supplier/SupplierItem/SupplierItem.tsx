@@ -7,11 +7,12 @@ const SupplierItem: React.FC<ISupplierResponse> = ({
     name,
     supplierCode,
     phone,
-    onClick
+    onClick,
+    className
 }) => {
     return (
         <div
-            className="supplier-item-container"
+            className={`supplier-item-container ${className || ""}`}
             onClick={() => onClick?.(id.toString())}
         >
             <div className="supplier-left">

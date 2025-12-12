@@ -16,6 +16,10 @@ export interface IUserCreateRequest {
 	role: Role;
 }
 
+export interface AuthenticationResponse {
+	token: string;
+}
+
 export enum Role {
 	ADMIN_SYSTEM = "ADMIN_SYSTEM",
 	STORE_KEEPER = "STORE_KEEPER",

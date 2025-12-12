@@ -21,7 +21,7 @@ interface ProductResponse {
   id: number;
   name: string;
   description: string;
-  category_name: string;
+  categoryName: string;
   option1name: string | null;
   option2name: string | null;
   option3name: string | null;
@@ -51,6 +51,7 @@ export default function UpdateProduct() {
   const [attributes, setAttributes] = useState<Attribute[]>([]);
 
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const fileRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
   const [files, setFiles] = useState<File[]>([]);
   const [categories, setCategories] = useState("");
   const [allCategories, setAllCategories] = useState<Category[]>([]);
@@ -58,15 +59,26 @@ export default function UpdateProduct() {
   const attributeOrder = ["Kích thước", "Màu sắc", "Chất liệu"];
 
   const [selected, setSelected] = useState<number[]>([]);
+  const selectedArray = Array.isArray(selected) ? selected : [selected];
 
   //Modal
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newSku, setNewSku] = useState("");
+  const [isModalOpenSKU, setIsModalOpenSKU] = useState(false);
+  const [newSku, setNewSku] = useState<{ [key: number]: string }>({});
+  const [isModalOpenPrice, setIsModalOpenPrice] = useState(false);
+  const [newPrice, setNewPrice] = useState<{ [key: number]: string }>({});
+  const [isModalOpenStock, setIsModalOpenStock] = useState(false);
+  const [newStock, setNewStock] = useState<{ [key: number]: string }>({});
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/v1/categories");
+      const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:8080/api/v1/categories", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
         console.log(res.data.data.content);
         setAllCategories(res.data.data.content);
       } catch (err) {
@@ -78,8 +90,15 @@ export default function UpdateProduct() {
 
   useEffect(() => {
     if (!id) return;
+      const token = localStorage.getItem("token");
+
     axios
-      .get(`http://localhost:8080/api/v1/products/${id}`)
+      .get(`http://localhost:8080/api/v1/products/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
       .then((res) => setProduct(res.data.data))
       .catch((err) => console.error(err));
   }, [id]);
@@ -154,6 +173,9 @@ export default function UpdateProduct() {
     }
 
     setAttributes(newAttributes);
+
+    setName(product.name);
+    setDescription(product.description);
   }, [product]);
 
   /* ------------ ATTRIBUTES ------------ */
@@ -251,19 +273,132 @@ export default function UpdateProduct() {
   };
 
   //Mở modal
-  const openEditSkuModal = () => {
-    if (selected.length === 0) {
-      alert("Bạn phải chọn ít nhất 1 biến thể!");
-      return;
-    }
-    setIsModalOpen(true);
-  };
-  const applyNewSku = () => {
-    // TODO: Gọi API update SKU hàng loạt hoặc cập nhật state
-    console.log("Áp dụng SKU:", newSku, "cho IDs:", selected);
+  const applyNewSku = async () => {
+    if (!newSku) return;
 
-    setIsModalOpen(false);
+    const updateList = Object.entries(newSku).map(([id, sku]) => ({
+      id: Number(id),
+      sku,
+    }));
+
+    // console.log("-----", updates);
+    console.log("-----2----", newSku);
+    console.log("----3----", updateList);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(
+        "http://localhost:8080/api/v1/product-variant/update-skus",
+        updateList,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Update SKU thành công:", res.data);
+
+      // Cập nhật lại dữ liệu
+      setProduct((prev) => {
+        if (!prev) return prev;
+
+        const updatedVariants = prev.variants.map((v) => {
+          const updated = updateList.find((u) => u.id === v.id);
+          return updated ? { ...v, sku: updated.sku } : v;
+        });
+
+        return { ...prev, variants: updatedVariants };
+      });
+    } catch (error) {
+      console.error("Lỗi update SKU:", error);
+    }
+
+    setIsModalOpenSKU(false);
     setNewSku("");
+  };
+
+  const applyNewPrice = async () => {
+    if (!newPrice) return;
+
+    const updateList = Object.entries(newPrice).map(([id, price]) => ({
+      id: Number(id),
+      price: Number(price),
+    }));
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(
+        "http://localhost:8080/api/v1/product-variant/update-prices",
+        updateList,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Update price thành công:", res.data);
+
+      // Cập nhật lại dữ liệu
+      setProduct((prev) => {
+        if (!prev) return prev;
+
+        const updatedVariants = prev.variants.map((v) => {
+          const updated = updateList.find((u) => u.id === v.id);
+          return updated ? { ...v, price: updated.price } : v;
+        });
+
+        return { ...prev, variants: updatedVariants };
+      });
+    } catch (error) {
+      console.error("Lỗi update Price:", error);
+    }
+    setIsModalOpenPrice(false);
+    setNewPrice({});
+  };
+
+  const applyNewStock = async () => {
+    if (!newStock) return;
+
+    const updateList = Object.entries(newStock).map(([id, stock]) => ({
+      id: Number(id),
+      stock: Number(stock),
+    }));
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(
+        "http://localhost:8080/api/v1/product-variant/update-stocks",
+        updateList,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Update stock thành công:", res.data);
+
+      // Cập nhật lại dữ liệu
+      setProduct((prev) => {
+        if (!prev) return prev;
+
+        const updatedVariants = prev.variants.map((v) => {
+          const updated = updateList.find((u) => u.id === v.id);
+          return updated ? { ...v, stock: updated.stock } : v;
+        });
+
+        return { ...prev, variants: updatedVariants };
+      });
+    } catch (err) {
+      console.log("Lỗi update Stock", err);
+    }
+
+    setIsModalOpenStock(false);
+    setNewStock({});
   };
 
   return (
@@ -280,9 +415,9 @@ export default function UpdateProduct() {
               <label className="update-product-label">Tên sản phẩm</label>
               <Input
                 type="text"
-                value={product?.name}
+                value={name}
                 placeholder="Nhập tên sản phẩm"
-                onChange={(v) => setName(v as string)}
+                onChange={(value) => setName(value.toString())}
               />
               <div className="add-product-hint">Tối đa 820 ký tự</div>
             </div>
@@ -292,9 +427,9 @@ export default function UpdateProduct() {
               <label className="update-product-label">Mô tả</label>
               <Input
                 type="textarea"
-                value={product?.description || ""}
+                value={description}
                 placeholder="Nhập mô tả"
-                onChange={(v) => setDescription(v as string)}
+                onChange={(value) => setDescription(value.toString())}
               />
             </div>
 
@@ -411,34 +546,221 @@ export default function UpdateProduct() {
                     </th>
                     <th>Đã chọn {selected.length} phiên bản</th>
                     <th>
-                      <Button label="Sửa SKU" onClick={openEditSkuModal} />
-                      {isModalOpen && (
-                        <div className="update-variant-modal-overlay">
-                          <div className="update-variant-modal-box">
-                            <h3>Sửa SKU cho {selected.length} phiên bản</h3>
+                      <Button
+                        label="Sửa SKU"
+                        onClick={() => setIsModalOpenSKU(true)}
+                      />
+                      {isModalOpenSKU && (
+                        <div className="update-variant-sku-modal-overlay">
+                          <div className="update-variant-sku-modal-box">
+                            <h3>Chỉnh sửa SKU</h3>
 
-                            <input
-                              type="text"
-                              value={newSku}
-                              onChange={(e) => setNewSku(e.target.value)}
-                              placeholder="Nhập SKU mới"
-                            />
+                            {product?.variants
+                              .filter((e) => selectedArray.includes(e.id))
+                              .map((e) => (
+                                <div className="update-variant-sku" key={e.id}>
+                                  <div className="variant-sku-lable">
+                                    <label>
+                                      {[
+                                        e.option1value,
+                                        e.option2value,
+                                        e.option3value,
+                                      ]
+                                        .filter(Boolean)
+                                        .join(" / ")}
+                                    </label>
+                                  </div>
 
-                            <div className="modal-actions">
-                              <button onClick={() => setIsModalOpen(false)}>
-                                Hủy
-                              </button>
-                              <button onClick={applyNewSku}>Áp dụng</button>
+                                  <div className="variant-sku-input">
+                                    <Input
+                                      value={newSku[e.id]}
+                                      placeholder={e.sku}
+                                      type="text"
+                                      onChange={(value) =>
+                                        setNewSku((prev) => ({
+                                          ...prev,
+                                          [e.id]: value.toString(),
+                                        }))
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                            <div className="update-product-modal-actions">
+                              <Button
+                                label="Hủy"
+                                size="md"
+                                onClick={() => setIsModalOpenSKU(false)}
+                              />
+
+                              <Button
+                                label="Áp dụng"
+                                variant="secondary"
+                                size="md"
+                                onClick={applyNewSku}
+                              />
                             </div>
                           </div>
                         </div>
                       )}
                     </th>
                     <th>
-                      <Button label="Sửa Giá" />
+                      <Button
+                        label="Sửa Giá"
+                        onClick={() => setIsModalOpenPrice(true)}
+                      />
+                      {isModalOpenPrice && (
+                        <div className="update-variant-price-modal-overlay">
+                          <div className="update-variant-price-modal-box">
+                            <h3>Chỉnh sửa giá</h3>
+                            <div className="update-all-variant-price">
+                              <div className="variant-price-left">
+                                <p>Áp dụng một giá cho tất cả các phiên bản</p>
+                                <Input
+                                  type="text"
+                                  value={price}
+                                  onChange={(value) => setPrice(Number(value))}
+                                />
+                              </div>
+                              <div className="variant-price-right">
+                                <Button
+                                  label="Áp dụng cho tất cả"
+                                  variant="tertiary"
+                                  size="lg"
+                                />
+                              </div>
+                            </div>
+                            {product?.variants
+                              .filter((e) => selectedArray.includes(e.id))
+                              .map((e) => (
+                                <div
+                                  className="update-variant-price"
+                                  key={e.id}
+                                >
+                                  <div className="variant-price-lable">
+                                    <label>
+                                      {[
+                                        e.option1value,
+                                        e.option2value,
+                                        e.option3value,
+                                      ]
+                                        .filter(Boolean)
+                                        .join(" / ")}
+                                    </label>
+                                  </div>
+                                  <div className="variant-price-input">
+                                    <Input
+                                      type="text"
+                                      value={newPrice[e.price]}
+                                      placeholder={e.price.toString()}
+                                      onChange={(value) =>
+                                        setNewPrice((prev) => ({
+                                          ...prev,
+                                          [e.id]: value.toString(),
+                                        }))
+                                      }
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+
+                            <div className="update-product-modal-actions">
+                              <Button
+                                label="Hủy"
+                                size="md"
+                                onClick={() => setIsModalOpenPrice(false)}
+                              />
+
+                              <Button
+                                label="Áp dụng"
+                                variant="secondary"
+                                size="md"
+                                onClick={applyNewPrice}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </th>
                     <th>
-                      <Button label="Sửa số lượng" />
+                      <Button
+                        label="Sửa số lượng"
+                        onClick={() => setIsModalOpenStock(true)}
+                      />
+                      {isModalOpenStock && (
+                        <div className="update-variant-stock-modal-overlay">
+                          <div className="update-variant-stock-modal-box">
+                            <h3>Chỉnh sửa số lượng</h3>
+                            <div className="update-all-variant-stock">
+                              <div className="variant-stock-left">
+                                <p>
+                                  Áp dụng một số lượng cho tất cả các phiên bản
+                                </p>
+                                <Input
+                                  type="text"
+                                  value={stock}
+                                  onChange={(value) => setStock(Number(value))}
+                                />
+                              </div>
+                              <div className="variant-stock-right">
+                                <Button
+                                  label="Áp dụng cho tất cả"
+                                  variant="tertiary"
+                                  size="lg"
+                                />
+                              </div>
+                            </div>
+                            {product?.variants
+                              .filter((e) => selectedArray.includes(e.id))
+                              .map((e) => (
+                                <div
+                                  className="update-variant-stock"
+                                  key={e.id}
+                                >
+                                  <div className="variant-stock-lable">
+                                    <label>
+                                      {[
+                                        e.option1value,
+                                        e.option2value,
+                                        e.option3value,
+                                      ]
+                                        .filter(Boolean)
+                                        .join(" / ")}
+                                    </label>
+                                  </div>
+                                  <div className="variant-stock-input">
+                                    <Input
+                                      type="number"
+                                      value={newStock[e.stock]}
+                                      onChange={(value) =>
+                                        setNewStock((prev) => ({
+                                          ...prev,
+                                          [e.id]: value.toString(),
+                                        }))
+                                      }
+                                      placeholder={e.stock.toString()}
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+
+                            <div className="update-product-modal-actions">
+                              <Button
+                                label="Hủy"
+                                size="md"
+                                onClick={() => setIsModalOpenStock(false)}
+                              />
+
+                              <Button
+                                label="Áp dụng"
+                                variant="secondary"
+                                size="md"
+                                onClick={applyNewStock}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </th>
                   </tr>
                 ) : (
@@ -471,7 +793,41 @@ export default function UpdateProduct() {
                           onChange={() => toggleSelect(e.id)}
                         />
                       </td>
-                      <td>{variantValue}</td>
+                      <td>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                          }}
+                        >
+                          <img
+                            src={e.imageUrl}
+                            alt="Lỗi ảnh"
+                            style={{
+                              width: 50,
+                              height: 50,
+                              objectFit: "cover",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => fileRefs.current[e.id]?.click()}
+                          />
+
+                          <input
+                            ref={(el) => {
+                              fileRefs.current[e.id] = el;
+                            }}
+                            type="file"
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            // onChange={(ev) =>
+                            //   handleVariantImageChange(e.id, ev)
+                            // }
+                          />
+                        </div>
+
+                        {variantValue}
+                      </td>
                       <td>{e.sku}</td>
                       <td>{e.price}</td>
                       <td>{e.stock}</td>
@@ -632,7 +988,7 @@ export default function UpdateProduct() {
                 categories
                   ? allCategories.find((c) => c.id.toString() === categories)
                       ?.name
-                  : product?.category_name
+                  : product?.categoryName
               }
               value={categories}
               onChange={(value) => setCategories(value as string)}
