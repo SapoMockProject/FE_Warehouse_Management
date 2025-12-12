@@ -17,7 +17,7 @@ export const createPurchaseOrder = async (bodyRequest: PurchaseOrderRequest) => 
 
 export const getAllPurchaseOrders = async (
     page: number,
-    limit: number,
+    size: number,
     query: string,
     sortDir: string,
     status?: string,
@@ -33,7 +33,7 @@ export const getAllPurchaseOrders = async (
             },
             params: {
                 page,
-                limit,
+                size,
                 query,
                 sortDir,
                 ...(status && { status }),

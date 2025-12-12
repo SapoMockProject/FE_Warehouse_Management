@@ -259,7 +259,6 @@ const GoodsReceiptList: React.FC = () => {
                     </li>
                 </ul>
 
-                {/* Filters */}
                 <div className="opr-filter">
                     <div className="opr-filter-bar">
                         <div style={{ flex: "1 1 auto" }}>
@@ -269,6 +268,34 @@ const GoodsReceiptList: React.FC = () => {
                                 className="opr-input"
                                 value={state.searchQuery}
                                 onChange={(e) => handleStateChange("searchQuery", e as string)}
+                            />
+                        </div>
+
+                        <div style={{ flex: "0 0 auto" }}>
+                            <CustomSelect
+                                placeholder="Chọn sản phẩm"
+                                value={state.selectedProductVariants}
+                                onChange={(variants) => handleFilterChange("selectedProductVariants", variants)}
+                                showSelectedInTrigger={true}
+                                multiple={true}
+                            >
+                                {variants.map((variant) => (
+                                    <SelectOption
+                                        key={variant.id}
+                                        value={variant.id.toString()}
+                                        label={variant.productName + " - " + getVariantName(variant)}
+                                    />
+                                ))}
+                            </CustomSelect>
+                        </div>
+
+                        <div style={{ flex: "0 1 auto" }}>
+                            <DateField
+                                type="daterange"
+                                value={state.dateRange}
+                                onChange={(e) =>
+                                    handleFilterChange("dateRange", e as DateRange)
+                                }
                             />
                         </div>
 
@@ -310,40 +337,10 @@ const GoodsReceiptList: React.FC = () => {
                             />
                         </div>
 
-                        <div style={{ flex: "0 0 auto" }}>
-                            <CustomSelect
-                                placeholder="Chọn sản phẩm"
-                                value={state.selectedProductVariants}
-                                onChange={(variants) => handleFilterChange("selectedProductVariants", variants)}
-                                showSelectedInTrigger={true}
-                                multiple={true}
-                            >
-                                {variants.map((variant) => (
-                                    <SelectOption
-                                        key={variant.id}
-                                        value={variant.id.toString()}
-                                        label={variant.productName + " - " + getVariantName(variant)}
-                                    />
-                                ))}
-                            </CustomSelect>
-                        </div>
+
 
                         <div style={{ flex: "0 1 auto" }}>
-                            <DateField
-                                type="daterange"
-                                value={state.dateRange}
-                                onChange={(e) =>
-                                    handleFilterChange("dateRange", e as DateRange)
-                                }
-                            />
-                        </div>
 
-                        <div style={{ flex: "0 1 auto" }}>
-                            <Button
-                                label="Bộ lọc khác"
-                                className="opr-other_filter"
-                                size="md"
-                            />
                         </div>
                     </div>
                 </div>
@@ -357,11 +354,7 @@ const GoodsReceiptList: React.FC = () => {
 
                 <div className="opr-table-content">
                     <div className="opr-table-wrapper">
-                        {state.loading ? (
-                            <div className="opr-loading">
-                                <p>Đang tải dữ liệu...</p>
-                            </div>
-                        ) : filteredReceipts.length === 0 ? (
+                        {filteredReceipts.length === 0 ? (
                             <div className="opr-empty-state">
                                 <p>Không có phiếu nhập hàng nào</p>
                             </div>
@@ -394,7 +387,7 @@ const GoodsReceiptList: React.FC = () => {
                                                 <td>{formatDateTime(item.createdDate)}</td>
                                                 <td>
                                                     <span
-                                                        className={`opr-badge opr-badge-${getReceiptStatusClass(
+                                                        className={`receipt-status-badge receipt-status-${getReceiptStatusClass(
                                                             item.receiptStatus
                                                         )}`}
                                                     >
@@ -403,7 +396,7 @@ const GoodsReceiptList: React.FC = () => {
                                                 </td>
                                                 <td>
                                                     <span
-                                                        className={`opr-badge opr-badge-${getTransactionStatusClass(
+                                                        className={`payment-status-badge payment-status-${getTransactionStatusClass(
                                                             item.transactionStatus
                                                         )}`}
                                                     >
@@ -411,7 +404,7 @@ const GoodsReceiptList: React.FC = () => {
                                                     </span>
                                                 </td>
                                                 <td className="td_highlight">
-                                                    {item.supplier?.name || "N/A"}
+                                                    <a href={`/suppliers/${item.supplier.id}`} onClick={(e) => e.stopPropagation()}>{item.supplier?.name || "N/A"}</a>
                                                 </td>
                                                 <td>
                                                     {item.infoEmployeeIsAssigned?.fullName || "N/A"}

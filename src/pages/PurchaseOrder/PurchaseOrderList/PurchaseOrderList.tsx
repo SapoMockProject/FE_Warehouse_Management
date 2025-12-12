@@ -72,6 +72,7 @@ export default function PurchaseOrderRequest() {
   };
 
   const fetchOrders = async () => {
+    debugger
     if (state.orders.length === 0) {
       updateState({ loading: true, error: null });
     }
@@ -153,7 +154,6 @@ export default function PurchaseOrderRequest() {
   ]);
 
   const getFilteredOrders = () => {
-    // Không cần filter ở client vì BE đã filter hết
     return state.orders;
   };
 
@@ -181,20 +181,12 @@ export default function PurchaseOrderRequest() {
     return classMap[status] || "draft";
   };
 
-  const handleFilterChange = <K extends keyof PurchaseOrderListState>(
-    field: K,
-    value: PurchaseOrderListState[K]
-  ) => {
-    updateState({ [field]: value, page: 0 } as Partial<PurchaseOrderListState>);
-  };
-
   const handleTabChange = (tab: string) => {
     const updates: Partial<PurchaseOrderListState> = {
       activeTab: tab,
       page: 0,
     };
 
-    // Reset selectedStatuses khi đổi tab
     if (tab !== "all") {
       updates.selectedStatuses = [];
     }
@@ -226,7 +218,6 @@ export default function PurchaseOrderRequest() {
       </div>
 
       <div className="opr-main-content">
-        {/* Status Tabs */}
         <ul className="opr-status-tab">
           <li className="opr_status all">
             <Button
@@ -279,7 +270,6 @@ export default function PurchaseOrderRequest() {
           </li>
         </ul>
 
-        {/* Filters */}
         <div className="opr-filter">
           <div className="opr-filter-bar">
             <div style={{ flex: "1 1 auto" }}>
@@ -289,17 +279,6 @@ export default function PurchaseOrderRequest() {
                 className="opr-input"
                 value={state.searchQuery}
                 onChange={(e) => handleStateChange("searchQuery", e as string)}
-              />
-            </div>
-
-            <div style={{ flex: "0 1 auto" }}>
-              <StatusSelect
-                value={state.selectedStatuses}
-                onChange={(statuses) =>
-                  handleFilterChange("selectedStatuses", statuses)
-                }
-                options={PURCHASE_ORDER_STATUSES}
-                placeholder="Trạng thái đơn nhập"
               />
             </div>
 
@@ -336,10 +315,13 @@ export default function PurchaseOrderRequest() {
             </div>
 
             <div style={{ flex: "0 1 auto" }}>
-              <Button
-                label="Bộ lọc khác"
-                className="opr-other_filter"
-                size="md"
+              <StatusSelect
+                value={state.selectedStatuses}
+                onChange={(statuses) =>
+                  handleFilterChange("selectedStatuses", statuses)
+                }
+                options={PURCHASE_ORDER_STATUSES}
+                placeholder="Trạng thái đơn nhập"
               />
             </div>
           </div>
@@ -352,7 +334,6 @@ export default function PurchaseOrderRequest() {
           </div>
         )}
 
-        {/* Table */}
         <div className="opr-table-content">
           <div className="opr-table-wrapper">
             {state.loading ? (
@@ -399,7 +380,7 @@ export default function PurchaseOrderRequest() {
                           </span>
                         </td>
                         <td className="td_highlight">
-                          {item.supplierResponse?.name || "N/A"}
+                                                    <a href={`/suppliers/${item.supplierResponse.id}`} onClick={(e) => e.stopPropagation()}>{item.supplierResponse.name || "N/A"}</a>
                         </td>
                         <td>
                           {item.infoEmployeeIsAssigned?.fullName || "N/A"}
@@ -419,8 +400,8 @@ export default function PurchaseOrderRequest() {
                   size={state.size}
                   sortOrder={state.sortOrder}
                   onPageChange={(page) => handleStateChange("page", page)}
-                  onSizeChange={(size) => handleFilterChange("size", size)}
-                  onSortChange={(sort) => handleFilterChange("sortOrder", sort)}
+                  onSizeChange={(size) => handleStateChange("size", size)}
+                  onSortChange={(sort) => handleStateChange("sortOrder", sort)}
                 />
               </>
             )}
