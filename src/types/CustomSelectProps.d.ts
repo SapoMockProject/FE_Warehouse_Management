@@ -9,6 +9,7 @@ export interface CustomSelectProps {
   children: React.ReactElement<SelectOptionProps> | React.ReactElement<SelectOptionProps>[];
   showSelectedInTrigger?: boolean;
   renderTrigger?: (selectedLabel: string, isOpen: boolean) => React.ReactNode;
+  onScroll?: (event: React.UIEvent<HTMLDivElement>) => void;
 }
 
 export interface SelectOptionProps {
