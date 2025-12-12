@@ -10,7 +10,8 @@ export interface ISupplierResponse {
 	note?: string;
 	deleted?: boolean;
 	onClick?: (id: string) => void;
-	onClear?:  () => void
+	onClear?:  () => void,
+	className?: string;
 }
 
 export interface ISupplierCreateRequest {
