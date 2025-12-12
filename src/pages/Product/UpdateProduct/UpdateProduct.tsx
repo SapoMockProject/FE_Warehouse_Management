@@ -72,7 +72,14 @@ export default function UpdateProduct() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/api/v1/categories");
+      const token = localStorage.getItem("token");
+        const res = await axios.get("http://localhost:8080/api/v1/categories", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        console.log(res.data.data.content);
         setAllCategories(res.data.data.content);
       } catch (err) {
         console.error("Lỗi khi tải danh mục:", err);
@@ -83,8 +90,15 @@ export default function UpdateProduct() {
 
   useEffect(() => {
     if (!id) return;
+      const token = localStorage.getItem("token");
+
     axios
-      .get(`http://localhost:8080/api/v1/products/${id}`)
+      .get(`http://localhost:8080/api/v1/products/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        })
       .then((res) => setProduct(res.data.data))
       .catch((err) => console.error(err));
   }, [id]);

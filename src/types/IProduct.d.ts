@@ -16,20 +16,15 @@ export interface VariantResponse {
 	price: number;
 	stock: number;
 	imageUrl: string | null;
-	option1value: string | null;
-	option2value: string | null;
-	option3value: string | null;
+	option1value?: string | null;
+	option2value?: string | null;
+	option3value?: string | null;
+	productName?: string;
+	productId?: number;
 }
 
-export interface ProductVariantItem {
-	id: number;
-	productId: number;
-	name: string;
+export interface ProductVariantItem extends VariantResponse{
 	variantName: string;
-	sku: string;
-	price: number;
-	quantityInStock: number;
-	image: string | null;
 	unit?: string;
 	quantityPurchase: number;
 	discountType?: "FIXED" | "PERCENT" | null;

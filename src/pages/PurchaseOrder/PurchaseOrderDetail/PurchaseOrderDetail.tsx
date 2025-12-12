@@ -24,7 +24,7 @@ const PurchaseOrderDetail: React.FC = () => {
 
     const fetchPurchaseOrderDetail = async () => {
         try {
-            setLoading(true);
+            // setLoading(true);
             const response = await getPurchaseOrderById(Number(id));
             setPurchaseOrder(response.data);
         } catch (error) {

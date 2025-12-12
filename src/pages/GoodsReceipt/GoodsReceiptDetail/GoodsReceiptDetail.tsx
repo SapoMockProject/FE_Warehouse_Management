@@ -9,8 +9,7 @@ import Input from "../../../components/Input/Input";
 import SupplierInfoCard from "../../../components/Supplier/SupplierCard/SupplierCard";
 import { ValidationMessage } from "../../../components/ValidationMessage/ValidationMessage";
 import { formatDateTime } from "../../../utils/DateFilterOptions.util";
-// import { getGoodsReceiptById, receiveGoods, addPayment } from "../../../apis/goodsReceiptApi";
-import { getGoodsReceiptById } from "../../../apis/goodsReceiptApi";
+import { getGoodsReceiptById, payBillGoodsReceipt, receiveGoods } from "../../../apis/goodsReceiptApi";
 import { getAllPaymentMethods } from "../../../apis/paymentMethodApi";
 import type { PaymentMethod } from "../../../types/IPaymentMethod";
 import type { TransactionRequest } from "../../../types/ITransaction";
@@ -84,19 +83,18 @@ const GoodsReceiptDetail: React.FC = () => {
     const handleReceiveGoods = async () => {
         if (!goodsReceipt) return;
 
-        if (window.confirm("Xác nhận đã nhập hàng vào kho?")) {
-            setProcessingReceive(true);
-            try {
-                // await receiveGoods(goodsReceipt.id);
-                await fetchGoodsReceipt();
-                alert("Đã nhập hàng vào kho thành công!");
-            } catch (err) {
-                console.error("Error receiving goods:", err);
-                alert("Có lỗi xảy ra khi nhập hàng vào kho");
-            } finally {
-                setProcessingReceive(false);
-            }
+        setProcessingReceive(true);
+        try {
+            await receiveGoods(goodsReceipt.id);
+            await fetchGoodsReceipt();
+            alert("Đã nhập hàng vào kho thành công!");
+        } catch (err) {
+            console.error("Error receiving goods:", err);
+            // alert("Có lỗi xảy ra khi nhập hàng vào kho");
+        } finally {
+            setProcessingReceive(false);
         }
+
     };
 
     const handleTogglePaymentForm = () => {
@@ -146,7 +144,8 @@ const GoodsReceiptDetail: React.FC = () => {
 
         setProcessingPayment(true);
         try {
-            //   await addPayment(goodsReceipt.id, paymentData);
+            setPaymentData(prev => ({...prev, processedOn: new Date(paymentData.processedOn).toISOString()}))
+            await payBillGoodsReceipt(goodsReceipt.id, paymentData);
             await fetchGoodsReceipt();
             setShowPaymentForm(false);
             setPaymentData({
@@ -155,10 +154,8 @@ const GoodsReceiptDetail: React.FC = () => {
                 referenceCode: "",
                 processedOn: new Date().toISOString()
             });
-            alert("Ghi nhận thanh toán thành công!");
         } catch (err) {
             console.error("Error adding payment:", err);
-            alert("Có lỗi xảy ra khi ghi nhận thanh toán");
         } finally {
             setProcessingPayment(false);
         }
@@ -366,38 +363,8 @@ const GoodsReceiptDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="purchase-order-section">
-                        {goodsReceipt.transactions && goodsReceipt.transactions.length > 0 && (
-                            <div style={{ marginBottom: "16px" }}>
-                                <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>
-                                    Lịch sử thanh toán
-                                </h3>
-                                <div className="transactions-list">
-                                    {goodsReceipt.transactions.map((transaction) => (
-                                        <div key={transaction.id} className="transaction-item">
-                                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                                                <span style={{ fontWeight: "500" }}>
-                                                    {transaction.paymentMethod?.name || "N/A"}
-                                                </span>
-                                                <strong style={{ color: "#52c41a" }}>
-                                                    {transaction.amount.toLocaleString("vi-VN")}đ
-                                                </strong>
-                                            </div>
-                                            <div style={{ fontSize: "12px", color: "#666" }}>
-                                                {formatDateTime(transaction.processedOn)}
-                                            </div>
-                                            {transaction.referenceCode && (
-                                                <div style={{ fontSize: "12px", color: "#999" }}>
-                                                    Mã GD: {transaction.referenceCode}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-
-                        {showPaymentForm && (
+                    {showPaymentForm && (
+                        <div className="purchase-order-section">
                             <div className="payment-details-form">
                                 <div className="purchase-order-form-group">
                                     <label style={{ display: "inline-block", marginBottom: "4px" }}>
@@ -441,9 +408,10 @@ const GoodsReceiptDetail: React.FC = () => {
                                     <DateField
                                         type="datetime"
                                         label={<>Ngày ghi nhận giao dịch <span style={{ color: "red" }}>*</span></>}
-                                        value={paymentData.processedOn || ""}
+                                        value={paymentData.processedOn.slice(0, 16)}
                                         onChange={(val) => handlePaymentFieldChange("processedOn", val as string)}
                                         placeholder="Chọn ngày ghi nhận"
+                                        disabled={true}
                                     />
                                     {error.transactionDate && (
                                         <ValidationMessage show={true} message={error.transactionDate} type="error" />
@@ -469,18 +437,50 @@ const GoodsReceiptDetail: React.FC = () => {
                                     style={{ width: "100%" }}
                                 />
                             </div>
-                        )}
+                        </div>
+                    )}
 
-                        {remaining === 0 && (
-                            <div className="payment-complete-notice">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#52c41a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                    <polyline points="22 4 12 14.01 9 11.01" />
-                                </svg>
-                                <span>Đã thanh toán đủ</span>
+                    {remaining === 0 && (
+                        <div className="payment-complete-notice">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#52c41a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <polyline points="22 4 12 14.01 9 11.01" />
+                            </svg>
+                            <span>Đã thanh toán đủ</span>
+                        </div>
+                    )}
+
+                    {goodsReceipt.transactions && goodsReceipt.transactions.length > 0 && (
+                        <div className="purchase-order-section">
+                            <div style={{ marginBottom: "16px" }}>
+                                <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>
+                                    Lịch sử thanh toán
+                                </h3>
+                                <div className="transactions-list">
+                                    {goodsReceipt.transactions.map((transaction) => (
+                                        <div key={transaction.id} className="transaction-item">
+                                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
+                                                <span style={{ fontWeight: "500" }}>
+                                                    {transaction.paymentMethodName || "N/A"}
+                                                </span>
+                                                <strong style={{ color: "#52c41a" }}>
+                                                    {transaction.amount.toLocaleString("vi-VN")}đ
+                                                </strong>
+                                            </div>
+                                            <div style={{ fontSize: "12px", color: "#666" }}>
+                                                {formatDateTime(transaction.processedOn)}
+                                            </div>
+                                            {transaction.referenceCode && (
+                                                <div style={{ fontSize: "12px", color: "#999" }}>
+                                                    Mã GD: {transaction.referenceCode}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="purchase-order-right-panel">
@@ -544,7 +544,7 @@ const GoodsReceiptDetail: React.FC = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
