@@ -1,19 +1,22 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { getAllEmployees } from "../../apis/employeeApi";
+import { changeStatusSupplier, getAllSupliers } from "../../apis/supplierApi";
 import DateField from "../../components/DateField/DateField";
 import Input from "../../components/Input/Input";
 import Pagination from "../../components/Pagination/Pagination";
-import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
+import { CustomSelect } from "../../components/Select/CustomSelect/CustomSelect";
+import { SelectOption } from "../../components/Select/SelectOption/SelectOption";
 import { useDebounce } from "../../hooks/useDebounce";
-import type { BaseResponse } from "../../types/BaseResponse";
 import type { DateRange } from "../../types/DateFieldProps";
 import type { ISupplierResponse } from "../../types/ISupplier";
+import type { IUserResponse } from "../../types/IUser";
 import type { PagedModel } from "../../types/PagedModel";
-import { getSupplierStatusText, getSupplierStatusVariant } from "../../utils/Supplier.util";
+import { getOrderBySupplier, getSupplierStatusText, getSupplierStatusVariant } from "../../utils/Supplier.util";
 import CreateSupplier from "./CreateSupplier/CreateSupplier";
 import "./SupplierList.css";
 import TagComponent from "./Tag/TagComponent";
-
+export type SupplierSortBy = ReturnType<typeof getOrderBySupplier>[number]["value"];
 export default function SupplierList() {
 	const [supplies, setSuppliers] = React.useState<ISupplierResponse[]>([]);
 	const [reload, setReload] = React.useState<boolean>(false);
@@ -21,40 +24,55 @@ export default function SupplierList() {
 	const [totalPages, setTotalPages] = React.useState<number>(0);
 	const [limit, setLimit] = React.useState<number>(10);
 	const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
+	const [selectedEmployees, setSelectedEmployees] = React.useState<string[]>([]);
 	const [inputValue, setInputValue] = React.useState<string>("");
 	const [dateRange, setDateRange] = React.useState<DateRange>({ start: "", end: "" });
+	const [sortBy, setSortBy] = React.useState<SupplierSortBy>("createdDate");
+	const [employees, setEmployees] = React.useState<PagedModel<IUserResponse>>({
+		content: [],
+		page: {
+			size: 0,
+			totalElements: 0,
+			totalPages: 0,
+			number: 0,
+		},
+	});
 	const query = useDebounce(inputValue, 1000);
+	const dateRangeBound = useDebounce(dateRange, 1000);
+	const selectEmployeeBound = useDebounce(selectedEmployees, 1000);
+	const sortByBound = useDebounce(sortBy, 1000);
+	const sortOrderBound = useDebounce(sortOrder, 1000);
 	React.useEffect(() => {
 		const fetchSuppliers = async () => {
-			const response = await axiosConfiguration.get<BaseResponse<PagedModel<ISupplierResponse>>>("/suppliers", {
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-				},
-				params: {
-					page,
-					limit,
-					query,
-				},
-			});
-			const data = response.data;
+			console.log("Fetch suppliers with params:", { page, limit, query, selectedEmployees, dateRange });
+			const data = await getAllSupliers(page, limit, query, selectEmployeeBound, dateRangeBound, sortByBound, sortOrderBound);
 			setSuppliers(data.data.content);
 			setPage(data.data.page.number);
 			setTotalPages(data.data.page.totalPages);
 		};
 		fetchSuppliers();
-	}, [reload, page, limit, sortOrder, query]);
+	}, [reload, page, limit, sortOrderBound, query, selectEmployeeBound, dateRangeBound, sortByBound]);
 	const refreshData = () => setReload(!reload);
-	
+	React.useEffect(() => {
+		const fetchEmployees = async () => {
+			const response = await getAllEmployees(0, 10, "");
+			setEmployees(response.data);
+		};
+		fetchEmployees();
+	}, []);
 	const handleChangeStatus = async (supplierId: number) => {
 		try {
-			await axiosConfiguration.patch(`/suppliers/deleted/${supplierId}`, null, {
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-				},
-			});
+			await changeStatusSupplier(supplierId);
 			refreshData();
 		} catch (error) {
 			console.error("Error changing supplier status:", error);
+		}
+	};
+	const handleChangeEmployeeUsername = (employeeUsername: string | string[]) => {
+		if (typeof employeeUsername === "string" && !selectedEmployees.includes(employeeUsername)) {
+			setSelectedEmployees((prev) => [...prev, employeeUsername]);
+		} else if (Array.isArray(employeeUsername)) {
+			setSelectedEmployees(employeeUsername);
 		}
 	};
 	return (
@@ -67,16 +85,44 @@ export default function SupplierList() {
 					</div>
 				</div>
 				<div className="supplier_query">
-					<Input
-						placeholder="Tìm kiếm...."
-						type="search"
-						value={inputValue}
-						onChange={(value) => {
-							setInputValue(value as string);
-							setPage(0);
-						}}
-					/>
-					<DateField className="supplier_daterange" onChange={() => {}} value={dateRange} type="daterange" />
+					<div className="supplier_input_query">
+						<Input
+							placeholder="Tìm kiếm...."
+							type="search"
+							value={inputValue}
+							onChange={(value) => {
+								setInputValue(value as string);
+								setPage(0);
+							}}
+						/>
+					</div>
+					<div className="supplier_daterange">
+						<DateField onChange={(value) => setDateRange(value)} value={dateRange} type="daterange" />
+					</div>
+					<div>
+						<CustomSelect
+							placeholder="Chọn nhân viên phụ trách"
+							onChange={handleChangeEmployeeUsername}
+							value={selectedEmployees}
+							multiple
+						>
+							{employees.content.map((employee) => (
+								<SelectOption key={employee.id} label={employee.fullName} value={employee.username} />
+							))}
+						</CustomSelect>
+					</div>
+					<div>
+						<CustomSelect
+							showSelectedInTrigger
+							placeholder="Sắp xếp theo"
+							onChange={(value) => setSortBy(value as SupplierSortBy)}
+							value={sortBy}
+						>
+							{getOrderBySupplier().map((orderBy) => (
+								<SelectOption key={orderBy.value} label={orderBy.label} value={orderBy.value} />
+							))}
+						</CustomSelect>
+					</div>
 				</div>
 				<div>
 					<table className="supplier-list-table">

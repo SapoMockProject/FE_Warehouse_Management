@@ -6,12 +6,12 @@ export const getDateFilterOptions = () => {
         { value: 'yesterday', label: 'Hôm qua' },
         { value: '7days', label: '7 ngày qua' },
         { value: '30days', label: '30 ngày qua' },
-        { value: 'thisweek', label: 'Tuần trước' },
-        { value: 'lastweek', label: 'Tuần này' },
-        { value: 'thismonth', label: 'Tháng trước' },
-        { value: 'lastmonth', label: 'Tháng này' },
-        { value: 'thisyear', label: 'Năm trước' },
-        { value: 'lastyear', label: 'Năm nay' },
+        { value: 'lastweek', label: 'Tuần trước' },
+        { value: 'thisweek', label: 'Tuần này' },
+        { value: 'lastmonth', label: 'Tháng trước' },
+        { value: 'thismonth', label: 'Tháng này' },
+        { value: 'lastyear', label: 'Năm trước' },
+        { value: 'thisyear', label: 'Năm nay' },
     ];
 }
 
