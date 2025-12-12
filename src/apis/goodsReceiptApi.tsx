@@ -1,7 +1,7 @@
-import { v4 as uuidv4 } from "uuid";
 import { axiosConfiguration } from "../configurations/AxiosConfiguration";
 import type { BaseResponse } from "../types/BaseResponse";
 import type { GoodsReceiptRequest, GoodsReceiptResponse } from "../types/IGoodsReceipt";
+import type { TransactionRequest } from "../types/ITransaction";
 import type { PagedModel } from "../types/PagedModel";
 
 export const createGoodsReceipt = async (bodyRequest: GoodsReceiptRequest) => {
@@ -9,7 +9,6 @@ export const createGoodsReceipt = async (bodyRequest: GoodsReceiptRequest) => {
         bodyRequest,
         {
             headers: {
-                "X-Request-Id": uuidv4(),
                 "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
             }
         })
@@ -61,6 +60,28 @@ export const getAllGoodsReceipts = async (
 
 export const getGoodsReceiptById = async (id: number) => {
     const res = await axiosConfiguration.get<BaseResponse<GoodsReceiptResponse>>(`/goods-receipts/${id}`,
+        {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+            }
+        })
+    return res.data
+};
+
+export const receiveGoods = async (id: number) => {
+    const res = await axiosConfiguration.put<BaseResponse<GoodsReceiptResponse>>(`/goods-receipts/${id}/receive`,
+        null,
+        {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+            }
+        })
+    return res.data
+};
+
+export const payBillGoodsReceipt = async (id: number, bodyRequest: TransactionRequest) => {
+    const res = await axiosConfiguration.put<BaseResponse<GoodsReceiptResponse>>(`/goods-receipts/${id}/pay`,
+        bodyRequest,
         {
             headers: {
                 "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,

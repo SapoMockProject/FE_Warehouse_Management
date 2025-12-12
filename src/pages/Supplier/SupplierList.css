@@ -1,67 +1,70 @@
 .supplier-list-container {
-    padding: 20px;
-    font-size: 15px;
-    background-color: #ffffff;
-    border-radius: 8px;
+	padding: 20px;
+	font-size: 15px;
+	background-color: #ffffff;
+	border-radius: 8px;
 }
 
 .supplier-list-table {
-    width: 100%;
-    border-collapse: collapse;
-    border-width: 1px;
-    margin-top: 30px;
+	width: 100%;
+	border-collapse: collapse;
+	border-width: 1px;
+	margin-top: 30px;
 }
 
 .supplier-list-table-body {
-    text-align: center;
+	text-align: center;
 }
 
 input[type="checkbox"] {
-    width: 100%;
-    height: auto;
+	width: 100%;
+	height: auto;
 }
 
 .supplier-list-table-header {
-    background-color: #F4F6F8;
+	background-color: #f4f6f8;
 }
 .supplier-list-table-header th {
-    font-weight: 600;
-    padding: 12px;
-    text-align: center;
-    border-bottom: 1px solid #E0E0E0;
+	font-weight: 600;
+	padding: 12px;
+	text-align: center;
+	border-bottom: 1px solid #e0e0e0;
 }
 
 .supplier-list-table-body td {
-    padding: 12px;
-    border-bottom: 1px solid #E0E0E0;
+	padding: 12px;
+	border-bottom: 1px solid #e0e0e0;
 }
 
 .supplier-list-table-action {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
+	display: flex;
+	gap: 8px;
+	justify-content: center;
+	align-items: center;
 }
 
 .supplier_query {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
+	margin-top: 20px;
+	display: flex;
+	justify-content: flex-start;
+	align-items: center;
+	gap: 20px;
+}
+
+.supplier_query .supplier_input_query {
+	flex: 7;
 }
 
 .supplier_query .supplier_daterange {
-    padding-top: 0;
-    padding-bottom: 0;
+	flex: 1;
 }
 
 .supplier-list-table-body tr:hover {
-    background-color: #F9F9F9;
-    cursor: pointer;
+	background-color: #f9f9f9;
+	cursor: pointer;
 }
 
 .supplier-link-to-detail {
-    text-decoration: underline;
-    color: #436EFD;
+	text-decoration: underline;
+	color: #436efd;
 }

@@ -24,7 +24,7 @@ const PurchaseOrderDetail: React.FC = () => {
 
     const fetchPurchaseOrderDetail = async () => {
         try {
-            setLoading(true);
+            // setLoading(true);
             const response = await getPurchaseOrderById(Number(id));
             setPurchaseOrder(response.data);
         } catch (error) {
@@ -145,7 +145,7 @@ const PurchaseOrderDetail: React.FC = () => {
                 <span>
                     {formatDateTime(purchaseOrder.createdDate)}
                 </span>
-                <span className={`purchase-order-status status-${getStatusClass(purchaseOrder.status)}`}>
+                <span className={`purchase-order-status opr-badge opr-badge-${getStatusClass(purchaseOrder.status)}`}>
                     {getStatusLabel(purchaseOrder.status)}
                 </span>
             </div>
