@@ -51,6 +51,7 @@ export default function UpdateProduct() {
   const [attributes, setAttributes] = useState<Attribute[]>([]);
 
   const fileRef = useRef<HTMLInputElement | null>(null);
+  const fileRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
   const [files, setFiles] = useState<File[]>([]);
   const [categories, setCategories] = useState("");
   const [allCategories, setAllCategories] = useState<Category[]>([]);
@@ -72,7 +73,6 @@ export default function UpdateProduct() {
     const fetchCategories = async () => {
       try {
         const res = await axios.get("http://localhost:8080/api/v1/categories");
-        console.log(res.data.data.content);
         setAllCategories(res.data.data.content);
       } catch (err) {
         console.error("Lỗi khi tải danh mục:", err);
@@ -262,12 +262,6 @@ export default function UpdateProduct() {
   const applyNewSku = async () => {
     if (!newSku) return;
 
-    // Tạo danh sách updates
-    // const updates = selected.map((id) => ({
-    //   id,
-    //   sku: newSku,
-    // }));
-
     const updateList = Object.entries(newSku).map(([id, sku]) => ({
       id: Number(id),
       sku,
@@ -289,7 +283,19 @@ export default function UpdateProduct() {
         }
       );
 
-      console.log("Update thành công:", res.data);
+      console.log("Update SKU thành công:", res.data);
+
+      // Cập nhật lại dữ liệu
+      setProduct((prev) => {
+        if (!prev) return prev;
+
+        const updatedVariants = prev.variants.map((v) => {
+          const updated = updateList.find((u) => u.id === v.id);
+          return updated ? { ...v, sku: updated.sku } : v;
+        });
+
+        return { ...prev, variants: updatedVariants };
+      });
     } catch (error) {
       console.error("Lỗi update SKU:", error);
     }
@@ -298,16 +304,87 @@ export default function UpdateProduct() {
     setNewSku("");
   };
 
-  const applyNewPrice = () => {
-    console.log("Áp dụng Price:", newPrice, "cho IDs:", selected);
+  const applyNewPrice = async () => {
+    if (!newPrice) return;
+
+    const updateList = Object.entries(newPrice).map(([id, price]) => ({
+      id: Number(id),
+      price: Number(price),
+    }));
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(
+        "http://localhost:8080/api/v1/product-variant/update-prices",
+        updateList,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Update price thành công:", res.data);
+
+      // Cập nhật lại dữ liệu
+      setProduct((prev) => {
+        if (!prev) return prev;
+
+        const updatedVariants = prev.variants.map((v) => {
+          const updated = updateList.find((u) => u.id === v.id);
+          return updated ? { ...v, price: updated.price } : v;
+        });
+
+        return { ...prev, variants: updatedVariants };
+      });
+    } catch (error) {
+      console.error("Lỗi update Price:", error);
+    }
     setIsModalOpenPrice(false);
-    setNewPrice("");
+    setNewPrice({});
   };
 
-  const applyNewStock = () => {
-    console.log("Áp dụng Stock:", newStock, "cho IDs:", selected);
+  const applyNewStock = async () => {
+    if (!newStock) return;
+
+    const updateList = Object.entries(newStock).map(([id, stock]) => ({
+      id: Number(id),
+      stock: Number(stock),
+    }));
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.put(
+        "http://localhost:8080/api/v1/product-variant/update-stocks",
+        updateList,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      console.log("Update stock thành công:", res.data);
+
+      // Cập nhật lại dữ liệu
+      setProduct((prev) => {
+        if (!prev) return prev;
+
+        const updatedVariants = prev.variants.map((v) => {
+          const updated = updateList.find((u) => u.id === v.id);
+          return updated ? { ...v, stock: updated.stock } : v;
+        });
+
+        return { ...prev, variants: updatedVariants };
+      });
+    } catch (err) {
+      console.log("Lỗi update Stock", err);
+    }
+
     setIsModalOpenStock(false);
-    setNewStock("");
+    setNewStock({});
   };
 
   return (
@@ -702,7 +779,41 @@ export default function UpdateProduct() {
                           onChange={() => toggleSelect(e.id)}
                         />
                       </td>
-                      <td>{variantValue}</td>
+                      <td>
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 8,
+                          }}
+                        >
+                          <img
+                            src={e.imageUrl}
+                            alt="Lỗi ảnh"
+                            style={{
+                              width: 50,
+                              height: 50,
+                              objectFit: "cover",
+                              cursor: "pointer",
+                            }}
+                            onClick={() => fileRefs.current[e.id]?.click()}
+                          />
+
+                          <input
+                            ref={(el) => {
+                              fileRefs.current[e.id] = el;
+                            }}
+                            type="file"
+                            accept="image/*"
+                            style={{ display: "none" }}
+                            // onChange={(ev) =>
+                            //   handleVariantImageChange(e.id, ev)
+                            // }
+                          />
+                        </div>
+
+                        {variantValue}
+                      </td>
                       <td>{e.sku}</td>
                       <td>{e.price}</td>
                       <td>{e.stock}</td>
