@@ -1,6 +1,8 @@
 import axios from "axios";
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
+import { updateProduct } from "../../../apis/productApi";
+import { useNavigate } from "react-router-dom";
 import "./UpdateProduct.css";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
@@ -43,7 +45,6 @@ interface ProductVariant {
 export default function UpdateProduct() {
   const { id } = useParams(); // lấy id từ URL
   const [name, setName] = useState("");
-  const [sku, setSku] = useState("");
   const [price, setPrice] = useState(0);
   const [stock, setStock] = useState(0);
   const [description, setDescription] = useState("");
@@ -52,6 +53,9 @@ export default function UpdateProduct() {
 
   const fileRef = useRef<HTMLInputElement | null>(null);
   const fileRefs = useRef<{ [key: number]: HTMLInputElement | null }>({});
+  const [variantImages, setVariantImages] = useState<{ [key: number]: string }>(
+    {}
+  );
   const [files, setFiles] = useState<File[]>([]);
   const [categories, setCategories] = useState("");
   const [allCategories, setAllCategories] = useState<Category[]>([]);
@@ -60,6 +64,7 @@ export default function UpdateProduct() {
 
   const [selected, setSelected] = useState<number[]>([]);
   const selectedArray = Array.isArray(selected) ? selected : [selected];
+  const navigate = useNavigate();
 
   //Modal
   const [isModalOpenSKU, setIsModalOpenSKU] = useState(false);
@@ -227,12 +232,20 @@ export default function UpdateProduct() {
   };
 
   const handleSave = async () => {
+    console.log("ID: ", id);
+    console.log("Name: ", name);
+    console.log("Description: ", description);
+    console.log("CategoryID: ", categories);
+    console.log("Ảnh: ", files);
+
     try {
       const formData = new FormData();
       formData.append("name", name);
-      for (const pair of formData.entries()) {
-        console.log(pair[0] + ", " + pair[1]);
-      }
+      formData.append("category", categories);
+      formData.append("description", description);
+      formData.append("imageUrl", files[0]);
+      await updateProduct(Number(id), formData);
+      navigate("/products");
     } catch (err) {
       console.log(err);
     }
@@ -385,6 +398,34 @@ export default function UpdateProduct() {
 
     setIsModalOpenStock(false);
     setNewStock({});
+  };
+
+  const handleVariantImageChange = async (
+    id: number,
+    ev: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = ev.target.files?.[0];
+    if (!file) return;
+
+    const previewUrl = URL.createObjectURL(file);
+    setVariantImages((prev) => ({ ...prev, [id]: previewUrl }));
+
+    const formData = new FormData();
+    formData.append("imageUrl", file);
+    const token = localStorage.getItem("token");
+
+    const res = await axios.put(
+      `http://localhost:8080/api/v1/product-variant/${id}`,
+      formData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    console.log("Image uploaded for variant:", id, res.data);
   };
 
   return (
@@ -637,7 +678,7 @@ export default function UpdateProduct() {
                                   <div className="variant-price-input">
                                     <Input
                                       type="text"
-                                      value={newPrice[e.price]}
+                                      value={newPrice[0]}
                                       placeholder={e.price.toString()}
                                       onChange={(value) =>
                                         setNewPrice((prev) => ({
@@ -788,7 +829,7 @@ export default function UpdateProduct() {
                           }}
                         >
                           <img
-                            src={e.imageUrl}
+                            src={variantImages[e.id] || e.imageUrl}
                             alt="Lỗi ảnh"
                             style={{
                               width: 50,
@@ -806,9 +847,9 @@ export default function UpdateProduct() {
                             type="file"
                             accept="image/*"
                             style={{ display: "none" }}
-                            // onChange={(ev) =>
-                            //   handleVariantImageChange(e.id, ev)
-                            // }
+                            onChange={(ev) =>
+                              handleVariantImageChange(e.id, ev)
+                            }
                           />
                         </div>
 
