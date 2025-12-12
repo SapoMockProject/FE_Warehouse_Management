@@ -528,7 +528,9 @@ const PurchaseOrderCreate: React.FC = () => {
 			if (inputDate <= now) {
 				error.expectedReceiptDate =
 					"Thời gian nhập dự kiến phải lớn hơn thời gian hiện tại";
-			}
+			} else
+				purchaseOrderRequest.expectedReceiptDate = new Date(purchaseOrderRequest.expectedReceiptDate).toISOString()
+			
 		}
 
 		setError(error);

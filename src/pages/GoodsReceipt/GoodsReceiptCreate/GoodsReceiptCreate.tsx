@@ -77,7 +77,7 @@ const GoodsReceiptCreate: React.FC = () => {
     const dropdownSupplierRef = useRef<HTMLDivElement>(null);
     const observerSupplierRef = useRef<HTMLDivElement | null>(null);
 
-    const [selectedProductFixPrice, setSelectedProductFixPrice] = useState<ProductVariantItem>();
+    const [selectedVariantFixPrice, setSelectedVariantFixPrice] = useState<ProductVariantItem>();
     const [isOpenEditPriceModal, setIsOpenEditPriceModal] = useState<boolean>(false);
 
     const [employees, setEmployees] = useState<IUserResponse[]>([]);
@@ -468,12 +468,12 @@ const GoodsReceiptCreate: React.FC = () => {
         }
     };
 
-    const updateQuantity = (productId: number, quantity: number | string) => {
+    const updateQuantity = (variantId: number, quantity: number | string) => {
         const qty = typeof quantity === "string" ? parseInt(quantity) || 0 : quantity;
 
         setOrderItems(
             orderItems.map((item) =>
-                item.id === productId
+                item.id === variantId
                     ? { ...item, quantityPurchase: qty }
                     : item
             )
@@ -482,11 +482,11 @@ const GoodsReceiptCreate: React.FC = () => {
         setGoodsReceiptRequest(prev => ({
             ...prev,
             items: prev.items.map(item => {
-                if (item.productVariantId === productId) {
+                if (item.productVariantId === variantId) {
                     const discount = item.discountValueItem || 0;
                     return {
                         ...item,
-                        quantity: qty,
+                        receivedQuantity: qty,
                         subtotalPriceItem: (item.price - discount) * qty
                     };
                 }
@@ -505,7 +505,7 @@ const GoodsReceiptCreate: React.FC = () => {
     };
 
     const handleOpenEditPriceModal = (item: ProductVariantItem) => {
-        setSelectedProductFixPrice(item);
+        setSelectedVariantFixPrice(item);
         setIsOpenEditPriceModal((prev) => (prev ? prev : true));
     };
 
@@ -515,13 +515,13 @@ const GoodsReceiptCreate: React.FC = () => {
         discountType: "FIXED" | "PERCENT" | null;
         discountValue: number | null;
     }) => {
-        if (!selectedProductFixPrice) return;
+        if (!selectedVariantFixPrice) return;
 
-        const productId = selectedProductFixPrice.id;
+        const productId = selectedVariantFixPrice.id;
 
         setOrderItems((prev) =>
             prev.map((p) =>
-                p.id === selectedProductFixPrice?.id
+                p.id === selectedVariantFixPrice?.id
                     ? {
                         ...p,
                         ...{
@@ -539,8 +539,7 @@ const GoodsReceiptCreate: React.FC = () => {
             ...prev,
             items: prev.items.map(item => {
                 if (item.productVariantId === productId) {
-                    const orderItem = orderItems.find(oi => oi.id === productId);
-                    const quantity = orderItem?.quantityPurchase || 1;
+                    const quantity = item.receivedQuantity || 1;
                     const discountValue = data.discountValue != null ? data.discountValue : 0;
                     return {
                         ...item,
@@ -1310,7 +1309,7 @@ const GoodsReceiptCreate: React.FC = () => {
 
             <EditPriceProductItem
                 open={isOpenEditPriceModal}
-                value={selectedProductFixPrice?.priceAfterDiscount ?? selectedProductFixPrice?.price ?? 0}
+                value={selectedVariantFixPrice?.priceAfterDiscount ?? selectedVariantFixPrice?.price ?? 0}
                 onClose={() => setIsOpenEditPriceModal(false)}
                 onSave={(data) => handleSavePriceDiscount(data)}
             />
