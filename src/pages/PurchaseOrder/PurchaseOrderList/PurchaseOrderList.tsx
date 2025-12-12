@@ -16,6 +16,8 @@ import "./PurchaseOrderList.css";
 import { getAllProductVariants } from "../../../apis/productVariantApi";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
+import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
+import { Role } from "../../../types/IUser.d";
 
 interface PurchaseOrderListState {
   orders: PurchaseOrderResponse[];
@@ -72,7 +74,6 @@ export default function PurchaseOrderRequest() {
   };
 
   const fetchOrders = async () => {
-    debugger
     if (state.orders.length === 0) {
       updateState({ loading: true, error: null });
     }
@@ -195,7 +196,7 @@ export default function PurchaseOrderRequest() {
 	const handleRowClick = (order: PurchaseOrderResponse) => {
 		navigate(`/purchase-orders/${order.id}`);
 	};
-	const user = useContext(AuthenticationContext);
+	const user = useContext(AuthenticationContext)?.user;
 	return (
 		<div className="opr-container">
 			{user?.role === Role.ADMIN_SYSTEM ||
