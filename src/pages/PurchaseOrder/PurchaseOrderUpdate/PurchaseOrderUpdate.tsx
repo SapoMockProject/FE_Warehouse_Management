@@ -1,9 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "../PurchaseOrderCreate/PurchaseOrderCreate.css";
-import type {
-    ProductResponse,
-    ProductVariantItem,
-} from "../../../types/IProduct";
+import type { ProductVariantItem, VariantResponse } from "../../../types/IProduct";
 import Input from "../../../components/Input/Input";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
@@ -16,12 +13,12 @@ import type { ISupplierResponse } from "../../../types/ISupplier";
 import SupplierItem from "../../../components/Supplier/SupplierItem/SupplierItem";
 import SupplierInfoCard from "../../../components/Supplier/SupplierCard/SupplierCard";
 import type { PurchaseOrderItemRequest, PurchaseOrderRequest } from "../../../types/IPurchaseOrder";
-import { getAllProducts } from "../../../apis/productApi";
 import { getAllSupliers } from "../../../apis/supplierApi";
 import type { IUserResponse } from "../../../types/IUser";
 import { getAllEmployees } from "../../../apis/employeeApi";
 import { ValidationMessage } from "../../../components/ValidationMessage/ValidationMessage";
 import { getPurchaseOrderById, updatePurchaseOrder } from "../../../apis/purchaseOrderApi";
+import { getAllProductVariants } from "../../../apis/productVariantApi";
 
 const PurchaseOrderEdit: React.FC = () => {
     const navigate = useNavigate();
@@ -48,14 +45,13 @@ const PurchaseOrderEdit: React.FC = () => {
     const [loading, setLoading] = useState(true);
 
     const [inputValue, setInputValue] = useState<string>("");
-    const [isOpenSearchProduct, setIsOpenSearchProduct] = useState<boolean>(false);
-    const [searchProducts, setSearchProducts] = useState<ProductVariantItem[]>([]);
-    const [pageSearchProduct, setPageSearchProduct] = useState<number>(0);
-    const [hasMoreProduct, setHasMoreProduct] = useState(true);
-    const [loadingProduct, setLoadingProduct] = useState(false);
+    const [isOpenSearchVariant, setIsOpenSearchVariant] = useState<boolean>(false);
+    const [searchProductVariants, setSearchProductVariants] = useState<ProductVariantItem[]>([]);
+    const [pageSearchVariant, setPageSearchVariant] = useState<number>(0);
+    const [hasMoreProduct, setHasMoreVariant] = useState(true);
+    const [loadingVariant, setLoadingVariant] = useState(false);
     const dropdownProductRef = useRef<HTMLDivElement>(null);
     const observerProductRef = useRef<HTMLDivElement | null>(null);
-    const sizeSearch = 3;
 
     const [inputSearchSupplier, setInputSearchSupplier] = useState("");
     const [isOpenSearchSupplier, setIsOpenSearchSupplier] = useState<boolean>(false);
@@ -67,7 +63,7 @@ const PurchaseOrderEdit: React.FC = () => {
     const dropdownSupplierRef = useRef<HTMLDivElement>(null);
     const observerSupplierRef = useRef<HTMLDivElement | null>(null);
 
-    const [selectedProductFixPrice, setSelectedProductFixPrice] = useState<ProductVariantItem>();
+    const [selectedVariantFixPrice, setSelectedVariantFixPrice] = useState<ProductVariantItem>();
     const [isOpenEditPriceModal, setIsOpenEditPriceModal] = useState<boolean>(false);
 
     const [employees, setEmployees] = useState<IUserResponse[]>([]);
@@ -81,54 +77,54 @@ const PurchaseOrderEdit: React.FC = () => {
     }, [id]);
 
     useEffect(() => {
-            const totalLineItemsPriceBeforeDiscount = purchaseOrderRequest.items.reduce(
-                (sum, item) => sum + (item.price * item.quantity),
-                0
-            );
-    
-            const totalItemsDiscount = purchaseOrderRequest.items.reduce(
-                (sum, item) => {
-                    const basePrice = item.price * item.quantity;
-                    const discountAmount = basePrice - item.subtotalPriceItem;
-                    return sum + discountAmount;
-                },
-                0
-            );
-    
-            const totalLineItemsPriceAfterDiscount = purchaseOrderRequest.items.reduce(
-                (sum, item) => sum + item.subtotalPriceItem,
-                0
-            );
-    
-            let orderDiscount = 0;
-            if (purchaseOrderRequest.discountType === "FIXED" && purchaseOrderRequest.discountValue != null) {
-                orderDiscount = purchaseOrderRequest.discountValue;
-            } else if (purchaseOrderRequest.discountType === "PERCENT" && purchaseOrderRequest.discountValue != null) {
-                orderDiscount = totalLineItemsPriceAfterDiscount * (purchaseOrderRequest.discountValue / 100);
-            }
-    
-            const totalDiscountValue = totalItemsDiscount + orderDiscount;
-    
-            const totalLandedCost = purchaseOrderRequest.totalLandedCost || 0;
-    
-            const totalPrice = Math.max(0,
-                totalLineItemsPriceAfterDiscount - orderDiscount + totalLandedCost
-            );
-            
-            setPurchaseOrderRequest(prev => ({
-                ...prev,
-                totalDiscountValue,
-                totalLandedCost,
-                totalLineItemsPriceBeforeDiscount,
-                totalLineItemsPriceAfterDiscount,
-                totalPrice
-            }));
-        }, [
-            purchaseOrderRequest.items,
-            purchaseOrderRequest.discountType,
-            purchaseOrderRequest.discountValue,
-            purchaseOrderRequest.totalLandedCost,
-        ]);
+        const totalLineItemsPriceBeforeDiscount = purchaseOrderRequest.items.reduce(
+            (sum, item) => sum + (item.price * item.quantity),
+            0
+        );
+
+        const totalItemsDiscount = purchaseOrderRequest.items.reduce(
+            (sum, item) => {
+                const basePrice = item.price * item.quantity;
+                const discountAmount = basePrice - item.subtotalPriceItem;
+                return sum + discountAmount;
+            },
+            0
+        );
+
+        const totalLineItemsPriceAfterDiscount = purchaseOrderRequest.items.reduce(
+            (sum, item) => sum + item.subtotalPriceItem,
+            0
+        );
+
+        let orderDiscount = 0;
+        if (purchaseOrderRequest.discountType === "FIXED" && purchaseOrderRequest.discountValue != null) {
+            orderDiscount = purchaseOrderRequest.discountValue;
+        } else if (purchaseOrderRequest.discountType === "PERCENT" && purchaseOrderRequest.discountValue != null) {
+            orderDiscount = totalLineItemsPriceAfterDiscount * (purchaseOrderRequest.discountValue / 100);
+        }
+
+        const totalDiscountValue = totalItemsDiscount + orderDiscount;
+
+        const totalLandedCost = purchaseOrderRequest.totalLandedCost || 0;
+
+        const totalPrice = Math.max(0,
+            totalLineItemsPriceAfterDiscount - orderDiscount + totalLandedCost
+        );
+
+        setPurchaseOrderRequest(prev => ({
+            ...prev,
+            totalDiscountValue,
+            totalLandedCost,
+            totalLineItemsPriceBeforeDiscount,
+            totalLineItemsPriceAfterDiscount,
+            totalPrice
+        }));
+    }, [
+        purchaseOrderRequest.items,
+        purchaseOrderRequest.discountType,
+        purchaseOrderRequest.discountValue,
+        purchaseOrderRequest.totalLandedCost,
+    ]);
 
     const fetchPurchaseOrderDetail = async () => {
         try {
@@ -136,31 +132,17 @@ const PurchaseOrderEdit: React.FC = () => {
             const response = await getPurchaseOrderById(Number(id));
             const data = response.data;
 
-            // Convert response data to request format
             const convertedItems: ProductVariantItem[] = data.items.map((item: any) => {
-                const options = [];
-
-                if (item.productVariant.option1value) {
-                    options.push(`${item.productVariant.option1value}`);
-                }
-                if (item.productVariant.option2value) {
-                    options.push(`${item.productVariant.option2value}`);
-                }
-                if (item.productVariant.option3value) {
-                    options.push(`${item.productVariant.option3value}`);
-                }
-
-                const variantName = options.join(" / ");
-
+                const variantName = getVariantName(item.productVariant)
                 return {
                     id: item.productVariant.id,
                     productId: item.product.id,
-                    name: item.product.name,
+                    productName: item.product.name,
                     variantName: variantName,
                     sku: item.productVariant.sku,
                     price: item.price,
-                    quantityInStock: item.productVariant.stock,
-                    image: item.productVariant.imageUrl,
+                    stock: item.productVariant.stock,
+                    imageUrl: item.productVariant.imageUrl,
                     quantityPurchase: item.quantityPurchase,
                     discountType: item.discountType,
                     discountValue: item.discountValueItem,
@@ -204,51 +186,42 @@ const PurchaseOrderEdit: React.FC = () => {
         }
     };
 
+    const getVariantName = (variant: VariantResponse) => {
+        const options = [];
+        if (variant.option1value) options.push(variant.option1value);
+        if (variant.option2value) options.push(variant.option2value);
+        if (variant.option3value) options.push(variant.option3value);
+        return options.join(" / ");
+    };
+
     const convertToProductVariants = (
-        products: ProductResponse[]
+        variants: VariantResponse[]
     ): ProductVariantItem[] => {
         const result: ProductVariantItem[] = [];
-
-        products.forEach((product) => {
-            product.variants.forEach((variant) => {
-                const options = [];
-
-                if (product.option1name && variant.option1value) {
-                    options.push(`${product.option1name}: ${variant.option1value}`);
-                }
-                if (product.option2name && variant.option2value) {
-                    options.push(`${product.option2name}: ${variant.option2value}`);
-                }
-                if (product.option3name && variant.option3value) {
-                    options.push(`${product.option3name}: ${variant.option3value}`);
-                }
-
-                const variantName = options.join(" / ");
-
-                result.push({
-                    id: variant.id,
-                    productId: product.id,
-                    name: product.name,
-                    variantName: variantName,
-                    sku: variant.sku,
-                    price: variant.price,
-                    quantityInStock: variant.stock,
-                    image: variant.imageUrl,
-                    quantityPurchase: 0
-                });
+        variants.forEach((variant) => {
+            const variantName = getVariantName(variant);
+            result.push({
+                id: variant.id,
+                productId: variant.productId,
+                productName: variant.productName,
+                variantName: variantName,
+                sku: variant.sku,
+                price: variant.price,
+                stock: variant.stock,
+                imageUrl: variant.imageUrl,
+                quantityPurchase: 0
             });
         });
-
         return result;
     };
 
-    const fetchProducts = async (page: number, keyword: string) => {
-        if (loadingProduct) return;
+    const fetchProductVariants = async (page: number, keyword: string) => {
+        if (loadingVariant) return;
 
-        setLoadingProduct(true);
+        setLoadingVariant(true);
 
         try {
-            const res = await getAllProducts(page, sizeSearch, keyword);
+            const res = await getAllProductVariants(page, 5, keyword);
             const data = res.data;
 
             const productVariantList = convertToProductVariants(data.content);
@@ -256,27 +229,27 @@ const PurchaseOrderEdit: React.FC = () => {
             const totalPage = data.page.totalPages;
 
             if (!productVariantList || productVariantList.length === 0) {
-                setHasMoreProduct(false);
-                setLoadingProduct(false);
+                setHasMoreVariant(false);
+                setLoadingVariant(false);
                 return;
             }
 
-            setSearchProducts((prev) => [...prev, ...productVariantList]);
+            setSearchProductVariants((prev) => [...prev, ...productVariantList]);
 
             if (page + 1 >= totalPage) {
-                setHasMoreProduct(false);
+                setHasMoreVariant(false);
             }
         } catch (error) {
             console.error("Error fetch products:", error);
         }
 
-        setLoadingProduct(false);
+        setLoadingVariant(false);
     };
 
     const fetchSuppliers = async (page: number, query: string) => {
         setLoadingSupplier(true);
         try {
-            const res = await getAllSupliers(page, sizeSearch, query);
+            const res = await getAllSupliers(page, 5, query);
 
             const data = res.data;
 
@@ -324,14 +297,13 @@ const PurchaseOrderEdit: React.FC = () => {
         }
     };
 
-    // useEffect hooks
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (
                 dropdownProductRef.current &&
                 !dropdownProductRef.current.contains(event.target as Node)
             ) {
-                setIsOpenSearchProduct(false);
+                setIsOpenSearchVariant(false);
             }
         };
 
@@ -354,35 +326,35 @@ const PurchaseOrderEdit: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (!isOpenSearchProduct) return;
+        if (!isOpenSearchVariant) return;
 
         const delayDebounce = setTimeout(() => {
-            setSearchProducts([]);
-            setPageSearchProduct(0);
-            setHasMoreProduct(true);
-            fetchProducts(0, inputValue);
+            setSearchProductVariants([]);
+            setPageSearchVariant(0);
+            setHasMoreVariant(true);
+            fetchProductVariants(0, inputValue);
         }, 500);
 
         return () => clearTimeout(delayDebounce);
     }, [inputValue]);
 
     useEffect(() => {
-        if (!isOpenSearchProduct) return;
+        if (!isOpenSearchVariant) return;
 
         const load = async () => {
-            await fetchProducts(pageSearchProduct, inputValue);
+            await fetchProductVariants(pageSearchVariant, inputValue);
         };
 
         load();
-    }, [pageSearchProduct, isOpenSearchProduct]);
+    }, [pageSearchVariant, isOpenSearchVariant]);
 
     useEffect(() => {
         if (!observerProductRef.current) return;
 
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0].isIntersecting && hasMoreProduct && !loadingProduct) {
-                    setPageSearchProduct((prev) => prev + 1);
+                if (entries[0].isIntersecting && hasMoreProduct && !loadingVariant) {
+                    setPageSearchVariant((prev) => prev + 1);
                 }
             },
             { threshold: 1 }
@@ -391,7 +363,7 @@ const PurchaseOrderEdit: React.FC = () => {
         observer.observe(observerProductRef.current);
 
         return () => observer.disconnect();
-    }, [hasMoreProduct, loadingProduct]);
+    }, [hasMoreProduct, loadingVariant]);
 
     useEffect(() => {
         if (!isOpenSearchSupplier) return;
@@ -485,36 +457,35 @@ const PurchaseOrderEdit: React.FC = () => {
         purchaseOrderRequest.totalLandedCost,
     ]);
 
-    // Handler functions
     const handleBackBtn = () => {
         navigate(`/purchase-orders/${id}`);
     };
 
-    const handleSearchProductInputClick = () => {
-        if (!isOpenSearchProduct) {
-            setIsOpenSearchProduct((prev) => (prev ? prev : true));
-            setSearchProducts([]);
-            setPageSearchProduct(0);
-            setHasMoreProduct(true);
+    const handleSearchVariant = () => {
+        if (!isOpenSearchVariant) {
+            setIsOpenSearchVariant((prev) => (prev ? prev : true));
+            setSearchProductVariants([]);
+            setPageSearchVariant(0);
+            setHasMoreVariant(true);
         }
     };
 
-    const handleProductSelect = (productVariantId: number) => {
-        const product = searchProducts.find((p) => p.id === productVariantId);
+    const handleSelectVariant = (productVariantId: number) => {
+        const vartiant = searchProductVariants.find((p) => p.id === productVariantId);
 
-        if (product && !orderItems.find((item) => item.id === productVariantId)) {
+        if (vartiant && !orderItems.find((item) => item.id === productVariantId)) {
             setOrderItems((prev) => [
                 ...prev,
-                { ...product, quantityPurchase: 1 }
+                { ...vartiant, quantityPurchase: 1 }
             ]);
 
             const newItem: PurchaseOrderItemRequest = {
-                productVariantId: product.id,
+                productVariantId: vartiant.id,
                 quantity: 1,
-                price: product.price,
+                price: vartiant.price,
                 discountType: null,
                 discountValueItem: null,
-                subtotalPriceItem: product.price
+                subtotalPriceItem: vartiant.price
             };
 
             setPurchaseOrderRequest(prev => ({
@@ -523,16 +494,16 @@ const PurchaseOrderEdit: React.FC = () => {
             }));
 
             setError({});
-            setIsOpenSearchProduct(false);
+            setIsOpenSearchVariant(false);
         }
     };
 
-    const updateQuantity = (productId: number, quantity: number | string) => {
+    const updateQuantity = (variantId: number, quantity: number | string) => {
         const qty = typeof quantity === "string" ? parseInt(quantity) || 0 : quantity;
 
         setOrderItems(
             orderItems.map((item) =>
-                item.id === productId
+                item.id === variantId
                     ? { ...item, quantityPurchase: qty }
                     : item
             )
@@ -541,7 +512,7 @@ const PurchaseOrderEdit: React.FC = () => {
         setPurchaseOrderRequest(prev => ({
             ...prev,
             items: prev.items.map(item => {
-                if (item.productVariantId === productId) {
+                if (item.productVariantId === variantId) {
                     return {
                         ...item,
                         quantity: qty,
@@ -553,17 +524,17 @@ const PurchaseOrderEdit: React.FC = () => {
         }));
     };
 
-    const removeProduct = (productId: number) => {
-        setOrderItems(orderItems.filter((item) => item.id !== productId));
+    const removeVariantItem = (variantId: number) => {
+        setOrderItems(orderItems.filter((item) => item.id !== variantId));
 
         setPurchaseOrderRequest(prev => ({
             ...prev,
-            items: prev.items.filter(item => item.productVariantId !== productId)
+            items: prev.items.filter(item => item.productVariantId !== variantId)
         }));
     };
 
     const handleOpenEditPriceModal = (item: ProductVariantItem) => {
-        setSelectedProductFixPrice(item);
+        setSelectedVariantFixPrice(item);
         setIsOpenEditPriceModal((prev) => (prev ? prev : true));
     };
 
@@ -573,13 +544,13 @@ const PurchaseOrderEdit: React.FC = () => {
         discountType: "FIXED" | "PERCENT" | null;
         discountValue: number | null;
     }) => {
-        if (!selectedProductFixPrice) return;
+        if (!selectedVariantFixPrice) return;
 
-        const productId = selectedProductFixPrice.id;
+        const variantId = selectedVariantFixPrice.id;
 
         setOrderItems((prev) =>
             prev.map((p) =>
-                p.id === selectedProductFixPrice?.id
+                p.id === selectedVariantFixPrice?.id
                     ? {
                         ...p,
                         ...{
@@ -596,8 +567,8 @@ const PurchaseOrderEdit: React.FC = () => {
         setPurchaseOrderRequest(prev => ({
             ...prev,
             items: prev.items.map(item => {
-                if (item.productVariantId === productId) {
-                    const orderItem = orderItems.find(oi => oi.id === productId);
+                if (item.productVariantId === variantId) {
+                    const orderItem = orderItems.find(oi => oi.id === variantId);
                     const quantity = orderItem?.quantityPurchase || item.quantity;
                     let discountValue = data.discountValue != null ? data.discountValue : 0;
                     if (data.discountType === "PERCENT")
@@ -668,7 +639,6 @@ const PurchaseOrderEdit: React.FC = () => {
             const response = await updatePurchaseOrder(Number(id), bodyRequest);
             console.log("Kết quả backend:", response);
 
-            // Chuyển về trang chi tiết sau khi cập nhật thành công
             navigate(`/purchase-orders/${id}`);
         } catch (err) {
             console.error("Lỗi cập nhật đơn đặt hàng:", err);
@@ -719,27 +689,27 @@ const PurchaseOrderEdit: React.FC = () => {
                                     type="search"
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e as string)}
-                                    onClick={handleSearchProductInputClick}
+                                    onClick={handleSearchVariant}
                                     placeholder="Tìm theo tên, mã SKU, quét mã Barcode..."
                                     className="input-search-product"
                                 />
-                                {isOpenSearchProduct && (
+                                {isOpenSearchVariant && (
                                     <div className="purchase-order-dropdown">
                                         <div className="purchase-order-dropdown-item">
-                                            {searchProducts.map((p) => (
+                                            {searchProductVariants.map((p) => (
                                                 <ProductItemSearch
                                                     key={p.id}
                                                     id={p.id}
                                                     productId={p.productId}
-                                                    image={p.image}
-                                                    name={p.name}
+                                                    imageUrl={p.imageUrl}
+                                                    productName={p.productName}
                                                     variantName={p.variantName}
                                                     sku={p.sku}
                                                     unit={p.unit}
                                                     price={p.price}
-                                                    quantityInStock={p.quantityInStock}
+                                                    stock={p.stock}
                                                     quantityPurchase={1}
-                                                    onClick={(id) => handleProductSelect(Number(id))}
+                                                    onClick={(id) => handleSelectVariant(Number(id))}
                                                 />
                                             ))}
 
@@ -752,7 +722,7 @@ const PurchaseOrderEdit: React.FC = () => {
                                                     paddingTop: "10px",
                                                 }}
                                             >
-                                                {loadingProduct
+                                                {loadingVariant
                                                     ? ""
                                                     : hasMoreProduct
                                                         ? "Cuộn để tải thêm"
@@ -800,36 +770,38 @@ const PurchaseOrderEdit: React.FC = () => {
                                                 <td>
                                                     <div className="purchase-order-product-info">
                                                         <div className="purchase-order-product-image-placeholder">
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                width="20"
-                                                                height="20"
-                                                                viewBox="0 0 24 24"
-                                                            >
-                                                                <g fill="none">
-                                                                    <path
-                                                                        stroke="#ababab"
-                                                                        d="M3 11c0-3.771 0-5.657 1.172-6.828C5.343 3 7.229 3 11 3h2c3.771 0 5.657 0 6.828 1.172C21 5.343 21 7.229 21 11v2c0 3.771 0 5.657-1.172 6.828C18.657 21 16.771 21 13 21h-2c-3.771 0-5.657 0-6.828-1.172C3 18.657 3 16.771 3 13z"
-                                                                    />
-                                                                    <path
-                                                                        fill="#ababab"
-                                                                        fillRule="evenodd"
-                                                                        d="m18.998 14.29l-.344-.343l-.015-.016c-.401-.4-.724-.723-1.008-.962c-.292-.246-.576-.434-.909-.534a2.5 2.5 0 0 0-1.444 0c-.333.1-.617.288-.91.534c-.283.239-.606.562-1.007.962l-.015.016c-.3.3-.5.5-.663.634c-.161.133-.231.155-.26.16a.5.5 0 0 1-.349-.067c-.024-.16-.081-.062-.181-.245a11.014 11.014 0 0 1-.38-.835l-.053-.124l-.013-.029c-.364-.85-.654-1.527-.936-2.028c-.287-.51-.606-.915-1.065-1.145a2.5 2.5 0 0 0-1.33-.256c-.513.043-.959.3-1.415.667c-.448.361-.969.881-1.623 1.536l-.022.021l-.056.057v1.414l.763-.764c.681-.68 1.164-1.162 1.565-1.485c.4-.321.655-.431.871-.45a1.5 1.5 0 0 1 .799.154c.194.097.39.294.641.741c.253.45.522 1.075.901 1.96l.054.125l.01.023c.154.36.284.664.41.896c.13.239.29.466.534.617a1.5 1.5 0 0 0 1.049.202c.282-.05.514-.202.723-.375c.204-.168.438-.402.716-.68l.017-.017c.42-.42.713-.712.96-.92c.242-.205.406-.297.554-.342c.282-.085.584-.085.866 0c.148.045.312.137.554.341c.247.209.54.501.96.921l1.029 1.028c.013-.41.019-.87.022-1.392"
-                                                                        clipRule="evenodd"
-                                                                    />
-                                                                    <circle
-                                                                        cx="16.5"
-                                                                        cy="7.5"
-                                                                        r="1.5"
-                                                                        fill="#ababab"
-                                                                    />
-                                                                </g>
-                                                            </svg>
+                                                            {item.imageUrl ? (<img src={item.imageUrl} alt={item.imageUrl} />)
+                                                                : (<svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    width="20"
+                                                                    height="20"
+                                                                    viewBox="0 0 24 24"
+                                                                >
+                                                                    <g fill="none">
+                                                                        <path
+                                                                            stroke="#ababab"
+                                                                            d="M3 11c0-3.771 0-5.657 1.172-6.828C5.343 3 7.229 3 11 3h2c3.771 0 5.657 0 6.828 1.172C21 5.343 21 7.229 21 11v2c0 3.771 0 5.657-1.172 6.828C18.657 21 16.771 21 13 21h-2c-3.771 0-5.657 0-6.828-1.172C3 18.657 3 16.771 3 13z"
+                                                                        />
+                                                                        <path
+                                                                            fill="#ababab"
+                                                                            fillRule="evenodd"
+                                                                            d="m18.998 14.29l-.344-.343l-.015-.016c-.401-.4-.724-.723-1.008-.962c-.292-.246-.576-.434-.909-.534a2.5 2.5 0 0 0-1.444 0c-.333.1-.617.288-.91.534c-.283.239-.606.562-1.007.962l-.015.016c-.3.3-.5.5-.663.634c-.161.133-.231.155-.26.16a.5.5 0 0 1-.349-.067c-.024-.16-.081-.062-.181-.245a11.014 11.014 0 0 1-.38-.835l-.053-.124l-.013-.029c-.364-.85-.654-1.527-.936-2.028c-.287-.51-.606-.915-1.065-1.145a2.5 2.5 0 0 0-1.33-.256c-.513.043-.959.3-1.415.667c-.448.361-.969.881-1.623 1.536l-.022.021l-.056.057v1.414l.763-.764c.681-.68 1.164-1.162 1.565-1.485c.4-.321.655-.431.871-.45a1.5 1.5 0 0 1 .799.154c.194.097.39.294.641.741c.253.45.522 1.075.901 1.96l.054.125l.01.023c.154.36.284.664.41.896c.13.239.29.466.534.617a1.5 1.5 0 0 0 1.049.202c.282-.05.514-.202.723-.375c.204-.168.438-.402.716-.68l.017-.017c.42-.42.713-.712.96-.92c.242-.205.406-.297.554-.342c.282-.085.584-.085.866 0c.148.045.312.137.554.341c.247.209.54.501.96.921l1.029 1.028c.013-.41.019-.87.022-1.392"
+                                                                            clipRule="evenodd"
+                                                                        />
+                                                                        <circle
+                                                                            cx="16.5"
+                                                                            cy="7.5"
+                                                                            r="1.5"
+                                                                            fill="#ababab"
+                                                                        />
+                                                                    </g>
+                                                                </svg>)
+                                                            }
                                                         </div>
 
                                                         <div className="purchase-order-product-text">
                                                             <div className="purchase-order-product-name">
-                                                                {item.name}
+                                                                {item.productName}
                                                             </div>
                                                             <div className="purchase-order-product-sku">
                                                                 SKU: {item.sku}
@@ -886,7 +858,7 @@ const PurchaseOrderEdit: React.FC = () => {
                                                 <td>
                                                     <Button
                                                         className="purchase-order-remove-btn"
-                                                        onClick={() => removeProduct(item.id)}
+                                                        onClick={() => removeVariantItem(item.id)}
                                                         icon={
                                                             <svg
                                                                 xmlns="http://www.w3.org/2000/svg"
@@ -1083,7 +1055,7 @@ const PurchaseOrderEdit: React.FC = () => {
 
             <EditPriceProductItem
                 open={isOpenEditPriceModal}
-                value={selectedProductFixPrice?.priceAfterDiscount ?? selectedProductFixPrice?.price ?? 0}
+                value={selectedVariantFixPrice?.priceAfterDiscount ?? selectedVariantFixPrice?.price ?? 0}
                 onClose={() => setIsOpenEditPriceModal(false)}
                 onSave={(data) => handleSavePriceDiscount(data)}
             />

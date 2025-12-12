@@ -10,11 +10,12 @@ import Pagination from "../../../components/Pagination/Pagination";
 import { useDebounce } from "../../../hooks/useDebounce";
 import type { DateRange } from "../../../types/DateFieldProps";
 import { formatDateTime } from "../../../utils/DateFilterOptions.util";
-import { getAllProducts } from "../../../apis/productApi";
-import { ProductSelect } from "../../../components/Select/Product/ProductSelect";
-import type { ProductResponse } from "../../../types/IProduct";
+import type { VariantResponse } from "../../../types/IProduct";
 import type { GoodsReceiptItemResponse, GoodsReceiptResponse } from "../../../types/IGoodsReceipt";
 import { RECEIPT_STATUSES, TRANSACTION_STATUSES } from "../../../constants/status.constant";
+import { getAllProductVariants } from "../../../apis/productVariantApi";
+import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
+import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
 interface GoodsReceiptListState {
     receipts: GoodsReceiptResponse[];
     loading: boolean;
@@ -56,18 +57,18 @@ const GoodsReceiptList: React.FC = () => {
 
     const query = useDebounce(state.searchQuery, 1000);
 
-    const [products, setProducts] = useState<ProductResponse[]>([]);
+    const [variants, setVariants] = useState<VariantResponse[]>([]);
 
     const updateState = (updates: Partial<GoodsReceiptListState>) => {
         setState((prev) => ({ ...prev, ...updates }));
     };
 
-    const fetchProducts = async () => {
+    const fetchProductVariants = async () => {
         try {
-            const res = await getAllProducts();
-            setProducts(res.data.content || []);
+            const res = await getAllProductVariants(0, 999);
+            setVariants(res.data.content || []);
         } catch (error) {
-            console.error("Failed to load products:", error);
+            console.error("Failed to load variants:", error);
         }
     };
 
@@ -108,7 +109,7 @@ const GoodsReceiptList: React.FC = () => {
             const data = response.data;
             updateState({
                 receipts: data.content || data,
-                totalPages: data.page?.totalPages || Math.ceil((data.length || 0) / state.size),
+                totalPages: data.page?.totalPages || Math.ceil((data.content.length || 0) / state.size),
                 loading: false,
             });
 
@@ -122,8 +123,16 @@ const GoodsReceiptList: React.FC = () => {
         }
     };
 
+    const getVariantName = (variant: VariantResponse) => {
+        const options = [];
+        if (variant.option1value) options.push(variant.option1value);
+        if (variant.option2value) options.push(variant.option2value);
+        if (variant.option3value) options.push(variant.option3value);
+        return options.join(" / ");
+    };
+
     useEffect(() => {
-        fetchProducts();
+        fetchProductVariants();
     }, []);
 
     useEffect(() => {
@@ -140,7 +149,6 @@ const GoodsReceiptList: React.FC = () => {
     ]);
 
     const getFilteredReceipts = () => {
-        // Không cần filter ở client vì BE đã filter hết
         return state.receipts;
     };
 
@@ -303,15 +311,21 @@ const GoodsReceiptList: React.FC = () => {
                         </div>
 
                         <div style={{ flex: "0 0 auto" }}>
-                            <ProductSelect
-                                value={state.selectedProductVariants}
-                                onChange={(variants) =>
-                                    handleFilterChange("selectedProductVariants", variants)
-                                }
-                                products={products}
-                                renderProductLabel={(product) => `${product.name}`}
+                            <CustomSelect
                                 placeholder="Chọn sản phẩm"
-                            />
+                                value={state.selectedProductVariants}
+                                onChange={(variants) => handleFilterChange("selectedProductVariants", variants)}
+                                showSelectedInTrigger={true}
+                                multiple={true}
+                            >
+                                {variants.map((variant) => (
+                                    <SelectOption
+                                        key={variant.id}
+                                        value={variant.id.toString()}
+                                        label={variant.productName + " - " + getVariantName(variant)}
+                                    />
+                                ))}
+                            </CustomSelect>
                         </div>
 
                         <div style={{ flex: "0 1 auto" }}>
@@ -341,7 +355,6 @@ const GoodsReceiptList: React.FC = () => {
                     </div>
                 )}
 
-                {/* Table */}
                 <div className="opr-table-content">
                     <div className="opr-table-wrapper">
                         {state.loading ? (
