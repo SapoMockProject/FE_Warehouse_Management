@@ -37,6 +37,7 @@ export default function SupplierList() {
 			number: 0,
 		},
 	});
+	const [loadMore, setLoadMore] = React.useState<boolean>(true);
 	const query = useDebounce(inputValue, 1000);
 	const dateRangeBound = useDebounce(dateRange, 1000);
 	const selectEmployeeBound = useDebounce(selectedEmployees, 1000);
@@ -44,8 +45,13 @@ export default function SupplierList() {
 	const sortOrderBound = useDebounce(sortOrder, 1000);
 	React.useEffect(() => {
 		const fetchSuppliers = async () => {
-			console.log("Fetch suppliers with params:", { page, limit, query, selectedEmployees, dateRange });
+			if (loadMore === false) return;
 			const data = await getAllSupliers(page, limit, query, selectEmployeeBound, dateRangeBound, sortByBound, sortOrderBound);
+			if (data.data.content.length === 0) {
+				console.log("No more suppliers to load");
+				setLoadMore(false);
+				return;
+			}
 			setSuppliers(data.data.content);
 			setPage(data.data.page.number);
 			setTotalPages(data.data.page.totalPages);
@@ -55,11 +61,26 @@ export default function SupplierList() {
 	const refreshData = () => setReload(!reload);
 	React.useEffect(() => {
 		const fetchEmployees = async () => {
-			const response = await getAllEmployees(0, 10, "");
-			setEmployees(response.data);
+			const response = await getAllEmployees(page, 10, "");
+			setEmployees((prev) => ({
+				...prev,
+				content: [...prev.content, ...response.data.content],
+			}));
 		};
 		fetchEmployees();
-	}, []);
+	}, [page]);
+	const handlePaginationEmployeeList = (e: React.UIEvent<HTMLDivElement>) => {
+		if (!loadMore) return;
+		const supplierEmployeeList = e.target as HTMLDivElement;
+		if (supplierEmployeeList) {
+			const { scrollTop, scrollHeight, clientHeight } = supplierEmployeeList;
+			console.log({ scrollTop, scrollHeight, clientHeight });
+			if (scrollTop + clientHeight >= scrollHeight) {
+				console.log("Load more employees");
+				setPage((prevPage) => prevPage + 1);
+			}
+		}
+	};
 	const handleChangeStatus = async (supplierId: number) => {
 		try {
 			await changeStatusSupplier(supplierId);
@@ -105,6 +126,8 @@ export default function SupplierList() {
 							onChange={handleChangeEmployeeUsername}
 							value={selectedEmployees}
 							multiple
+							className="supplier_employee_list"
+							onScroll={handlePaginationEmployeeList}
 						>
 							{employees.content.map((employee) => (
 								<SelectOption key={employee.id} label={employee.fullName} value={employee.username} />
