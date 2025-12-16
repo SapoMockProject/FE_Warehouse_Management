@@ -14,6 +14,12 @@ interface Attribute {
   values: string[];
 }
 
+interface OptionResult {
+  option1value: string;
+  option2value: string;
+  option3value: string;
+}
+
 const AddProductForm: React.FC = () => {
   const [name, setName] = React.useState("");
   const [sku, setSku] = React.useState("");
@@ -28,6 +34,7 @@ const AddProductForm: React.FC = () => {
   const [allCategories, setAllCategories] = React.useState<Category[]>([]);
 
   const fileRef = React.useRef<HTMLInputElement | null>(null);
+  const [result2, setResult2] = React.useState<OptionResult[]>([]);
 
   const navigate = useNavigate();
 
@@ -44,8 +51,8 @@ const AddProductForm: React.FC = () => {
     const newValidFiles = arr.filter(
       (f) => f.type.startsWith("image/") && f.size <= 4 * 1024 * 1024
     );
-    if (files.length + newValidFiles.length > 9) {
-      alert("Tối đa 9 ảnh.");
+    if (files.length + newValidFiles.length > 1) {
+      alert("Tối đa 1 ảnh.");
       return;
     }
     setFiles((prev) => [...prev, ...newValidFiles]);
@@ -54,6 +61,28 @@ const AddProductForm: React.FC = () => {
   const removeFile = (idx: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== idx));
   };
+
+  React.useEffect(() => {
+    const arr1 = attributes[0]?.values?.length ? attributes[0].values : [""];
+    const arr2 = attributes[1]?.values?.length ? attributes[1].values : [""];
+    const arr3 = attributes[2]?.values?.length ? attributes[2].values : [""];
+    const temp = [];
+    for (let i = 0; i < arr1.length; i++) {
+      for (let j = 0; j < arr2.length; j++) {
+        for (let k = 0; k < arr3.length; k++) {
+          temp.push({
+            option1value: arr1[i] || "",
+            option2value: arr2[j] || "",
+            option3value: arr3[k] || "",
+          });
+        }
+      }
+    }
+    setResult2(temp);
+    console.log("Cập nhật result2 mới:", temp);
+  }, [attributes]);
+  console.log("------Result2-----", result2);
+
   const addAttribute = () => {
     setAttributes((prev) => {
       if (prev.length >= 3) return prev;
@@ -89,6 +118,8 @@ const AddProductForm: React.FC = () => {
       )
     );
   };
+
+  console.log("------Attributes-----", attributes);
   function generateCombinations(attributes: Attribute[]) {
     const result: {
       option1value: string;
@@ -341,29 +372,25 @@ const AddProductForm: React.FC = () => {
             </div>
 
             {/* VARIANTS TABLE */}
-            {/* <h3>Danh sách biến thể</h3>
+            <h3>Danh sách biến thể</h3>
             <table>
               <thead>
                 <tr>
-                  <th></th>
-                  {attributes.map((attr) => (
-                    <th key={attr.name}>{attr.name}</th>
-                  ))}
+                  <th>{attributes[0]?.name}</th>
+                  <th>{attributes[1]?.name}</th>
+                  <th>{attributes[2]?.name}</th>
                 </tr>
               </thead>
               <tbody>
-                {combos.map((combo, i) => (
-                  <tr key={i}>
-                    <td>
-                      <input type="checkbox" />
-                    </td>
-                    {attributes.map((attr) => (
-                      <td key={attr.name}>{combo[attr.name]}</td>
-                    ))}
+                {result2.map((item, index) => (
+                  <tr key={index}>
+                    <td>{item.option1value}</td>
+                    <td>{item.option2value}</td>
+                    <td>{item.option3value}</td>
                   </tr>
                 ))}
               </tbody>
-            </table> */}
+            </table>
             <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
               <Button
                 label="Tạo sản phẩm"
@@ -395,7 +422,7 @@ const AddProductForm: React.FC = () => {
                   + Kéo thả hoặc thêm ảnh
                 </div>
                 <div className="add-product-muted">
-                  Dung lượng tối đa 4MB, tối đa 9 ảnh
+                  Dung lượng tối đa 4MB, tối đa 1 ảnh
                 </div>
               </div>
 
