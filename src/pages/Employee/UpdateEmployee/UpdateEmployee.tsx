@@ -70,7 +70,11 @@ export default function UpdateEmployee({ realoadFunc, employee }: { realoadFunc:
 					</div>
 					<div style={{ display: "flex", justifyContent: "center" }}>
 						<label className="input-label">Role:</label>
-						<CustomSelect value={employeeData.role} onChange={(role) => handleInputChange("role", role as string)}>
+						<CustomSelect
+							showSelectedInTrigger={true}
+							value={employeeData.role}
+							onChange={(role) => handleInputChange("role", role as string)}
+						>
 							{handleGetRoleOptions().map((role) => (
 								<SelectOption key={role.value} value={role.value} label={role.label} />
 							))}

@@ -1,7 +1,7 @@
 import type React from "react";
 
 export interface BaseInputProps {
-  label?: string;
+  label?: React.ReactNode;
   placeholder?: string;
   value?: string | number;
   onChange?: (value: string | number) => void;

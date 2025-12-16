@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllPurchaseOrders } from "../../../apis/purchaseOrderApi";
 import Button from "../../../components/Button/Button";
@@ -16,398 +16,367 @@ import "./PurchaseOrderList.css";
 import { getAllProductVariants } from "../../../apis/productVariantApi";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
+import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
+import { Role } from "../../../types/IUser.d";
 
 interface PurchaseOrderListState {
-  orders: PurchaseOrderResponse[];
-  loading: boolean;
-  error: string | null;
-  page: number;
-  size: number;
-  totalPages: number;
-  sortOrder: string;
-  activeTab: string;
-  searchQuery: string;
-  selectedvariants: string[];
-  selectedStatuses: string[];
-  dateRange: DateRange;
+	orders: PurchaseOrderResponse[];
+	loading: boolean;
+	error: string | null;
+	page: number;
+	size: number;
+	totalPages: number;
+	sortOrder: string;
+	activeTab: string;
+	searchQuery: string;
+	selectedProductVariants: string[];
+	selectedStatuses: string[];
+	dateRange: DateRange;
 }
 
 export default function PurchaseOrderRequest() {
-  const navigate = useNavigate();
+	const navigate = useNavigate();
 
-  const [state, setState] = useState<PurchaseOrderListState>({
-    orders: [],
-    loading: false,
-    error: null,
-    page: 0,
-    size: 10,
-    totalPages: 0,
-    sortOrder: "desc",
-    activeTab: "all",
-    searchQuery: "",
-    selectedvariants: [],
-    selectedStatuses: [],
-    dateRange: {
-      start: "",
-      end: "",
-      preset: "",
-    },
-  });
+	const [state, setState] = useState<PurchaseOrderListState>({
+		orders: [],
+		loading: false,
+		error: null,
+		page: 0,
+		size: 10,
+		totalPages: 0,
+		sortOrder: "desc",
+		activeTab: "all",
+		searchQuery: "",
+		selectedProductVariants: [],
+		selectedStatuses: [],
+		dateRange: {
+			start: "",
+			end: "",
+			preset: "",
+		},
+	});
 
-  const query = useDebounce(state.searchQuery, 1000);
+	const query = useDebounce(state.searchQuery, 1000);
 
-  const [variants, setVariants] = useState<VariantResponse[]>([]);
+	const [variants, setVariants] = useState<VariantResponse[]>([]);
 
-  const updateState = (updates: Partial<PurchaseOrderListState>) => {
-    setState((prev) => ({ ...prev, ...updates }));
-  };
+	const updateState = (updates: Partial<PurchaseOrderListState>) => {
+		setState((prev) => ({ ...prev, ...updates }));
+	};
 
-  const fetchProductVariants = async () => {
-    try {
-      const res = await getAllProductVariants(0, 999);
-      setVariants(res.data.content || []);
-    } catch (error) {
-      console.error("Failed to load variants:", error);
-    }
-  };
+	const handleFilterChange = <K extends keyof PurchaseOrderListState>(
+		field: K,
+		value: PurchaseOrderListState[K]
+	) => {
+		updateState({ [field]: value, page: 0 } as Partial<PurchaseOrderListState>);
+	};
 
-  const fetchOrders = async () => {
-    debugger
-    if (state.orders.length === 0) {
-      updateState({ loading: true, error: null });
-    }
+	const fetchProductVariants = async () => {
+		try {
+			const res = await getAllProductVariants(0, 999);
+			setVariants(res.data.content || []);
+		} catch (error) {
+			console.error("Failed to load variants:", error);
+		}
+	};
 
-    try {
-      let statusParam: string | undefined = undefined;
+	const fetchOrders = async () => {
+		if (state.orders.length === 0) {
+			updateState({ loading: true, error: null });
+		}
 
-      if (state.activeTab !== "all") {
-        const statusMapping: Record<string, string> =
-          PURCHASE_ORDER_STATUSES.reduce((acc, item) => {
-            acc[item.value] = item.label;
-            return acc;
-          }, {} as Record<string, string>);
-        statusParam = statusMapping[state.activeTab];
-      } else if (state.selectedStatuses.length > 0) {
-        statusParam = state.selectedStatuses[0];
-      }
+		try {
+			let statusParam: string | undefined = undefined;
 
-      const fromDate = state.dateRange.start || undefined;
-      const toDate = state.dateRange.end || undefined;
+			if (state.activeTab !== "all") {
+				statusParam = state.activeTab.toUpperCase();
+			} else if (state.selectedStatuses.length > 0) {
+				statusParam = state.selectedStatuses[0];
+			}
 
-      const productVariantId =
-        state.selectedvariants.length > 0
-          ? state.selectedvariants[0]
-          : undefined;
+			const fromDate = state.dateRange.start || undefined;
+			const toDate = state.dateRange.end || undefined;
 
-      const response = await getAllPurchaseOrders(
-        state.page,
-        state.size,
-        query,
-        state.sortOrder,
-        statusParam,
-        fromDate,
-        toDate,
-        productVariantId
-      );
+			const productVariantId = state.selectedProductVariants.length > 0 ? state.selectedProductVariants[0] : undefined;
 
-      const data = response.data;
-      updateState({
-        orders: data.content || data,
-        totalPages:
-          data.page?.totalPages || Math.ceil((data.content.length || 0) / state.size),
-        loading: false,
-      });
+			const response = await getAllPurchaseOrders(
+				state.page,
+				state.size,
+				query,
+				state.sortOrder,
+				statusParam,
+				fromDate,
+				toDate,
+				productVariantId
+			);
 
-      console.log("Fetched orders:", data);
-    } catch (err) {
-      console.error("Error fetching orders:", err);
-      updateState({
-        error: "Không thể tải danh sách đơn hàng. Vui lòng thử lại.",
-        loading: false,
-      });
-    }
-  };
+			const data = response.data;
+			updateState({
+				orders: data.content || data,
+				totalPages: data.page?.totalPages || Math.ceil((data.content.length || 0) / state.size),
+				loading: false,
+			});
 
-  const getVariantName = (variant: VariantResponse) => {
-    const options = [];
-    if (variant.option1value) options.push(variant.option1value);
-    if (variant.option2value) options.push(variant.option2value);
-    if (variant.option3value) options.push(variant.option3value);
-    return options.join(" / ");
-  };
+			console.log("Fetched orders:", data);
+		} catch (err) {
+			console.error("Error fetching orders:", err);
+			updateState({
+				error: "Không thể tải danh sách đơn hàng. Vui lòng thử lại.",
+				loading: false,
+			});
+		}
+	};
 
-  useEffect(() => {
-    fetchProductVariants();
-  }, []);
+	const getVariantName = (variant: VariantResponse) => {
+		const options = [];
+		if (variant.option1value) options.push(variant.option1value);
+		if (variant.option2value) options.push(variant.option2value);
+		if (variant.option3value) options.push(variant.option3value);
+		return options.join(" / ");
+	};
 
-  useEffect(() => {
-    fetchOrders();
-  }, [
-    state.page,
-    state.size,
-    query,
-    state.sortOrder,
-    state.activeTab,
-    state.selectedStatuses,
-    state.selectedvariants,
-    state.dateRange,
-  ]);
+	useEffect(() => {
+		const load = async () => {
+			await fetchProductVariants();
+		};
+		load();
+	}, []);
 
-  const getFilteredOrders = () => {
-    return state.orders;
-  };
+	useEffect(() => {
+		const load = async () => {
+			await fetchOrders();
+		};
+		load();
+	}, [state.page, state.size, query, state.sortOrder, state.activeTab, state.selectedStatuses, state.selectedProductVariants, state.dateRange]);
 
-  const filteredOrders = getFilteredOrders();
+	const getFilteredOrders = () => {
+		return state.orders;
+	};
 
-  const getStatusLabel = (status: string) => {
-    const statusMap: Record<string, string> = PURCHASE_ORDER_STATUSES.reduce(
-      (acc, item) => {
-        acc[item.value] = item.label;
-        return acc;
-      },
-      {} as Record<string, string>
-    );
-    return statusMap[status] || status;
-  };
+	const filteredOrders = getFilteredOrders();
 
-  const getStatusClass = (status: string) => {
-    const classMap: Record<string, string> = PURCHASE_ORDER_STATUSES.reduce(
-      (acc, item) => {
-        acc[item.value] = item.class;
-        return acc;
-      },
-      {} as Record<string, string>
-    );
-    return classMap[status] || "draft";
-  };
+	const getStatusLabel = (status: string) => {
+		const statusMap: Record<string, string> = PURCHASE_ORDER_STATUSES.reduce((acc, item) => {
+			acc[item.value] = item.label;
+			return acc;
+		}, {} as Record<string, string>);
+		return statusMap[status] || status;
+	};
 
-  const handleTabChange = (tab: string) => {
-    const updates: Partial<PurchaseOrderListState> = {
-      activeTab: tab,
-      page: 0,
-    };
+	const getStatusClass = (status: string) => {
+		const classMap: Record<string, string> = PURCHASE_ORDER_STATUSES.reduce((acc, item) => {
+			acc[item.value] = item.class;
+			return acc;
+		}, {} as Record<string, string>);
+		return classMap[status] || "draft";
+	};
 
-    if (tab !== "all") {
-      updates.selectedStatuses = [];
-    }
+	const handleTabChange = (tab: string) => {
+		const updates: Partial<PurchaseOrderListState> = {
+			activeTab: tab,
+			page: 0,
+		};
 
-    updateState(updates);
-  };
+		if (tab !== "all") {
+			updates.selectedStatuses = [];
+		}
 
-  const handleStateChange = <K extends keyof PurchaseOrderListState>(
-    field: K,
-    value: PurchaseOrderListState[K]
-  ) => {
-    updateState({ [field]: value } as Partial<PurchaseOrderListState>);
-  };
+		updateState(updates);
+	};
 
-  const handleRowClick = (order: PurchaseOrderResponse) => {
-    navigate(`/purchase-orders/${order.id}`);
-  };
+	const handleStateChange = <K extends keyof PurchaseOrderListState>(field: K, value: PurchaseOrderListState[K]) => {
+		updateState({ [field]: value } as Partial<PurchaseOrderListState>);
+	};
 
-  return (
-    <div className="opr-container">
-      <div
-        className="opr-top-content"
-        style={{ display: "flex", justifyContent: "space-between" }}
-      >
-        <h2 className="opr-title">Danh sách đơn đặt hàng nhập</h2>
-        <a className="opr-add-orther_order" href="/purchase-orders/create">
-          + Tạo đơn đặt hàng
-        </a>
-      </div>
+	const handleRowClick = (order: PurchaseOrderResponse) => {
+		navigate(`/purchase-orders/${order.id}`);
+	};
+	const user = useContext(AuthenticationContext)?.user;
+	return (
+		<div className="opr-container">
+			{((user?.role === Role.ADMIN_SYSTEM ||
+				user?.role === Role.STORE_KEEPER) && (
+					<div className="opr-top-content" style={{ display: "flex", justifyContent: "space-between" }}>
+						<h2 className="opr-title">Danh sách đơn đặt hàng nhập</h2>
+						<a className="opr-add-orther_order" href="/purchase-orders/create">
+							+ Tạo đơn đặt hàng
+						</a>
+					</div>
+				))}
 
-      <div className="opr-main-content">
-        <ul className="opr-status-tab">
-          <li className="opr_status all">
-            <Button
-              label="Tất cả"
-              onClick={() => handleTabChange("all")}
-              className={`opr_status-btn ${state.activeTab === "all" ? "btn-active" : ""
-                }`}
-              size="md"
-            />
-          </li>
+			<div className="opr-main-content">
+				<ul className="opr-status-tab">
+					<li className="opr_status all">
+						<Button
+							label="Tất cả"
+							onClick={() => handleTabChange("all")}
+							className={`opr_status-btn ${state.activeTab === "all" ? "btn-active" : ""}`}
+							size="md"
+						/>
+					</li>
 
-          <li className="opr_status draft">
-            <Button
-              label="Đơn nháp"
-              className={`opr_status-btn ${state.activeTab === "draft" ? "btn-active" : ""
-                }`}
-              onClick={() => handleTabChange("draft")}
-              size="md"
-            />
-          </li>
+					<li className="opr_status draft">
+						<Button
+							label="Đơn nháp"
+							className={`opr_status-btn ${state.activeTab === "draft" ? "btn-active" : ""}`}
+							onClick={() => handleTabChange("draft")}
+							size="md"
+						/>
+					</li>
 
-          <li className="opr_status pending">
-            <Button
-              label="Chờ nhập"
-              className={`opr_status-btn ${state.activeTab === "pending" ? "btn-active" : ""
-                }`}
-              onClick={() => handleTabChange("pending")}
-              size="md"
-            />
-          </li>
+					<li className="opr_status pending">
+						<Button
+							label="Chờ nhập"
+							className={`opr_status-btn ${state.activeTab === "pending" ? "btn-active" : ""}`}
+							onClick={() => handleTabChange("pending")}
+							size="md"
+						/>
+					</li>
 
-          <li className="opr_status completed">
-            <Button
-              label="Đã nhập"
-              className={`opr_status-btn ${state.activeTab === "completed" ? "btn-active" : ""
-                }`}
-              onClick={() => handleTabChange("completed")}
-              size="md"
-            />
-          </li>
+					<li className="opr_status completed">
+						<Button
+							label="Đã nhập"
+							className={`opr_status-btn ${state.activeTab === "completed" ? "btn-active" : ""}`}
+							onClick={() => handleTabChange("completed")}
+							size="md"
+						/>
+					</li>
 
-          <li className="opr_status cancelled">
-            <Button
-              label="Đã hủy"
-              className={`opr_status-btn ${state.activeTab === "cancelled" ? "btn-active" : ""
-                }`}
-              onClick={() => handleTabChange("cancelled")}
-              size="md"
-            />
-          </li>
-        </ul>
+					<li className="opr_status cancelled">
+						<Button
+							label="Đã hủy"
+							className={`opr_status-btn ${state.activeTab === "cancelled" ? "btn-active" : ""}`}
+							onClick={() => handleTabChange("cancelled")}
+							size="md"
+						/>
+					</li>
+				</ul>
 
-        <div className="opr-filter">
-          <div className="opr-filter-bar">
-            <div style={{ flex: "1 1 auto" }}>
-              <Input
-                placeholder="Tìm kiếm mã đơn, NCC..."
-                type="search"
-                className="opr-input"
-                value={state.searchQuery}
-                onChange={(e) => handleStateChange("searchQuery", e as string)}
-              />
-            </div>
+				<div className="opr-filter">
+					<div className="opr-filter-bar">
+						<div style={{ flex: "1 1 auto" }}>
+							<Input
+								placeholder="Tìm kiếm mã đơn, NCC..."
+								type="search"
+								className="opr-input"
+								value={state.searchQuery}
+								onChange={(e) => handleStateChange("searchQuery", e as string)}
+							/>
+						</div>
 
-            <div style={{ flex: "0 0 auto" }}>
-              <CustomSelect
-                placeholder="Chọn sản phẩm"
-                value={state.selectedvariants}
-                onChange={(variants) =>
-                  handleFilterChange("selectedvariants", variants)
-                }
-                showSelectedInTrigger={true}
-                multiple={true}
-              >
-                {variants.map((variant) => (
-                  <SelectOption
-                    key={variant.id}
-                    value={variant.id.toString()}
-                    label={
-                      variant.productName + " - " + getVariantName(variant)
-                    }
-                  />
-                ))}
-              </CustomSelect>
-            </div>
+						<div style={{ flex: "0 0 auto" }}>
+							<CustomSelect
+								placeholder="Chọn sản phẩm"
+								value={state.selectedProductVariants}
+								onChange={(variants) => handleStateChange("selectedProductVariants", variants as string[])}
+								showSelectedInTrigger={true}
+								multiple={true}
+							>
+								{variants.map((variant) => (
+									<SelectOption
+										key={variant.id}
+										value={variant.id.toString()}
+										label={variant.productName + " - " + getVariantName(variant)}
+									/>
+								))}
+							</CustomSelect>
+						</div>
 
-            <div style={{ flex: "0 1 auto" }}>
-              <DateField
-                type="daterange"
-                value={state.dateRange}
-                onChange={(e) =>
-                  handleFilterChange("dateRange", e as DateRange)
-                }
-              />
-            </div>
+						<div style={{ flex: "0 1 auto" }}>
+							<DateField
+								type="daterange"
+								value={state.dateRange}
+								onChange={(e) => handleStateChange("dateRange", e as DateRange)}
+							/>
+						</div>
 
-            <div style={{ flex: "0 1 auto" }}>
-              <StatusSelect
-                value={state.selectedStatuses}
-                onChange={(statuses) =>
-                  handleFilterChange("selectedStatuses", statuses)
-                }
-                options={PURCHASE_ORDER_STATUSES}
-                placeholder="Trạng thái đơn nhập"
-              />
-            </div>
-          </div>
-        </div>
+						<div style={{ flex: "0 1 auto" }}>
+							<StatusSelect
+								value={state.selectedStatuses}
+								onChange={(statuses) => handleStateChange("selectedStatuses", statuses)}
+								options={PURCHASE_ORDER_STATUSES}
+								placeholder="Trạng thái đơn nhập"
+							/>
+						</div>
+					</div>
+				</div>
 
-        {state.error && (
-          <div className="opr-error-message">
-            <p>{state.error}</p>
-            <Button label="Thử lại" onClick={fetchOrders} size="sm" />
-          </div>
-        )}
+				{state.error && (
+					<div className="opr-error-message">
+						<p>{state.error}</p>
+						<Button label="Thử lại" onClick={fetchOrders} size="sm" />
+					</div>
+				)}
 
-        <div className="opr-table-content">
-          <div className="opr-table-wrapper">
-            {state.loading ? (
-              <div className="opr-loading">
-                <p>Đang tải dữ liệu...</p>
-              </div>
-            ) : filteredOrders.length === 0 ? (
-              <div className="opr-empty-state">
-                <p>Không có đơn hàng nào</p>
-              </div>
-            ) : (
-              <>
-                <table className="opr-table">
-                  <thead>
-                    <tr>
-                      <th className="align_left">Mã đơn</th>
-                      <th className="align_left">Ngày tạo</th>
-                      <th className="align_left">Trạng thái</th>
-                      <th className="align_left">Nhà cung cấp</th>
-                      <th className="align_left">Nhân viên tạo</th>
-                      <th className="align_center">SL đặt</th>
-                      <th className="align_right">Giá trị đơn</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredOrders.map((item) => (
-                      <tr
-                        key={item.id}
-                        className="row_highlight"
-                        onClick={() => handleRowClick(item)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <td className="td_highlight">
-                          {item.purchaseOrderCode}
-                        </td>
-                        <td>{formatDateTime(item.createdDate)}</td>
-                        <td>
-                          <span
-                            className={`opr-badge opr-badge-${getStatusClass(
-                              item.status
-                            )}`}
-                          >
-                            {getStatusLabel(item.status)}
-                          </span>
-                        </td>
-                        <td className="td_highlight">
-                                                    <a href={`/suppliers/${item.supplierResponse.id}`} onClick={(e) => e.stopPropagation()}>{item.supplierResponse.name || "N/A"}</a>
-                        </td>
-                        <td>
-                          {item.infoEmployeeIsAssigned?.fullName || "N/A"}
-                        </td>
-                        <td className="align_center">{item.totalQuantity}</td>
-                        <td className="align_right">
-                          {item.totalPrice?.toLocaleString("vi-VN")}đ
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+				<div className="opr-table-content">
+					<div className="opr-table-wrapper">
+						{state.loading ? (
+							<div className="opr-loading">
+								<p>Đang tải dữ liệu...</p>
+							</div>
+						) : filteredOrders.length === 0 ? (
+							<div className="opr-empty-state">
+								<p>Không có đơn hàng nào</p>
+							</div>
+						) : (
+							<>
+								<table className="opr-table">
+									<thead>
+										<tr>
+											<th className="align_left">Mã đơn</th>
+											<th className="align_left">Ngày tạo</th>
+											<th className="align_left">Trạng thái</th>
+											<th className="align_left">Nhà cung cấp</th>
+											<th className="align_left">Nhân viên tạo</th>
+											<th className="align_center">SL đặt</th>
+											<th className="align_right">Giá trị đơn</th>
+										</tr>
+									</thead>
+									<tbody>
+										{filteredOrders.map((item) => (
+											<tr
+												key={item.id}
+												className="row_highlight"
+												onClick={() => handleRowClick(item)}
+												style={{ cursor: "pointer" }}
+											>
+												<td className="td_highlight">{item.purchaseOrderCode}</td>
+												<td>{formatDateTime(item.createdDate)}</td>
+												<td>
+													<span className={`opr-badge opr-badge-${getStatusClass(item.status)}`}>
+														{getStatusLabel(item.status)}
+													</span>
+												</td>
+												<td className="td_highlight">
+													<a
+														href={`/suppliers/${item.supplierResponse.id}`}
+														onClick={(e) => e.stopPropagation()}
+													>
+														{item.supplierResponse.name || "N/A"}
+													</a>
+												</td>
+												<td>{item.infoEmployeeIsAssigned?.fullName || "N/A"}</td>
+												<td className="align_center">{item.totalQuantity}</td>
+												<td className="align_right">{item.totalPrice?.toLocaleString("vi-VN")}đ</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
 
-                <Pagination
-                  page={state.page}
-                  totalPages={state.totalPages}
-                  size={state.size}
-                  sortOrder={state.sortOrder}
-                  onPageChange={(page) => handleStateChange("page", page)}
-                  onSizeChange={(size) => handleStateChange("size", size)}
-                  onSortChange={(sort) => handleStateChange("sortOrder", sort)}
-                />
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+								<Pagination
+									page={state.page}
+									totalPages={state.totalPages}
+									size={state.size}
+									sortOrder={state.sortOrder}
+									onPageChange={(page) => handleStateChange("page", page)}
+									onSizeChange={(size) => handleFilterChange("size", size)}
+									onSortChange={(sort) => handleFilterChange("sortOrder", sort)}
+								/>
+							</>
+						)}
+					</div>
+				</div>
+			</div>
+		</div>
+	);
 }

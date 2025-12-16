@@ -10,6 +10,8 @@ import { CustomSelect } from "../../components/Select/CustomSelect/CustomSelect"
 import { SelectOption } from "../../components/Select/SelectOption/SelectOption";
 import type { ProductResponse } from "../../types/IProduct";
 import { useDebounce } from "../../hooks/useDebounce";
+import { AuthenticationContext } from "../../contexts/AuthenticationContext";
+import { Role } from "../../types/IUser.d";
 
 const ProductList = () => {
   const [item, setItem] = React.useState<ProductResponse[]>([]);
@@ -55,7 +57,7 @@ const ProductList = () => {
   React.useEffect(() => {
     setSelectAll(selectedIds.length > 0);
   }, [selectedIds, item]);
-
+  const user = React.useContext(AuthenticationContext);
   return (
     <div className="product-list-product-container">
       {/* ================= HEADER ================= */}
@@ -65,9 +67,11 @@ const ProductList = () => {
           <Button label="Xuất file" variant="secondary" size="md" />
           <Button label="Nhập file" variant="secondary" size="md" />
 
-          <Link to="/products/create">
-            <Button label="+ Thêm sản phẩm" variant="primary" size="md" />
-          </Link>
+          {(user?.user.role !== Role.COORDINATOR) && (
+            <Link to="/products/create">
+              <Button label="+ Thêm sản phẩm" variant="primary" size="md" />
+            </Link>
+          )}
         </div>
       </div>
 

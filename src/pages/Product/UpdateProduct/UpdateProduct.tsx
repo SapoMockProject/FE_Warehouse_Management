@@ -1,13 +1,19 @@
 import axios from "axios";
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+<<<<<<< HEAD
 import { updateProduct } from "../../../apis/productApi";
 import { useNavigate } from "react-router-dom";
 import "./UpdateProduct.css";
+=======
+>>>>>>> origin/master
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
+import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
+import { Role } from "../../../types/IUser.d";
+import "./UpdateProduct.css";
 
 interface Attribute {
   name: string;
@@ -28,7 +34,7 @@ interface ProductResponse {
   option2name: string | null;
   option3name: string | null;
   variants: ProductVariant[];
-  thumbnail: string;
+  thumbnail: string | null;
 }
 
 interface ProductVariant {
@@ -64,20 +70,22 @@ export default function UpdateProduct() {
 
   const [selected, setSelected] = useState<number[]>([]);
   const selectedArray = Array.isArray(selected) ? selected : [selected];
+<<<<<<< HEAD
   const navigate = useNavigate();
 
   //Modal
+=======
+>>>>>>> origin/master
   const [isModalOpenSKU, setIsModalOpenSKU] = useState(false);
   const [newSku, setNewSku] = useState<{ [key: number]: string }>({});
   const [isModalOpenPrice, setIsModalOpenPrice] = useState(false);
   const [newPrice, setNewPrice] = useState<{ [key: number]: string }>({});
   const [isModalOpenStock, setIsModalOpenStock] = useState(false);
   const [newStock, setNewStock] = useState<{ [key: number]: string }>({});
-
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-      const token = localStorage.getItem("token");
+        const token = localStorage.getItem("token");
         const res = await axios.get("http://localhost:8080/api/v1/categories", {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -95,15 +103,15 @@ export default function UpdateProduct() {
 
   useEffect(() => {
     if (!id) return;
-      const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     axios
       .get(`http://localhost:8080/api/v1/products/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        })
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      })
       .then((res) => setProduct(res.data.data))
       .catch((err) => console.error(err));
   }, [id]);
@@ -150,37 +158,39 @@ export default function UpdateProduct() {
   };
 
   useEffect(() => {
-    if (!product) return;
+    const load = () => {
+      if (!product) return;
 
-    const opts = getAllProductOptions(product);
+      const opts = getAllProductOptions(product);
 
-    const newAttributes: Attribute[] = [];
+      const newAttributes: Attribute[] = [];
 
-    if (product.option1name) {
-      newAttributes.push({
-        name: product.option1name,
-        values: (opts.option1 || []).filter(Boolean) as string[],
-      });
-    }
+      if (product.option1name) {
+        newAttributes.push({
+          name: product.option1name,
+          values: (opts.option1 || []).filter(Boolean) as string[],
+        });
+      }
 
-    if (product.option2name) {
-      newAttributes.push({
-        name: product.option2name,
-        values: (opts.option2 || []).filter(Boolean) as string[],
-      });
-    }
+      if (product.option2name) {
+        newAttributes.push({
+          name: product.option2name,
+          values: (opts.option2 || []).filter(Boolean) as string[],
+        });
+      }
 
-    if (product.option3name) {
-      newAttributes.push({
-        name: product.option3name,
-        values: (opts.option3 || []).filter(Boolean) as string[],
-      });
-    }
+      if (product.option3name) {
+        newAttributes.push({
+          name: product.option3name,
+          values: (opts.option3 || []).filter(Boolean) as string[],
+        });
+      }
+      setAttributes(newAttributes);
 
-    setAttributes(newAttributes);
-
-    setName(product.name);
-    setDescription(product.description);
+      setName(product.name);
+      setDescription(product.description);
+    };
+    load();
   }, [product]);
 
   /* ------------ ATTRIBUTES ------------ */
@@ -240,7 +250,7 @@ export default function UpdateProduct() {
 
   const removeThumbnail = () => {
     setProduct((prev) => {
-      if (!prev) return prev; // hoặc return null
+      if (!prev) return prev;
       return { ...prev, thumbnail: null };
     });
   };
@@ -413,6 +423,7 @@ export default function UpdateProduct() {
     setIsModalOpenStock(false);
     setNewStock({});
   };
+<<<<<<< HEAD
 
   const handleVariantImageChange = async (
     id: number,
@@ -442,6 +453,9 @@ export default function UpdateProduct() {
     console.log("Image uploaded for variant:", id, res.data);
   };
 
+=======
+  const user = React.useContext(AuthenticationContext);
+>>>>>>> origin/master
   return (
     <div className="update-product-container">
       <h1 className="update-product-title">Chi tiết sản phẩm</h1>
@@ -459,6 +473,7 @@ export default function UpdateProduct() {
                 value={name}
                 placeholder="Nhập tên sản phẩm"
                 onChange={(value) => setName(value.toString())}
+                readonly={user?.user.role === "COORDINATOR"}
               />
               <div className="add-product-hint">Tối đa 820 ký tự</div>
             </div>
@@ -471,112 +486,115 @@ export default function UpdateProduct() {
                 value={description}
                 placeholder="Nhập mô tả"
                 onChange={(value) => setDescription(value.toString())}
+                readonly={user?.user.role === "COORDINATOR"}
               />
             </div>
 
             {/* ATTRIBUTES */}
-            <div
-              className="update-product-card add-product-attributes"
-              style={{ padding: "12px" }}
-            >
-              <div className="update-product-attr-header">
-                <strong>Thuộc tính</strong>
+            {user?.user.role !== "COORDINATOR" && (
+              <div
+                className="update-product-card add-product-attributes"
+                style={{ padding: "12px" }}
+              >
+                <div className="update-product-attr-header">
+                  <strong>Thuộc tính</strong>
 
-                {attributes.length < 3 && (
-                  <Button
-                    label="+ Thêm thuộc tính"
-                    variant="secondary"
-                    size="sm"
-                    onClick={addAttribute}
-                  />
-                )}
-              </div>
+                  {attributes.length < 3 && (
+                    <Button
+                      label="+ Thêm thuộc tính"
+                      variant="secondary"
+                      size="sm"
+                      onClick={addAttribute}
+                    />
+                  )}
+                </div>
 
-              <div className="update-product-attr-table">
-                {attributes.length > 0 && (
-                  <div
-                    className="update-product-attr-row"
-                    style={{
-                      fontWeight: "bold",
-                      marginBottom: 6,
-                      borderBottom: "1px solid #f3f6fa",
-                      fontSize: 14,
-                    }}
-                  >
-                    <div style={{ flex: "0 0 220px" }}>Tên thuộc tính</div>
-                    <div style={{ flex: 1 }}>Giá trị</div>
-                    <div style={{ flex: "0 0 48px" }}></div>
-                  </div>
-                )}
-
-                {attributes.map((attr, aIndex) => (
-                  <div className="update-product-attr-row" key={aIndex}>
-                    {/* Attribute name */}
-                    <div style={{ flex: "0 0 220px" }}>
-                      <Input
-                        type="text"
-                        value={attr.name}
-                        placeholder="Kích thước, Màu sắc…"
-                        onChange={(v) =>
-                          updateAttributeName(aIndex, v as string)
-                        }
-                      />
+                <div className="update-product-attr-table">
+                  {attributes.length > 0 && (
+                    <div
+                      className="update-product-attr-row"
+                      style={{
+                        fontWeight: "bold",
+                        marginBottom: 6,
+                        borderBottom: "1px solid #f3f6fa",
+                        fontSize: 14,
+                      }}
+                    >
+                      <div style={{ flex: "0 0 220px" }}>Tên thuộc tính</div>
+                      <div style={{ flex: 1 }}>Giá trị</div>
+                      <div style={{ flex: "0 0 48px" }}></div>
                     </div>
+                  )}
 
-                    {/* Tag input */}
-                    <div style={{ flex: 1 }}>
-                      <div className="update-product-tag-input-wrapper">
-                        {attr.values.map((val, vIndex) => (
-                          <span className="update-product-tag" key={vIndex}>
-                            {val}
-                            <span
-                              style={{ cursor: "pointer" }}
-                              onClick={() =>
-                                removeAttributeValue(aIndex, vIndex)
-                              }
-                            >
-                              ×
-                            </span>
-                          </span>
-                        ))}
-
+                  {attributes.map((attr, aIndex) => (
+                    <div className="update-product-attr-row" key={aIndex}>
+                      {/* Attribute name */}
+                      <div style={{ flex: "0 0 220px" }}>
                         <Input
                           type="text"
-                          className="update-product-tag-input"
-                          placeholder="Nhập và Enter"
-                          onChange={() => {}}
-                          onKeyDown={(
-                            e: React.KeyboardEvent<HTMLInputElement>
-                          ) => {
-                            if (e.key === "Enter") {
-                              e.preventDefault();
-                              const val = e.currentTarget.value.trim();
-                              if (val) {
-                                addAttributeValue(aIndex, val);
-                                e.currentTarget.value = "";
+                          value={attr.name}
+                          placeholder="Kích thước, Màu sắc…"
+                          onChange={(v) =>
+                            updateAttributeName(aIndex, v as string)
+                          }
+                        />
+                      </div>
+
+                      {/* Tag input */}
+                      <div style={{ flex: 1 }}>
+                        <div className="update-product-tag-input-wrapper">
+                          {attr.values.map((val, vIndex) => (
+                            <span className="update-product-tag" key={vIndex}>
+                              {val}
+                              <span
+                                style={{ cursor: "pointer" }}
+                                onClick={() =>
+                                  removeAttributeValue(aIndex, vIndex)
+                                }
+                              >
+                                ×
+                              </span>
+                            </span>
+                          ))}
+
+                          <Input
+                            type="text"
+                            className="update-product-tag-input"
+                            placeholder="Nhập và Enter"
+                            onChange={() => {}}
+                            onKeyDown={(
+                              e: React.KeyboardEvent<HTMLInputElement>
+                            ) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                const val = e.currentTarget.value.trim();
+                                if (val) {
+                                  addAttributeValue(aIndex, val);
+                                  e.currentTarget.value = "";
+                                }
                               }
-                            }
-                          }}
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div style={{ flex: "0 0 48px" }}>
+                        <Button
+                          label="Xóa"
+                          variant="danger"
+                          size="sm"
+                          onClick={() => removeAttribute(aIndex)}
                         />
                       </div>
                     </div>
-                    <div style={{ flex: "0 0 48px" }}>
-                      <Button
-                        label="Xóa"
-                        variant="danger"
-                        size="sm"
-                        onClick={() => removeAttribute(aIndex)}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
 
             <h3>Danh sách biến thể</h3>
             <table className="variant-table">
               <thead>
-                {selected.length > 0 ? (
+                {selected.length > 0 && user?.user.role !== Role.COORDINATOR ? (
                   <tr>
                     <th>
                       <input
@@ -878,15 +896,17 @@ export default function UpdateProduct() {
               </tbody>
             </table>
 
-            <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
-              <Button
-                label="Sửa sản phẩm"
-                variant="primary"
-                size="md"
-                onClick={handleSave}
-              />
-              <Button label="Hủy" variant="secondary" size="md" />
-            </div>
+            {user?.user.role !== Role.COORDINATOR && (
+              <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
+                <Button
+                  label="Sửa sản phẩm"
+                  variant="primary"
+                  size="md"
+                  onClick={handleSave}
+                />
+                <Button label="Hủy" variant="secondary" size="md" />
+              </div>
+            )}
           </div>
         </div>
 
@@ -895,28 +915,30 @@ export default function UpdateProduct() {
           <div className="update-product-card">
             <h2>Ảnh sản phẩm</h2>
 
-            <div
-              className="update-product-image-box"
-              onClick={() => fileRef.current?.click()}
-            >
-              <div>
-                <div style={{ fontSize: 18, marginBottom: 8 }}>
-                  + Kéo thả hoặc thêm ảnh
+            {user?.user.role !== Role.COORDINATOR && (
+              <div
+                className="update-product-image-box"
+                onClick={() => fileRef.current?.click()}
+              >
+                <div>
+                  <div style={{ fontSize: 18, marginBottom: 8 }}>
+                    + Kéo thả hoặc thêm ảnh
+                  </div>
+                  <div className="update-product-muted">
+                    Dung lượng tối đa 4MB, tối đa 9 ảnh
+                  </div>
                 </div>
-                <div className="update-product-muted">
-                  Dung lượng tối đa 4MB, tối đa 9 ảnh
-                </div>
-              </div>
 
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                multiple
-                style={{ display: "none" }}
-                onChange={(e) => handleFiles(e.target.files)}
-              />
-            </div>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  style={{ display: "none" }}
+                  onChange={(e) => handleFiles(e.target.files)}
+                />
+              </div>
+            )}
 
             {/* PREVIEW */}
             <div
@@ -947,24 +969,26 @@ export default function UpdateProduct() {
                   />
 
                   {/* nút xóa thumbnail */}
-                  <button
-                    type="button"
-                    onClick={removeThumbnail}
-                    style={{
-                      position: "absolute",
-                      top: 4,
-                      right: 4,
-                      background: "rgba(0,0,0,0.5)",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "50%",
-                      width: 22,
-                      height: 22,
-                      cursor: "pointer",
-                    }}
-                  >
-                    ×
-                  </button>
+                  {user?.user.role !== Role.COORDINATOR && (
+                    <button
+                      type="button"
+                      onClick={removeThumbnail}
+                      style={{
+                        position: "absolute",
+                        top: 4,
+                        right: 4,
+                        background: "rgba(0,0,0,0.5)",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "50%",
+                        width: 22,
+                        height: 22,
+                        cursor: "pointer",
+                      }}
+                    >
+                      ×
+                    </button>
+                  )}
                 </div>
               )}
 
@@ -1024,24 +1048,29 @@ export default function UpdateProduct() {
           {/* CATEGORY SELECT */}
           <div className="update-product-card" style={{ marginTop: 20 }}>
             <h2>Danh mục</h2>
-            <CustomSelect
-              placeholder={
-                categories
-                  ? allCategories.find((c) => c.id.toString() === categories)
-                      ?.name
-                  : product?.categoryName
-              }
-              value={categories}
-              onChange={(value) => setCategories(value as string)}
-            >
-              {allCategories.map((cat) => (
-                <SelectOption
-                  key={cat.id}
-                  value={cat.id.toString()}
-                  label={cat.name}
-                />
-              ))}
-            </CustomSelect>
+            {user?.user.role !== Role.COORDINATOR ? (
+              <CustomSelect
+                placeholder={
+                  categories
+                    ? allCategories.find((c) => c.id.toString() === categories)
+                        ?.name
+                    : product?.categoryName
+                }
+                value={categories}
+                onChange={(value) => setCategories(value as string)}
+                showSelectedInTrigger={true}
+              >
+                {allCategories.map((cat) => (
+                  <SelectOption
+                    key={cat.id}
+                    value={cat.id.toString()}
+                    label={cat.name}
+                  />
+                ))}
+              </CustomSelect>
+            ) : (
+              <Input value={product?.categoryName} readonly type="text" />
+            )}
           </div>
         </div>
       </div>

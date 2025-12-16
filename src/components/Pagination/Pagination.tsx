@@ -25,11 +25,11 @@ export default function Pagination({
           onClick={() => onPageChange(page - 1)}
           className="pagination-btn"
         >
-          Prev
+          Trước
         </button>
 
         <span className="pagination-info">
-          Page <strong>{page + 1}</strong> / {totalPages}
+          Trang <strong>{page + 1}</strong> / {totalPages}
         </span>
 
         <button
@@ -37,13 +37,13 @@ export default function Pagination({
           onClick={() => onPageChange(page + 1)}
           className="pagination-btn"
         >
-          Next
+          Tiếp
         </button>
       </div>
 
       <div className="pagination-options">
         <label>
-          Page size:{" "}
+          Tổng số trang:{" "}
           <select
             value={size}
             onChange={(e) => {
@@ -59,14 +59,14 @@ export default function Pagination({
         </label>
 
         <label>
-          Sort:{" "}
+          Sắp xếp:{" "}
           <select
             value={sortOrder}
             onChange={(e) => onSortChange(e.target.value as "asc" | "desc")}
             className="pagination-select"
           >
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
+            <option value="asc">Cũ</option>
+            <option value="desc">Mới nhất</option>
           </select>
         </label>
       </div>

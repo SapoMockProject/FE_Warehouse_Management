@@ -55,7 +55,7 @@ export default function Login() {
 			include_granted_scopes=true&
 			response_type=code&
 			state=state_parameter_passthrough_value&
-			redirect_uri=http://localhost:5173/login&
+			redirect_uri=${window.location.href.replace(window.location.search, "")}&
 			client_id=${import.meta.env.VITE_PUBLIC_CLIENT_ID}&prompt=consent`;
 	};
 	React.useEffect(() => {

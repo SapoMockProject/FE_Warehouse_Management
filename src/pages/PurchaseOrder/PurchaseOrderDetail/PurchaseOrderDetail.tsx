@@ -391,21 +391,27 @@ const PurchaseOrderDetail: React.FC = () => {
 
             {purchaseOrder.status !== "CANCELLED" && purchaseOrder.status !== "IMPORTED_ALL" && (
                 <div className="purchase-order-footer">
-                    <Button
-                        label="Hủy đơn"
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20 " viewBox="0 0 1024 1024"><path fill="#ffffff" d="M512 0C229.232 0 0 229.232 0 512c0 282.784 229.232 512 512 512c282.784 0 512-229.216 512-512C1024 229.232 794.784 0 512 0zm0 961.008c-247.024 0-448-201.984-448-449.01c0-247.024 200.976-448 448-448s448 200.977 448 448s-200.976 449.01-448 449.01zm181.008-630.016c-12.496-12.496-32.752-12.496-45.248 0L512 466.752l-135.76-135.76c-12.496-12.496-32.752-12.496-45.264 0c-12.496 12.496-12.496 32.752 0 45.248L466.736 512l-135.76 135.76c-12.496 12.48-12.496 32.769 0 45.249c12.496 12.496 32.752 12.496 45.264 0L512 557.249l135.76 135.76c12.496 12.496 32.752 12.496 45.248 0c12.496-12.48 12.496-32.769 0-45.249L557.248 512l135.76-135.76c12.512-12.512 12.512-32.768 0-45.248z" /></svg>}
-                        onClick={handleCancel}
-                        size="md"
-                        variant="danger"
-                    />
 
-                    <Button
-                        label="Sửa đơn"
-                        icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#000000"><g fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3l8.385-8.415zM16 5l3 3" /></g></svg>}
-                        onClick={handleEdit}
-                        size="md"
-                        variant="tertiary"
-                    />
+                    {(purchaseOrder.status === "DRAFT" || purchaseOrder.status === "PENDING") && (
+                        <>
+                            <Button
+                                label="Hủy đơn"
+                                icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20 " viewBox="0 0 1024 1024"><path fill="#ffffff" d="M512 0C229.232 0 0 229.232 0 512c0 282.784 229.232 512 512 512c282.784 0 512-229.216 512-512C1024 229.232 794.784 0 512 0zm0 961.008c-247.024 0-448-201.984-448-449.01c0-247.024 200.976-448 448-448s448 200.977 448 448s-200.976 449.01-448 449.01zm181.008-630.016c-12.496-12.496-32.752-12.496-45.248 0L512 466.752l-135.76-135.76c-12.496-12.496-32.752-12.496-45.264 0c-12.496 12.496-12.496 32.752 0 45.248L466.736 512l-135.76 135.76c-12.496 12.48-12.496 32.769 0 45.249c12.496 12.496 32.752 12.496 45.264 0L512 557.249l135.76 135.76c12.496 12.496 32.752 12.496 45.248 0c12.496-12.48 12.496-32.769 0-45.249L557.248 512l135.76-135.76c12.512-12.512 12.512-32.768 0-45.248z" /></svg>}
+                                onClick={handleCancel}
+                                size="md"
+                                variant="danger"
+                            />
+
+                            <Button
+                                label="Sửa đơn"
+                                icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#000000"><g fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1" /><path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3l8.385-8.415zM16 5l3 3" /></g></svg>}
+                                onClick={handleEdit}
+                                size="md"
+                                variant="tertiary"
+                            />
+                        </>
+                    )}
+
 
                     {purchaseOrder.status === "DRAFT" && (
                         <Button

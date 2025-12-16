@@ -1,9 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./GoodsReceiptCreate.css";
-import type {
-    ProductVariantItem,
-    VariantResponse,
-} from "../../../types/IProduct";
+import type { ProductVariantItem, VariantResponse } from "../../../types/IProduct";
 import Input from "../../../components/Input/Input";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
@@ -23,11 +20,13 @@ import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import type { GoodsReceiptItemRequest, GoodsReceiptRequest } from "../../../types/IGoodsReceipt";
 import type { TransactionRequest } from "../../../types/ITransaction";
 import type { PaymentMethod } from "../../../types/IPaymentMethod";
-import type { PurchaseOrderItemResponse } from "../../../types/IPurchaseOrder";
+import type { PurchaseOrderItemResponse, PurchaseOrderResponse } from "../../../types/IPurchaseOrder";
 import { getAllPaymentMethods } from "../../../apis/paymentMethodApi";
 import { createGoodsReceipt } from "../../../apis/goodsReceiptApi";
 import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
 import { getAllProductVariants } from "../../../apis/productVariantApi";
+import { toast } from "react-toastify";
+import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 
 const GoodsReceiptCreate: React.FC = () => {
     const navigate = useNavigate();
@@ -667,7 +666,23 @@ const GoodsReceiptCreate: React.FC = () => {
             if (response.data) {
                 navigate(`/goods-receipts/${response.data.id}`);
             }
-        } catch (err) {
+        } catch (err: any) {
+
+            const errorCode = err?.response?.data?.data;
+            const backendMessage = err?.response?.data?.message;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+                return
+            }
+
+            if (backendMessage == "Validation failed") {
+                toast.error("Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
+                return
+            }
+
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
+
             console.error("Lỗi tạo phiếu nhập hàng:", err);
         }
     };
