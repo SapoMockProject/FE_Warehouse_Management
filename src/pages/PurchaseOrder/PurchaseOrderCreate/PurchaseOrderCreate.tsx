@@ -180,7 +180,7 @@ const PurchaseOrderCreate: React.FC = () => {
 		}
 	};
 
-	const fetchEmployees = async (page: number, query: string) => {
+	const fetchEmployees = async (query: string) => {
 		setLoadingSupplier(true);
 		try {
 			const res = await getAllEmployees(0, 999, query);
@@ -298,7 +298,7 @@ const PurchaseOrderCreate: React.FC = () => {
 	}, [hasMoreSupplier, loadingSupplier]);
 
 	useEffect(() => {
-		fetchEmployees(0, "");
+		fetchEmployees("");
 	}, []);
 
 	const handleBackBtn = () => {

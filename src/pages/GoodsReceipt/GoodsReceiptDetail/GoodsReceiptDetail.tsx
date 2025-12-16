@@ -110,7 +110,7 @@ const GoodsReceiptDetail: React.FC = () => {
         }
     };
 
-    const handlePaymentFieldChange = (field: keyof TransactionRequest, value: any) => {
+    const handlePaymentFieldChange = (field: keyof TransactionRequest, value: number | string | null | undefined) => {
         setPaymentData(prev => ({
             ...prev,
             [field]: value
@@ -267,7 +267,7 @@ const GoodsReceiptDetail: React.FC = () => {
                                                         {item.productVariant.imageUrl ? (
                                                             <img
                                                                 src={item.productVariant.imageUrl}
-                                                                alt={item.product?.name}
+                                                                alt={item.productVariant?.productName}
                                                                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                                                             />
                                                         ) : (
@@ -280,7 +280,7 @@ const GoodsReceiptDetail: React.FC = () => {
                                                         )}
                                                     </div>
                                                     <div className="purchase-order-product-text">
-                                                        <div className="purchase-order-product-name">{item.product?.name || "N/A"}</div>
+                                                        <div className="purchase-order-product-name">{item.productVariant?.productName || "N/A"}</div>
                                                         <div className="purchase-order-product-sku">SKU: {item.productVariant.sku}</div>
                                                         {getVariantDisplay(item) && (
                                                             <div className="purchase-order-product-variant">{getVariantDisplay(item)}</div>
