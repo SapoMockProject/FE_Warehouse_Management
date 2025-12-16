@@ -1,6 +1,6 @@
 import { axiosConfiguration } from "../configurations/AxiosConfiguration";
 import type { BaseResponse } from "../types/BaseResponse";
-import type { PurchaseOrderRequest, PurchaseOrderResponse } from "../types/IPurchaseOrder";
+import type { PurchaseOrderItemResponse, PurchaseOrderRequest, PurchaseOrderResponse } from "../types/IPurchaseOrder";
 import type { PagedModel } from "../types/PagedModel";
 
 

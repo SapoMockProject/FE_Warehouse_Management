@@ -1,6 +1,6 @@
 import "./Button.css";
 
-export interface ButtonProps {
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   label?: string;
   variant?: "primary" | "secondary" | "tertiary" | "danger" | "success" | "warning";
   size?: "sm" | "md" | "lg";
