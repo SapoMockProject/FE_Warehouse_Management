@@ -43,7 +43,7 @@ export default function Pagination({
 
       <div className="pagination-options">
         <label>
-          Tổng số trang:{" "}
+          {" "}
           <select
             value={size}
             onChange={(e) => {
@@ -65,7 +65,7 @@ export default function Pagination({
             onChange={(e) => onSortChange(e.target.value as "asc" | "desc")}
             className="pagination-select"
           >
-            <option value="asc">Cũ</option>
+            <option value="asc">Cũ nhất</option>
             <option value="desc">Mới nhất</option>
           </select>
         </label>
