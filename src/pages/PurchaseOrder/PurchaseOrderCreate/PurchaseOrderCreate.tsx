@@ -19,6 +19,9 @@ import type { ISupplierResponse } from "../../../types/ISupplier";
 import type { IUserResponse } from "../../../types/IUser";
 import EditPriceProductItem from "./EditPriceProductItem/EditPriceProductItem";
 import "./PurchaseOrderCreate.css";
+import { toast } from "react-toastify";
+import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
+import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
 
 const PurchaseOrderCreate: React.FC = () => {
 	const navigate = useNavigate();
@@ -69,6 +72,8 @@ const PurchaseOrderCreate: React.FC = () => {
 	const [employees, setEmployees] = useState<IUserResponse[]>([]);
 
 	const [error, setError] = useState<Record<string, string>>({});
+
+	const user = React.useContext(AuthenticationContext);
 
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
@@ -250,7 +255,7 @@ const PurchaseOrderCreate: React.FC = () => {
 			},
 			{ threshold: 1 }
 		);
-		
+
 		observer.observe(observerProductRef.current);
 
 		return () => observer.disconnect();
@@ -389,14 +394,14 @@ const PurchaseOrderCreate: React.FC = () => {
 			prev.map((p) =>
 				p.id === selectedVariantFixPrice?.id
 					? {
-							...p,
-							...{
-								price: data.price,
-								discountType: data.discountType,
-								discountValue: data.discountValue || 0,
-								priceAfterDiscount: data.priceAfterDiscount,
-							},
-					  }
+						...p,
+						...{
+							price: data.price,
+							discountType: data.discountType,
+							discountValue: data.discountValue || 0,
+							priceAfterDiscount: data.priceAfterDiscount,
+						},
+					}
 					: p
 			)
 		);
@@ -507,26 +512,43 @@ const PurchaseOrderCreate: React.FC = () => {
 			} else purchaseOrderRequest.expectedReceiptDate = new Date(purchaseOrderRequest.expectedReceiptDate).toISOString();
 		}
 
-		setError(error);
+		const accountId = purchaseOrderRequest.assignedToAccountId ? purchaseOrderRequest.assignedToAccountId : user.user.id
 
+		setError(error);
 		if (Object.keys(error).length > 0) return;
 
 		const bodyRequest: PurchaseOrderRequest = {
 			...purchaseOrderRequest,
-			status: status,
+			assignedToAccountId: accountId,
+			status
 		};
-
-		console.log("Body request: ", bodyRequest);
-		console.log("orderitem : ", orderItems);
 
 		try {
 			const response = await createPurchaseOrder(bodyRequest);
-			console.log("Kết quả backend:", response);
+			toast.success("Tạo đơn đặt hàng thành công");
 			navigate(`/purchase-orders/${response.data.id}`);
-		} catch (err) {
+
+		} catch (err: any) {
+			const errorCode = err?.response?.data?.data;
+			const backendMessage = err?.response?.data?.message;
+			
+			if (typeof errorCode === "number") {
+				toast.error(getErrorMessage(errorCode));
+				return
+			}
+
+			if (backendMessage == "Validation failed") {
+				toast.error("Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
+				return
+			}
+
+			toast.error("Có lỗi xảy ra, vui lòng thử lại");
+
+
 			console.error("Lỗi tạo đơn đặt hàng:", err);
 		}
 	};
+
 
 	return (
 		<div className="purchase-order-page">

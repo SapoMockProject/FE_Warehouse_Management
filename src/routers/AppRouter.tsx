@@ -20,10 +20,20 @@ import GoodsReceiptCreate from "../pages/GoodsReceipt/GoodsReceiptCreate/GoodsRe
 import GoodsReceiptList from "../pages/GoodsReceipt/GoodReceiptList/GoodsReceiptList";
 import GoodsReceiptDetail from "../pages/GoodsReceipt/GoodsReceiptDetail/GoodsReceiptDetail";
 import VerifyAccountPage from "../pages/VerifyAccount/VerifyAccount";
+import { ToastContainer } from "react-toastify";
 
 export const AppRouter = () => {
 	return (
 		<BrowserRouter>
+			<ToastContainer
+				position="top-right"
+				autoClose={2000}
+				hideProgressBar={false}
+				newestOnTop
+				closeOnClick
+				pauseOnHover
+				draggable
+			/>
 			<ContainerComponent>
 				<Routes>
 					<Route element={<AuthenticationProvider />}>

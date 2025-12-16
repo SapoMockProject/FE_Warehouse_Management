@@ -29,7 +29,7 @@ interface PurchaseOrderListState {
 	sortOrder: string;
 	activeTab: string;
 	searchQuery: string;
-	selectedvariants: string[];
+	selectedProductVariants: string[];
 	selectedStatuses: string[];
 	dateRange: DateRange;
 }
@@ -47,7 +47,7 @@ export default function PurchaseOrderRequest() {
 		sortOrder: "desc",
 		activeTab: "all",
 		searchQuery: "",
-		selectedvariants: [],
+		selectedProductVariants: [],
 		selectedStatuses: [],
 		dateRange: {
 			start: "",
@@ -62,6 +62,13 @@ export default function PurchaseOrderRequest() {
 
 	const updateState = (updates: Partial<PurchaseOrderListState>) => {
 		setState((prev) => ({ ...prev, ...updates }));
+	};
+
+	const handleFilterChange = <K extends keyof PurchaseOrderListState>(
+		field: K,
+		value: PurchaseOrderListState[K]
+	) => {
+		updateState({ [field]: value, page: 0 } as Partial<PurchaseOrderListState>);
 	};
 
 	const fetchProductVariants = async () => {
@@ -82,11 +89,7 @@ export default function PurchaseOrderRequest() {
 			let statusParam: string | undefined = undefined;
 
 			if (state.activeTab !== "all") {
-				const statusMapping: Record<string, string> = PURCHASE_ORDER_STATUSES.reduce((acc, item) => {
-					acc[item.value] = item.label;
-					return acc;
-				}, {} as Record<string, string>);
-				statusParam = statusMapping[state.activeTab];
+				statusParam = state.activeTab.toUpperCase();
 			} else if (state.selectedStatuses.length > 0) {
 				statusParam = state.selectedStatuses[0];
 			}
@@ -94,7 +97,7 @@ export default function PurchaseOrderRequest() {
 			const fromDate = state.dateRange.start || undefined;
 			const toDate = state.dateRange.end || undefined;
 
-			const productVariantId = state.selectedvariants.length > 0 ? state.selectedvariants[0] : undefined;
+			const productVariantId = state.selectedProductVariants.length > 0 ? state.selectedProductVariants[0] : undefined;
 
 			const response = await getAllPurchaseOrders(
 				state.page,
@@ -144,7 +147,7 @@ export default function PurchaseOrderRequest() {
 			await fetchOrders();
 		};
 		load();
-	}, [state.page, state.size, query, state.sortOrder, state.activeTab, state.selectedStatuses, state.selectedvariants, state.dateRange]);
+	}, [state.page, state.size, query, state.sortOrder, state.activeTab, state.selectedStatuses, state.selectedProductVariants, state.dateRange]);
 
 	const getFilteredOrders = () => {
 		return state.orders;
@@ -264,8 +267,8 @@ export default function PurchaseOrderRequest() {
 						<div style={{ flex: "0 0 auto" }}>
 							<CustomSelect
 								placeholder="Chọn sản phẩm"
-								value={state.selectedvariants}
-								onChange={(variants) => handleStateChange("selectedvariants", variants as string[])}
+								value={state.selectedProductVariants}
+								onChange={(variants) => handleStateChange("selectedProductVariants", variants as string[])}
 								showSelectedInTrigger={true}
 								multiple={true}
 							>
@@ -345,7 +348,10 @@ export default function PurchaseOrderRequest() {
 													</span>
 												</td>
 												<td className="td_highlight">
-													<a href={`/suppliers/${item.supplierResponse.id}`} onClick={(e) => e.stopPropagation()}>
+													<a
+														href={`/suppliers/${item.supplierResponse.id}`}
+														onClick={(e) => e.stopPropagation()}
+													>
 														{item.supplierResponse.name || "N/A"}
 													</a>
 												</td>
@@ -363,8 +369,8 @@ export default function PurchaseOrderRequest() {
 									size={state.size}
 									sortOrder={state.sortOrder}
 									onPageChange={(page) => handleStateChange("page", page)}
-									onSizeChange={(size) => handleStateChange("size", size)}
-									onSortChange={(sort) => handleStateChange("sortOrder", sort)}
+									onSizeChange={(size) => handleFilterChange("size", size)}
+									onSortChange={(sort) => handleFilterChange("sortOrder", sort)}
 								/>
 							</>
 						)}

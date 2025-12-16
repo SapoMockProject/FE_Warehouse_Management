@@ -19,6 +19,8 @@ import { getAllEmployees } from "../../../apis/employeeApi";
 import { ValidationMessage } from "../../../components/ValidationMessage/ValidationMessage";
 import { getPurchaseOrderById, updatePurchaseOrder } from "../../../apis/purchaseOrderApi";
 import { getAllProductVariants } from "../../../apis/productVariantApi";
+import { toast } from "react-toastify";
+import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 
 const PurchaseOrderEdit: React.FC = () => {
     const navigate = useNavigate();
@@ -640,9 +642,21 @@ const PurchaseOrderEdit: React.FC = () => {
             console.log("Kết quả backend:", response);
 
             navigate(`/purchase-orders/${id}`);
-        } catch (err) {
-            console.error("Lỗi cập nhật đơn đặt hàng:", err);
-        }
+        } catch (err: any) {
+            const errorCode = err?.response?.data?.data;
+            const backendMessage = err?.response?.data?.message;
+            
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+                return
+            }
+
+            if (backendMessage == "Validation failed") {
+                toast.error("Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
+                return
+            }
+
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");        }
     };
 
     if (loading) {
