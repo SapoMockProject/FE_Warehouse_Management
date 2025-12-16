@@ -194,8 +194,8 @@ export default function PurchaseOrderRequest() {
 	const user = useContext(AuthenticationContext)?.user;
 	return (
 		<div className="opr-container">
-			{user?.role === Role.ADMIN_SYSTEM ||
-				(user?.role === Role.STORE_KEEPER && (
+			{((user?.role === Role.ADMIN_SYSTEM ||
+				user?.role === Role.STORE_KEEPER) && (
 					<div className="opr-top-content" style={{ display: "flex", justifyContent: "space-between" }}>
 						<h2 className="opr-title">Danh sách đơn đặt hàng nhập</h2>
 						<a className="opr-add-orther_order" href="/purchase-orders/create">
