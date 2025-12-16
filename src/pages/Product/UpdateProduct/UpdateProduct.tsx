@@ -1,12 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-<<<<<<< HEAD
-import { updateProduct } from "../../../apis/productApi";
-import { useNavigate } from "react-router-dom";
-import "./UpdateProduct.css";
-=======
->>>>>>> origin/master
+import { useNavigate, useParams } from "react-router-dom";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
@@ -14,6 +8,7 @@ import { SelectOption } from "../../../components/Select/SelectOption/SelectOpti
 import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
 import { Role } from "../../../types/IUser.d";
 import "./UpdateProduct.css";
+import { updateProduct } from "../../../apis/productApi";
 
 interface Attribute {
   name: string;
@@ -70,12 +65,7 @@ export default function UpdateProduct() {
 
   const [selected, setSelected] = useState<number[]>([]);
   const selectedArray = Array.isArray(selected) ? selected : [selected];
-<<<<<<< HEAD
   const navigate = useNavigate();
-
-  //Modal
-=======
->>>>>>> origin/master
   const [isModalOpenSKU, setIsModalOpenSKU] = useState(false);
   const [newSku, setNewSku] = useState<{ [key: number]: string }>({});
   const [isModalOpenPrice, setIsModalOpenPrice] = useState(false);
@@ -168,25 +158,24 @@ export default function UpdateProduct() {
       if (product.option1name) {
         newAttributes.push({
           name: product.option1name,
-          values: (opts.option1 || []).filter(Boolean) as string[],
+          values: (opts.option1 || []) as string[],
         });
       }
 
       if (product.option2name) {
         newAttributes.push({
           name: product.option2name,
-          values: (opts.option2 || []).filter(Boolean) as string[],
+          values: (opts.option2 || []) as string[],
         });
       }
 
       if (product.option3name) {
         newAttributes.push({
           name: product.option3name,
-          values: (opts.option3 || []).filter(Boolean) as string[],
+          values: (opts.option3 || []) as string[],
         });
       }
       setAttributes(newAttributes);
-
       setName(product.name);
       setDescription(product.description);
     };
@@ -195,6 +184,8 @@ export default function UpdateProduct() {
 
   /* ------------ ATTRIBUTES ------------ */
   const addAttribute = () => {
+    console.log(attributes);
+
     setAttributes((prev) => {
       if (prev.length >= 3) return prev;
       const nextName = attributeOrder[prev.length];
@@ -237,8 +228,8 @@ export default function UpdateProduct() {
     const newValidFiles = arr.filter(
       (f) => f.type.startsWith("image/") && f.size <= 4 * 1024 * 1024
     );
-    if (files.length + newValidFiles.length > 9) {
-      alert("Tối đa 9 ảnh.");
+    if (files.length + newValidFiles.length > 1) {
+      alert("Tối đa 1 ảnh.");
       return;
     }
     setFiles((prev) => [...prev, ...newValidFiles]);
@@ -261,6 +252,7 @@ export default function UpdateProduct() {
     console.log("Description: ", description);
     console.log("CategoryID: ", categories);
     console.log("Ảnh: ", files);
+    // console.log("IMG", variantImages);
 
     try {
       const formData = new FormData();
@@ -268,6 +260,7 @@ export default function UpdateProduct() {
       formData.append("category", categories);
       formData.append("description", description);
       formData.append("imageUrl", files[0]);
+      console.log("---Data---", formData);
       await updateProduct(Number(id), formData);
       navigate("/products");
     } catch (err) {
@@ -322,7 +315,6 @@ export default function UpdateProduct() {
 
       console.log("Update SKU thành công:", res.data);
 
-      // Cập nhật lại dữ liệu
       setProduct((prev) => {
         if (!prev) return prev;
 
@@ -364,7 +356,6 @@ export default function UpdateProduct() {
 
       console.log("Update price thành công:", res.data);
 
-      // Cập nhật lại dữ liệu
       setProduct((prev) => {
         if (!prev) return prev;
 
@@ -405,7 +396,6 @@ export default function UpdateProduct() {
 
       console.log("Update stock thành công:", res.data);
 
-      // Cập nhật lại dữ liệu
       setProduct((prev) => {
         if (!prev) return prev;
 
@@ -423,7 +413,79 @@ export default function UpdateProduct() {
     setIsModalOpenStock(false);
     setNewStock({});
   };
-<<<<<<< HEAD
+
+  const applyNewPriceAll = async () => {
+    if (!price || selectedArray.length === 0) return;
+
+    const payload = {
+      variantIds: selectedArray,
+      price: Number(price),
+    };
+    console.log("---------10---------", payload);
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.put(
+        "http://localhost:8080/api/v1/product-variant/update-all-prices",
+        payload,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setProduct((prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          variants: prev.variants.map((v) =>
+            selectedArray.includes(v.id) ? { ...v, price: Number(price) } : v
+          ),
+        };
+      });
+    } catch (err) {
+      console.log("Lỗi update price", err);
+    }
+    setIsModalOpenPrice(false);
+  };
+
+  const applyStockAll = async () => {
+    if (!stock || selectedArray.length === 0) return;
+    const loadStock = {
+      variantIds: selectedArray,
+      stock: stock,
+    };
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(
+        "http://localhost:8080/api/v1/product-variant/update-all-stocks",
+        loadStock,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      setProduct((prev) => {
+        if (!prev) return prev;
+
+        return {
+          ...prev,
+          variants: prev.variants.map((v) =>
+            selectedArray.includes(v.id) ? { ...v, stock: Number(stock) } : v
+          ),
+        };
+      });
+    } catch (err) {
+      console.log(err);
+    }
+    setIsModalOpenStock(false);
+  };
 
   const handleVariantImageChange = async (
     id: number,
@@ -453,9 +515,7 @@ export default function UpdateProduct() {
     console.log("Image uploaded for variant:", id, res.data);
   };
 
-=======
   const user = React.useContext(AuthenticationContext);
->>>>>>> origin/master
   return (
     <div className="update-product-container">
       <h1 className="update-product-title">Chi tiết sản phẩm</h1>
@@ -686,6 +746,7 @@ export default function UpdateProduct() {
                                   label="Áp dụng cho tất cả"
                                   variant="tertiary"
                                   size="lg"
+                                  onClick={applyNewPriceAll}
                                 />
                               </div>
                             </div>
@@ -766,6 +827,7 @@ export default function UpdateProduct() {
                                   label="Áp dụng cho tất cả"
                                   variant="tertiary"
                                   size="lg"
+                                  onClick={applyStockAll}
                                 />
                               </div>
                             </div>
@@ -925,7 +987,7 @@ export default function UpdateProduct() {
                     + Kéo thả hoặc thêm ảnh
                   </div>
                   <div className="update-product-muted">
-                    Dung lượng tối đa 4MB, tối đa 9 ảnh
+                    Dung lượng tối đa 4MB, tối đa 1 ảnh
                   </div>
                 </div>
 
