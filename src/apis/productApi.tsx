@@ -35,7 +35,6 @@ export const createProduct = async (formData: FormData) => {
 
 export const updateProduct = async (id: number, formData: FormData) => {
   const token = localStorage.getItem("token");
-
   return await axiosConfiguration.put(`/products/${id}`, formData, {
     headers: {
       Authorization: `Bearer ${token}`,

@@ -1,6 +1,8 @@
 import axios from "axios";
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import { updateProduct } from "../../../apis/productApi";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
@@ -8,7 +10,6 @@ import { SelectOption } from "../../../components/Select/SelectOption/SelectOpti
 import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
 import { Role } from "../../../types/IUser.d";
 import "./UpdateProduct.css";
-import { updateProduct } from "../../../apis/productApi";
 
 interface Attribute {
   name: string;
@@ -58,6 +59,7 @@ export default function UpdateProduct() {
     {}
   );
   const [files, setFiles] = useState<File[]>([]);
+  const [removedThumbnail, setRemovedThumbnail] = useState(false);
   const [categories, setCategories] = useState("");
   const [allCategories, setAllCategories] = useState<Category[]>([]);
 
@@ -65,13 +67,80 @@ export default function UpdateProduct() {
 
   const [selected, setSelected] = useState<number[]>([]);
   const selectedArray = Array.isArray(selected) ? selected : [selected];
-  const navigate = useNavigate();
   const [isModalOpenSKU, setIsModalOpenSKU] = useState(false);
   const [newSku, setNewSku] = useState<{ [key: number]: string }>({});
   const [isModalOpenPrice, setIsModalOpenPrice] = useState(false);
   const [newPrice, setNewPrice] = useState<{ [key: number]: string }>({});
   const [isModalOpenStock, setIsModalOpenStock] = useState(false);
   const [newStock, setNewStock] = useState<{ [key: number]: string }>({});
+
+  const [variantList, setVariantList] = useState<ProductVariant[]>([]);
+
+  useEffect(() => {
+    if (!product) return;
+    console.log("product: ", product.variants);
+
+    const hasEmptyAttribute = attributes.some(
+      (attr) => attr.values.length === 0
+    );
+
+    if (hasEmptyAttribute) return;
+    const combinations = generateOptionCombinations(attributes);
+
+    const newList: ProductVariant[] = combinations.map((combo) => {
+      const existed = product.variants.find((v) => isSameVariant(combo, v));
+      console.log("e", existed);
+
+      if (existed) return existed;
+
+      return {
+        id: Math.random() * -100,
+        sku: "",
+        price: 0,
+        stock: 0,
+        imageUrl: "",
+        option1value: combo.option1value ?? null,
+        option2value: combo.option2value ?? null,
+        option3value: combo.option3value ?? null,
+      };
+    });
+
+    setVariantList(newList);
+  }, [attributes]);
+  console.log("----------", variantList);
+  function generateOptionCombinations(attributes: Attribute[]) {
+    return attributes.reduce<any[]>((acc, attr, index) => {
+      if (acc.length === 0) {
+        return attr.values.map((v) => {
+          const obj: any = {};
+          obj[`option${index + 1}value`] = v;
+          return obj;
+        });
+      }
+
+      const result: any[] = [];
+
+      acc.forEach((prev) => {
+        attr.values.forEach((v) => {
+          result.push({
+            ...prev,
+            [`option${index + 1}value`]: v,
+          });
+        });
+      });
+
+      return result;
+    }, []);
+  }
+
+  function isSameVariant(a: any, b: ProductVariant) {
+    return (
+      a.option1value === b.option1value &&
+      a.option2value === b.option2value &&
+      a.option3value === b.option3value
+    );
+  }
+
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -106,19 +175,16 @@ export default function UpdateProduct() {
       .catch((err) => console.error(err));
   }, [id]);
 
-  const getVariantName = (
-    product: ProductResponse,
-    variant: ProductVariant
-  ): string => {
+  const getVariantName = (variant: ProductVariant): string => {
     const options: string[] = [];
 
-    if (product.option1name && variant.option1value) {
+    if (variant.option1value) {
       options.push(variant.option1value);
     }
-    if (product.option2name && variant.option2value) {
+    if (variant.option2value) {
       options.push(variant.option2value);
     }
-    if (product.option3name && variant.option3value) {
+    if (variant.option3value) {
       options.push(variant.option3value);
     }
 
@@ -175,6 +241,16 @@ export default function UpdateProduct() {
           values: (opts.option3 || []) as string[],
         });
       }
+
+      if (!categories && product?.categoryName && allCategories.length > 0) {
+        const found = allCategories.find(
+          (c) => c.name === product.categoryName
+        );
+        if (found) {
+          setCategories(found.id.toString());
+        }
+      }
+
       setAttributes(newAttributes);
       setName(product.name);
       setDescription(product.description);
@@ -222,17 +298,16 @@ export default function UpdateProduct() {
   };
 
   /* ------------ FILE HANDLING ------------ */
-  const handleFiles = (newFiles: FileList | null) => {
-    if (!newFiles) return;
-    const arr = Array.from(newFiles);
-    const newValidFiles = arr.filter(
-      (f) => f.type.startsWith("image/") && f.size <= 4 * 1024 * 1024
-    );
-    if (files.length + newValidFiles.length > 1) {
-      alert("Tối đa 1 ảnh.");
-      return;
-    }
-    setFiles((prev) => [...prev, ...newValidFiles]);
+  const handleFiles = (fileList: FileList | null) => {
+    if (!fileList || fileList.length === 0) return;
+
+    const file = fileList[0]; // chỉ lấy 1 ảnh
+
+    // đánh dấu thumbnail cũ bị thay thế
+    setRemovedThumbnail(true);
+
+    // chỉ giữ 1 ảnh mới
+    setFiles([file]);
   };
 
   const removeFile = (idx: number) => {
@@ -247,24 +322,48 @@ export default function UpdateProduct() {
   };
 
   const handleSave = async () => {
-    console.log("ID: ", id);
-    console.log("Name: ", name);
-    console.log("Description: ", description);
-    console.log("CategoryID: ", categories);
-    console.log("Ảnh: ", files);
-    // console.log("IMG", variantImages);
-
     try {
       const formData = new FormData();
+      formData.append("id", String(id));
       formData.append("name", name);
-      formData.append("category", categories);
+      formData.append("categoryId", categories);
       formData.append("description", description);
-      formData.append("imageUrl", files[0]);
-      console.log("---Data---", formData);
+      formData.append("option1name", attributes?.[0]?.name || "");
+      formData.append("option2name", attributes?.[1]?.name || "");
+      formData.append("option3name", attributes?.[2]?.name || "");
+      if (files && files.length) formData.append("imageUrl", files[0]);
+      for (let i = 0; i < variantList.length; i++) {
+        formData.append(
+          `variants[${i}].stock`,
+          variantList[i].stock.toString()
+        );
+        formData.append(
+          `variants[${i}].price`,
+          variantList[i].price.toString()
+        );
+        formData.append(`variants[${i}].sku`, variantList[i].sku);
+        formData.append(
+          `variants[${i}].option1value`,
+          variantList[i].option1value ?? ""
+        );
+        formData.append(
+          `variants[${i}].option2value`,
+          variantList[i].option2value ?? ""
+        );
+        formData.append(
+          `variants[${i}].option3value`,
+          variantList[i].option3value ?? ""
+        );
+        formData.append(
+          `variants[${i}].id`,
+          variantList[i].id <= 0 ? "" : String(variantList[i].id)
+        );
+      }
       await updateProduct(Number(id), formData);
-      navigate("/products");
+      toast.success("Sửa sản phẩm thành công!");
     } catch (err) {
       console.log(err);
+      toast.error("Sửa sản phẩm thất bại!");
     }
   };
   //
@@ -281,10 +380,10 @@ export default function UpdateProduct() {
   const toggleSelectAll = () => {
     if (!product?.variants) return;
 
-    if (selected.length === product.variants.length) {
+    if (selected.length === variantList.length) {
       setSelected([]); // bỏ chọn hết
     } else {
-      setSelected(product.variants.map((v) => v.id)); // chọn tất cả
+      setSelected(variantList.map((v) => v.id)); // chọn tất cả
     }
   };
 
@@ -902,8 +1001,8 @@ export default function UpdateProduct() {
               </thead>
 
               <tbody>
-                {product?.variants.map((e) => {
-                  const variantValue = getVariantName(product, e);
+                {variantList.map((e) => {
+                  const variantValue = getVariantName(e);
 
                   return (
                     <tr key={e.id}>
@@ -923,7 +1022,10 @@ export default function UpdateProduct() {
                           }}
                         >
                           <img
-                            src={variantImages[e.id] || e.imageUrl}
+                            src={
+                              variantImages[e.id] ||
+                              "https://i.pinimg.com/236x/5e/e0/82/5ee082781b8c41406a2a50a0f32d6aa6.jpg"
+                            }
                             alt="Lỗi ảnh"
                             style={{
                               width: 50,
@@ -933,7 +1035,6 @@ export default function UpdateProduct() {
                             }}
                             onClick={() => fileRefs.current[e.id]?.click()}
                           />
-
                           <input
                             ref={(el) => {
                               fileRefs.current[e.id] = el;
@@ -1012,47 +1113,54 @@ export default function UpdateProduct() {
               }}
             >
               {/* ẢNH THUMBNAIL TỪ API */}
-              {product?.thumbnail && (
-                <div
-                  style={{
-                    position: "relative",
-                    border: "1px solid #e6e9ee",
-                    borderRadius: 6,
-                    overflow: "hidden",
-                  }}
-                >
-                  <img
-                    src={product.thumbnail}
+              {product?.thumbnail &&
+                !removedThumbnail &&
+                files.length === 0 && (
+                  <div
                     style={{
-                      width: "100%",
-                      height: 90,
-                      objectFit: "cover",
+                      position: "relative",
+                      border: "1px solid #e6e9ee",
+                      borderRadius: 6,
+                      overflow: "hidden",
                     }}
-                  />
-
-                  {/* nút xóa thumbnail */}
-                  {user?.user.role !== Role.COORDINATOR && (
-                    <button
-                      type="button"
-                      onClick={removeThumbnail}
+                  >
+                    <img
+                      src={product.thumbnail}
                       style={{
-                        position: "absolute",
-                        top: 4,
-                        right: 4,
-                        background: "rgba(0,0,0,0.5)",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "50%",
-                        width: 22,
-                        height: 22,
-                        cursor: "pointer",
+                        width: "100%",
+                        height: 90,
+                        objectFit: "cover",
+                        display: "block",
                       }}
-                    >
-                      ×
-                    </button>
-                  )}
-                </div>
-              )}
+                    />
+
+                    {user?.user.role !== Role.COORDINATOR && (
+                      <button
+                        type="button"
+                        onClick={removeThumbnail}
+                        style={{
+                          position: "absolute",
+                          top: 6,
+                          right: 6,
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          background: "rgba(0,0,0,0.6)",
+                          color: "#fff",
+                          border: "none",
+                          cursor: "pointer",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: 14,
+                          lineHeight: 1,
+                        }}
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                )}
 
               {/* ẢNH MỚI TỪ FILES */}
               {files.map((file, idx) => (
@@ -1071,24 +1179,32 @@ export default function UpdateProduct() {
                       width: "100%",
                       height: 90,
                       objectFit: "cover",
+                      display: "block",
                     }}
                   />
 
-                  {/* nút xóa ảnh mới */}
                   <button
                     type="button"
-                    onClick={() => removeFile(idx)}
+                    onClick={() => {
+                      setFiles([]);
+                      setRemovedThumbnail(false); // quay lại thumbnail cũ
+                    }}
                     style={{
                       position: "absolute",
-                      top: 4,
-                      right: 4,
-                      background: "rgba(0,0,0,0.5)",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "50%",
+                      top: 6,
+                      right: 6,
                       width: 22,
                       height: 22,
+                      borderRadius: "50%",
+                      background: "rgba(0,0,0,0.6)",
+                      color: "#fff",
+                      border: "none",
                       cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: 14,
+                      lineHeight: 1,
                     }}
                   >
                     ×
