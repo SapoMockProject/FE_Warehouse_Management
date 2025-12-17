@@ -6,6 +6,7 @@ export interface IUserResponse {
 	email: string;
 	role: Role;
 	avatar: string;
+	isDeleted: boolean;
 }
 
 export interface IUserCreateRequest {
@@ -18,6 +19,14 @@ export interface IUserCreateRequest {
 
 export interface AuthenticationResponse {
 	token: string;
+}
+
+export interface IUserUpdateRequest {
+	fullName: string;
+	phoneNumber: string;
+	email: string;
+	username: string;
+	role: Role;
 }
 
 export enum Role {

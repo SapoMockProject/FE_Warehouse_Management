@@ -1,14 +1,16 @@
 import React from "react";
-import { deleteEmployee, getAllEmployees } from "../../apis/employeeApi";
-import Button from "../../components/Button/Button";
+import { useNavigate } from "react-router";
+import { getAllEmployees } from "../../apis/employeeApi";
 import Input from "../../components/Input/Input";
 import Pagination from "../../components/Pagination/Pagination";
+import { CustomSelect } from "../../components/Select/CustomSelect/CustomSelect";
+import { SelectOption } from "../../components/Select/SelectOption/SelectOption";
 import { useDebounce } from "../../hooks/useDebounce";
 import type { IUserResponse } from "../../types/IUser";
 import { getNameOfRole } from "../../utils/Employee.util";
 import CreateEmployee from "./CreateEmployee/CreateEmployee";
 import "./EmployeeList.css";
-import UpdateEmployee from "./UpdateEmployee/UpdateEmployee";
+import TagComponent from "../Supplier/Tag/TagComponent";
 
 export default function EmployeeList() {
 	const [employees, setEmployees] = React.useState<IUserResponse[]>([]);
@@ -18,20 +20,18 @@ export default function EmployeeList() {
 	const [limit, setLimit] = React.useState<number>(10);
 	const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
 	const [inputValue, setInputValue] = React.useState<string>("");
+	const [isDeletedFilter, setIsDeletedFilter] = React.useState<boolean>(false);
 	const query = useDebounce(inputValue, 1000);
+	const navigate = useNavigate();
 	React.useEffect(() => {
 		const fetchEmployees = async () => {
-			const data = await getAllEmployees(page, limit, query);
+			const data = await getAllEmployees(page, limit, query, sortOrder, isDeletedFilter);
 			setEmployees(data.data.content);
 			setPage(data.data.page.number);
 			setTotalPages(data.data.page.totalPages);
 		};
 		fetchEmployees();
-	}, [reload, page, limit, sortOrder, query]);
-	const deleteUser = async (id: number) => {
-		await deleteEmployee(id);
-		setReload(!reload);
-	};
+	}, [reload, page, limit, sortOrder, query, isDeletedFilter]);
 
 	return (
 		<>
@@ -42,47 +42,51 @@ export default function EmployeeList() {
 						<CreateEmployee realoadFunc={() => setReload((prev) => !prev)} />
 					</div>
 				</div>
-				<div className="supplier_query">
-					<Input
-						placeholder="Tìm kiếm...."
-						type="search"
-						value={inputValue}
-						onChange={(value) => setInputValue(value as string)}
-					/>
+				<div className="employee-list-query">
+					<div className="employee-list-input-query">
+						<Input
+							placeholder="Tìm kiếm...."
+							type="search"
+							value={inputValue}
+							onChange={(value) => setInputValue(value as string)}
+						/>
+					</div>
+					<div className="employee-list-is-deleted">
+						<CustomSelect
+							multiple={false}
+							value={String(isDeletedFilter)}
+							onChange={(e) => setIsDeletedFilter((e as string) === "true")}
+							showSelectedInTrigger
+						>
+							<SelectOption label="Đang hoạt động" value="false" />
+							<SelectOption label="Đã xoá" value="true" />
+						</CustomSelect>
+					</div>
 				</div>
 				<div>
 					<table className="employee-list-table">
 						<thead className="employee-list-table-header">
 							<tr>
-								<th>
-									<input type="checkbox" />
-								</th>
 								<th>Tên nhân viên</th>
 								<th>Số điện thoại</th>
 								<th>Email</th>
 								<th>Chức vụ</th>
-								<th>Hành động</th>
+								<th>Trạng thái</th>
 							</tr>
 						</thead>
 						<tbody className="employee-list-table-body">
 							{employees.map((employee) => (
-								<tr key={employee.id}>
-									<td>
-										<input type="checkbox" />
-									</td>
+								<tr key={employee.id} onClick={() => navigate(`/employees/${employee.id}`)}>
 									<td>{employee.fullName}</td>
 									<td>{employee.phoneNumber}</td>
 									<td>{employee.email}</td>
 									<td>{getNameOfRole(employee.role)}</td>
-									<td className="employee-list-table-action">
-										<UpdateEmployee realoadFunc={() => setReload((prev) => !prev)} employee={employee} />
-										<Button
-											label="Xóa"
-											variant="danger"
-											type="button"
-											size="sm"
-											onClick={() => deleteUser(employee.id)}
-										/>
+									<td>
+										{employee.isDeleted ? (
+											<TagComponent message="Đã xoá" variant="warning" />
+										) : (
+											<TagComponent message="Đang hoạt động" variant="success" />
+										)}
 									</td>
 								</tr>
 							))}

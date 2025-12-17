@@ -1,26 +1,27 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 import ContainerComponent from "../components/Container/ContainerComponent";
 import { AuthenticationProvider } from "../contexts/AuthenticationProvider";
 import { DefaultLayout } from "../layouts/DefaultLayout";
+import DetailAccount from "../pages/AccountDetail/DetailAccount";
 import { Dashboard } from "../pages/Dashboard/Dashboard";
-import EmployeeList from "../pages/Employee/EmployeeList";
-import Login from "../pages/Login/Login";
-import SupplierList from "../pages/Supplier/SupplierList";
-import PurchaseOrderList from "../pages/PurchaseOrder/PurchaseOrderList/PurchaseOrderList";
-import PurchaseOrderDetail from "../pages/PurchaseOrder/PurchaseOrderDetail/PurchaseOrderDetail";
-import PurchaseOrderCreate from "../pages/PurchaseOrder/PurchaseOrderCreate/PurchaseOrderCreate";
-import PurchaseOrderEdit from "../pages/PurchaseOrder/PurchaseOrderUpdate/PurchaseOrderUpdate";
-import AddProductForm from "../pages/Product/CreateProduct/AddProductForm";
-import UpdateProduct from "../pages/Product/UpdateProduct/UpdateProduct";
-import ProductList from "../pages/Product/ProductList";
-import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
 import DetailEmployee from "../pages/Employee/DetailEmployee/DetailEmployee";
-import NotFoundPage from "../pages/NotFound/NotFound";
-import GoodsReceiptCreate from "../pages/GoodsReceipt/GoodsReceiptCreate/GoodsReceiptCreate";
+import EmployeeList from "../pages/Employee/EmployeeList";
 import GoodsReceiptList from "../pages/GoodsReceipt/GoodReceiptList/GoodsReceiptList";
+import GoodsReceiptCreate from "../pages/GoodsReceipt/GoodsReceiptCreate/GoodsReceiptCreate";
 import GoodsReceiptDetail from "../pages/GoodsReceipt/GoodsReceiptDetail/GoodsReceiptDetail";
+import Login from "../pages/Login/Login";
+import NotFoundPage from "../pages/NotFound/NotFound";
+import AddProductForm from "../pages/Product/CreateProduct/AddProductForm";
+import ProductList from "../pages/Product/ProductList";
+import UpdateProduct from "../pages/Product/UpdateProduct/UpdateProduct";
+import PurchaseOrderCreate from "../pages/PurchaseOrder/PurchaseOrderCreate/PurchaseOrderCreate";
+import PurchaseOrderDetail from "../pages/PurchaseOrder/PurchaseOrderDetail/PurchaseOrderDetail";
+import PurchaseOrderList from "../pages/PurchaseOrder/PurchaseOrderList/PurchaseOrderList";
+import PurchaseOrderEdit from "../pages/PurchaseOrder/PurchaseOrderUpdate/PurchaseOrderUpdate";
+import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
+import SupplierList from "../pages/Supplier/SupplierList";
 import VerifyAccountPage from "../pages/VerifyAccount/VerifyAccount";
-import { ToastContainer } from "react-toastify";
 
 export const AppRouter = () => {
 	return (
@@ -48,7 +49,8 @@ export const AppRouter = () => {
 							<Route path="/goods-receipts/:id" element={<GoodsReceiptDetail />} />
 							<Route path="/goods-receipts/create" element={<GoodsReceiptCreate />} />
 							<Route path="/employees" element={<EmployeeList />} />
-							<Route path="/account" element={<DetailEmployee />} />
+							<Route path="/account" element={<DetailAccount />} />
+							<Route path="/employees/:id" element={<DetailEmployee />} />
 							<Route path="/suppliers" element={<SupplierList />} />
 							<Route path="/suppliers/:id" element={<DetailSupplier />} />
 							<Route path="/products/:id" element={<UpdateProduct />} />

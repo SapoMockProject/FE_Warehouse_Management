@@ -1,15 +1,29 @@
 import React from "react";
-import { updateEmployee, uploadAvatar } from "../../../apis/employeeApi";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import { deleteEmployee, getUserById, updateEmployee, uploadAvatarForUser } from "../../../apis/employeeApi";
 import Button from "../../../components/Button/Button";
-import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
-import { Role, type IUserResponse } from "../../../types/IUser.d";
-import { getNameOfRole } from "../../../utils/Employee.util";
-import InputEmployeeInfo from "../Input/InputEmployeeInfo";
+import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
+import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
+import { Role, type IUserResponse, type IUserUpdateRequest } from "../../../types/IUser.d";
+import { handleGetRoleOptions } from "../../../utils/Employee.util";
+import InputEmployeeInfo from "../../Employee/Input/InputEmployeeInfo";
 import "./DetailEmployee.css";
 
 export default function DetailEmployee() {
-	const user = React.useContext(AuthenticationContext);
-	const [employeeInfo, setEmployeeInfo] = React.useState(user?.user);
+	const { id } = useParams<{ id: string }>();
+	const [reload, setReload] = React.useState<boolean>(false);
+	const navigate = useNavigate();
+	const [employeeInfo, setEmployeeInfo] = React.useState<IUserResponse>({
+		id: 0,
+		username: "",
+		fullName: "",
+		email: "",
+		phoneNumber: "",
+		role: Role.WAREHOUSE_STAFF,
+		avatar: "",
+		isDeleted: false,
+	});
 	const imageInputRef = React.useRef<HTMLInputElement>(null);
 	const handleInputChange = (field: keyof IUserResponse, value: string | number) => {
 		setEmployeeInfo((prev) => {
@@ -20,26 +34,48 @@ export default function DetailEmployee() {
 			};
 		});
 	};
+	const handleDeleteUser = async () => {
+		await deleteEmployee(Number(id));
+		toast.success("Xoá nhân viên thành công");
+		navigate(-1);
+	};
 	React.useEffect(() => {
-		setEmployeeInfo(user?.user);
-	}, [user]);
+		const fetchUser = async () => {
+			const user = await getUserById(Number(id));
+			setEmployeeInfo(user.data);
+		};
+		fetchUser();
+	}, [id, reload]);
 	const handleSaveUser = async () => {
-		await updateEmployee(employeeInfo?.id || 0, {
-			fullName: employeeInfo?.fullName || user?.user.fullName || "",
-			email: employeeInfo?.email || user?.user.email || "",
-			phoneNumber: employeeInfo?.phoneNumber || user?.user.phoneNumber || "",
-			username: employeeInfo?.username || user?.user.username || "",
-			role: employeeInfo?.role || Role.WAREHOUSE_STAFF,
-		});
-		user?.refreshUser();
+		if (!employeeInfo) {
+			toast.error("Không tìm thấy thông tin nhân viên");
+			return;
+		}
+		if (!employeeInfo.fullName || !employeeInfo.email || !employeeInfo.username) {
+			toast.error("Vui lòng điền đầy đủ thông tin bắt buộc");
+			return;
+		}
+		const employeeUpdateData: IUserUpdateRequest = {
+			fullName: employeeInfo.fullName,
+			phoneNumber: employeeInfo.phoneNumber,
+			email: employeeInfo.email,
+			username: employeeInfo.username,
+			role: employeeInfo.role,
+		};
+		await updateEmployee(Number(id), employeeUpdateData);
+		toast.success("Cập nhật thông tin nhân viên thành công");
 	};
 	const handleChangeAvatar = async (file: File | null) => {
-		if (!file) return;
+		if (!file) {
+			toast.error("Vui lòng chọn ảnh đại diện");
+			return;
+		}
 		const formData = new FormData();
-		formData.append("avatar", file);
-		await uploadAvatar(formData);
-		user?.refreshUser();
-	}
+		formData.append("file", file);
+		await uploadAvatarForUser(formData, Number(id));
+		toast.success("Cập nhật ảnh đại diện thành công");
+		setReload((prev) => !prev);
+	};
 	return (
 		<>
 			<div className="employee-detail-container">
@@ -47,7 +83,13 @@ export default function DetailEmployee() {
 					<div className="employee-detail-avatar-wrapper">
 						<span className="employee-detail-title">Thông tin tài khoản</span>
 						<div className="employee-detail-image-box">
-							<input onChange={(e) => handleChangeAvatar(e.target.files ? e.target.files[0] : null)} ref={imageInputRef} className="employee-detail-image-input" type="file" accept="image/*" />
+							<input
+								onChange={(e) => handleChangeAvatar(e.target.files ? e.target.files[0] : null)}
+								ref={imageInputRef}
+								className="employee-detail-image-input"
+								type="file"
+								accept="image/*"
+							/>
 							<img onClick={() => imageInputRef.current?.click()} src={employeeInfo?.avatar} alt={employeeInfo?.fullName} />
 						</div>
 					</div>
@@ -58,12 +100,14 @@ export default function DetailEmployee() {
 								type="text"
 								label="Họ và tên"
 								value={employeeInfo?.fullName}
+								required
 							/>
 							<InputEmployeeInfo
 								onChange={(value) => handleInputChange("email", value)}
 								type="text"
 								label="Email"
 								value={employeeInfo?.email}
+								required
 							/>
 						</div>
 						<div className="employee-detail-input-wrapper">
@@ -76,12 +120,24 @@ export default function DetailEmployee() {
 							<InputEmployeeInfo type="text" label="Username" readonly={true} value={employeeInfo?.username} />
 						</div>
 						<div className="employee-detail-input-wrapper">
-							<InputEmployeeInfo readonly type="text" label="Chức vụ" value={getNameOfRole(employeeInfo?.role || "")} />
+							<CustomSelect
+								showSelectedInTrigger={true}
+								value={employeeInfo.role}
+								onChange={(role) => handleInputChange("role", role as string)}
+							>
+								{handleGetRoleOptions().map((role) => (
+									<SelectOption key={role.value} value={role.value} label={role.label} />
+								))}
+							</CustomSelect>
 						</div>
 						<div className="employee-detail-input-wrapper button-wrapper">
 							<Button onClick={handleSaveUser} className="employee-detail-button" size="md" variant="primary" label="Lưu" />
 						</div>
 					</div>
+				</div>
+				<div className="employee-detail-footer">
+					{!employeeInfo.isDeleted && <Button variant="danger" label="Xoá" size="lg" onClick={handleDeleteUser} />}
+					<Button variant="secondary" label="Huỷ" size="lg" onClick={() => navigate(-1)} />
 				</div>
 			</div>
 		</>
