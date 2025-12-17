@@ -38,7 +38,7 @@ export const getAllSupliers = async (
 	return res.data;
 };
 
-export const getSupplierById = async (id: string) => {
+export const getSupplierById = async (id: number) => {
 	const res = await axiosConfiguration.get<BaseResponse<ISupplierResponse>>(`/suppliers/${id}`, {
 		headers: {
 			Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
