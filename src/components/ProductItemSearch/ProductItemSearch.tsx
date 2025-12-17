@@ -12,13 +12,14 @@ export const ProductItemSearch: React.FC<ProductVariantItem> = ({
     price,
     stock,
     onClick,
+    className
 }) => {
     return (
-        <div className="pis-container" onClick={() => onClick?.(id.toString())}>
+        <div className={`pis-container ${className}`} onClick={() => onClick?.(id.toString())}>
             <div className="pis-left">
                 <div className="pis-img-wrapper">
                     {imageUrl ? (
-                        <img src={imageUrl} alt={imageUrl} />
+                        <img src={imageUrl} />
                     ) : (
                         <div className="pis-placeholder">IMG</div>
                     )}

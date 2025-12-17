@@ -224,7 +224,7 @@ const PurchaseOrderCreate: React.FC = () => {
 	}, [inputValue]);
 
 	useEffect(() => {
-		if (!isOpenSearchVariant) return;
+		if (!isOpenSearchSupplier) return;
 
 		const delayDebounce = () => {
 			setSuppliers([]);
@@ -246,22 +246,25 @@ const PurchaseOrderCreate: React.FC = () => {
 		load();
 	}, [pageSearchVariant, isOpenSearchVariant]);
 
-	useEffect(() => {
+	  useEffect(() => {
 		if (!observerProductRef.current) return;
-
+	
 		const observer = new IntersectionObserver(
-			(entries) => {
-				if (entries[0].isIntersecting && hasMoreVariant && !loadingVariant) {
-					setPageSearchVariant((prev) => prev + 1);
-				}
-			},
-			{ threshold: 1 }
+		  (entries) => {
+			if (entries[0].isIntersecting && hasMoreVariant && !loadingVariant) {
+			  setPageSearchVariant((prev) => prev + 1);
+			}
+		  },
+		  { threshold: 0.5 }
 		);
-
-		observer.observe(observerProductRef.current);
-
-		return () => observer.disconnect();
-	}, [hasMoreVariant, loadingVariant]);
+	
+			const lastChildOfList = observerProductRef.current.querySelector(".purchase-order-search-product-item:last-child");
+			if (lastChildOfList) {
+				console.log("Observing last child of supplier list: ", lastChildOfList);
+				observer.observe(lastChildOfList);
+			}
+			return () => observer.disconnect();
+	  }, [hasMoreVariant, loadingVariant]);
 
 	useEffect(() => {
 		if (!isOpenSearchSupplier) return;
@@ -589,7 +592,7 @@ const PurchaseOrderCreate: React.FC = () => {
 									className="input-search-product"
 								/>
 								{isOpenSearchVariant && (
-									<div className="purchase-order-dropdown">
+									<div className="purchase-order-dropdown" ref={observerProductRef}>
 										{/* <div className="purchase-order-btn-quickly_add_product">
                                             <Button
                                                 label="Thêm nhanh sản phẩm"
@@ -614,20 +617,9 @@ const PurchaseOrderCreate: React.FC = () => {
 													stock={p.stock}
 													quantityPurchase={1}
 													onClick={(id) => handleProductSelect(Number(id))}
+													className="purchase-order-search-product-item"
 												/>
 											))}
-
-											<div
-												ref={observerProductRef}
-												style={{
-													height: "10px",
-													marginTop: "10px",
-													textAlign: "center",
-													paddingTop: "10px",
-												}}
-											>
-												{loadingVariant ? "" : hasMoreVariant ? "Cuộn để tải thêm" : ""}
-											</div>
 										</div>
 									</div>
 								)}

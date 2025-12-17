@@ -13,9 +13,9 @@ import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import type { VariantResponse } from "../../../types/IProduct";
 import type { GoodsReceiptItemResponse, GoodsReceiptResponse } from "../../../types/IGoodsReceipt";
 import { RECEIPT_STATUSES, TRANSACTION_STATUSES } from "../../../constants/status.constant";
-import { getAllProductVariants } from "../../../apis/productVariantApi";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
+import { getProductVariants } from "../../../apis/productApi";
 interface GoodsReceiptListState {
 	receipts: GoodsReceiptResponse[];
 	loading: boolean;
@@ -65,7 +65,7 @@ const GoodsReceiptList: React.FC = () => {
 
 	const fetchProductVariants = async () => {
 		try {
-			const res = await getAllProductVariants(0, 999);
+			const res = await getProductVariants(0, 999, "");
 			setVariants(res.data.content || []);
 		} catch (error) {
 			console.error("Failed to load variants:", error);

@@ -31,6 +31,7 @@ export interface ProductVariantItem extends VariantResponse{
 	discountValue?: number;
 	priceAfterDiscount?: number;
 	onClick?: (id: string) => void;
+	className?: string;
 }
 
 export interface ProductSelectProps {
@@ -50,7 +51,7 @@ export interface ProductResponse {
   option1name: string;
   option2name: string;
   option3name: string;
-  variants: ProductVariantResponse[];
+  variants: VariantResponse[];
   variantCount: number;
   thumbnail: string;
   quantity: number;
