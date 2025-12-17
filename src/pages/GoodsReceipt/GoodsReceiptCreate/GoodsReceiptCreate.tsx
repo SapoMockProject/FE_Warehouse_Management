@@ -71,7 +71,7 @@ const GoodsReceiptCreate: React.FC = () => {
     ProductVariantItem[]
   >([]);
   const [pageSearchVariant, setPageSearchVariant] = useState<number>(0);
-  const [hasMoreProduct, setHasMoreVariant] = useState(true);
+  const [hasMoreVariant, setHasMoreVariant] = useState(true);
   const [loadingVariant, setLoadingVariant] = useState(false);
   const dropdownProductRef = useRef<HTMLDivElement>(null);
   const observerProductRef = useRef<HTMLDivElement | null>(null);
@@ -346,17 +346,20 @@ const GoodsReceiptCreate: React.FC = () => {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMoreProduct && !loadingVariant) {
+        if (entries[0].isIntersecting && hasMoreVariant && !loadingVariant) {
           setPageSearchVariant((prev) => prev + 1);
         }
       },
-      { threshold: 1 }
+      { threshold: 0.5 }
     );
 
-    observer.observe(observerProductRef.current);
-
-    return () => observer.disconnect();
-  }, [hasMoreProduct, loadingVariant]);
+		const lastChildOfList = observerProductRef.current.querySelector(".purchase-order-search-product-item:last-child");
+		if (lastChildOfList) {
+			console.log("Observing last child of supplier list: ", lastChildOfList);
+			observer.observe(lastChildOfList);
+		}
+		return () => observer.disconnect();
+  }, [hasMoreVariant, loadingVariant]);
 
   useEffect(() => {
     if (!isOpenSearchSupplier) return;
@@ -381,18 +384,21 @@ const GoodsReceiptCreate: React.FC = () => {
 
   useEffect(() => {
     if (!observerSupplierRef.current) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
+        console.log("Length", entries.length);
+        console.log("Observing supplier scroll: ", entries[0], "isVisible:", entries[0].isIntersecting);
         if (entries[0].isIntersecting && hasMoreSupplier && !loadingSupplier) {
           setPageSearchSupplier((prev) => prev + 1);
         }
       },
-      { threshold: 1 }
+      { threshold: 0.5 }
     );
-
-    observer.observe(observerSupplierRef.current);
-
+    const lastChildOfList = observerSupplierRef.current.querySelector(".purchase-order-supplier-dropdown-item:last-child");
+    if (lastChildOfList) {
+      console.log("Observing last child of supplier list: ", lastChildOfList);
+      observer.observe(lastChildOfList);
+    }
     return () => observer.disconnect();
   }, [hasMoreSupplier, loadingSupplier]);
 
@@ -533,14 +539,14 @@ const GoodsReceiptCreate: React.FC = () => {
       prev.map((p) =>
         p.id === selectedVariantFixPrice?.id
           ? {
-              ...p,
-              ...{
-                price: data.price,
-                discountType: data.discountType,
-                discountValue: data.discountValue || 0,
-                priceAfterDiscount: data.priceAfterDiscount,
-              },
-            }
+            ...p,
+            ...{
+              price: data.price,
+              discountType: data.discountType,
+              discountValue: data.discountValue || 0,
+              priceAfterDiscount: data.priceAfterDiscount,
+            },
+          }
           : p
       )
     );
@@ -622,9 +628,9 @@ const GoodsReceiptCreate: React.FC = () => {
       ...prev,
       transactionInfo: prev.transactionInfo
         ? {
-            ...prev.transactionInfo,
-            [field]: value,
-          }
+          ...prev.transactionInfo,
+          [field]: value,
+        }
         : null,
     }));
   };
@@ -765,7 +771,7 @@ const GoodsReceiptCreate: React.FC = () => {
                   className="input-search-product"
                 />
                 {isOpenSearchVariant && (
-                  <div className="purchase-order-dropdown">
+                  <div className="purchase-order-dropdown" ref={observerProductRef}>
                     <div className="purchase-order-dropdown-item">
                       {searchProductVariants.map((p) => (
                         <ProductItemSearch
@@ -781,24 +787,9 @@ const GoodsReceiptCreate: React.FC = () => {
                           stock={p.stock}
                           quantityPurchase={1}
                           onClick={(id) => handleSelectVariant(Number(id))}
+                          className="purchase-order-search-product-item"
                         />
                       ))}
-
-                      <div
-                        ref={observerProductRef}
-                        style={{
-                          height: "10px",
-                          marginTop: "10px",
-                          textAlign: "center",
-                          paddingTop: "10px",
-                        }}
-                      >
-                        {loadingVariant
-                          ? ""
-                          : hasMoreProduct
-                          ? "Cuộn để tải thêm"
-                          : ""}
-                      </div>
                     </div>
                   </div>
                 )}
@@ -848,7 +839,7 @@ const GoodsReceiptCreate: React.FC = () => {
                           <div className="purchase-order-product-info">
                             <div className="purchase-order-product-image-placeholder">
                               {item.imageUrl ? (
-                                <img src={item.imageUrl} alt={item.imageUrl} />
+                                <img src={item.imageUrl}/>
                               ) : (
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"
@@ -1231,7 +1222,7 @@ const GoodsReceiptCreate: React.FC = () => {
                         className={
                           goodsReceiptRequest.totalPrice -
                             (goodsReceiptRequest.transactionInfo?.amount || 0) >
-                          0
+                            0
                             ? "text-warning"
                             : "text-success"
                         }
@@ -1248,28 +1239,28 @@ const GoodsReceiptCreate: React.FC = () => {
                   {goodsReceiptRequest.totalPrice -
                     (goodsReceiptRequest.transactionInfo?.amount || 0) >
                     0 && (
-                    <div className="payment-partial-notice">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="#1890ff"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="16" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12.01" y2="8" />
-                      </svg>
-                      <span>
-                        Thanh toán một phần. Số tiền còn lại sẽ được ghi nhận là
-                        công nợ.
-                      </span>
-                    </div>
-                  )}
+                      <div className="payment-partial-notice">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="#1890ff"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="16" x2="12" y2="12" />
+                          <line x1="12" y1="8" x2="12.01" y2="8" />
+                        </svg>
+                        <span>
+                          Thanh toán một phần. Số tiền còn lại sẽ được ghi nhận là
+                          công nợ.
+                        </span>
+                      </div>
+                    )}
                 </div>
               )}
             </div>
@@ -1318,7 +1309,7 @@ const GoodsReceiptCreate: React.FC = () => {
                   />
 
                   {isOpenSearchSupplier && (
-                    <div className="purchase-order-dropdown">
+                    <div className="purchase-order-dropdown" ref={observerSupplierRef}>
                       <div className="purchase-order-dropdown-item">
                         {suppliers.map((s) => (
                           <SupplierItem
@@ -1330,19 +1321,9 @@ const GoodsReceiptCreate: React.FC = () => {
                             address={s.address || ""}
                             email={s.email || ""}
                             onClick={() => handleSelectSupplier(s)}
+                            className="purchase-order-supplier-dropdown-item"
                           />
                         ))}
-                      </div>
-
-                      <div
-                        ref={observerSupplierRef}
-                        style={{ textAlign: "center", padding: "10px" }}
-                      >
-                        {loadingSupplier
-                          ? "Đang tải..."
-                          : hasMoreSupplier
-                          ? "Cuộn để tải thêm"
-                          : ""}
                       </div>
                     </div>
                   )}
@@ -1365,9 +1346,9 @@ const GoodsReceiptCreate: React.FC = () => {
                   onClear={
                     !purchaseOrderData
                       ? () => {
-                          handleChangeGoodsReceiptField("supplierId", null);
-                          setSelectSupplier(undefined);
-                        }
+                        handleChangeGoodsReceiptField("supplierId", null);
+                        setSelectSupplier(undefined);
+                      }
                       : undefined
                   }
                 />

@@ -13,11 +13,11 @@ import type { VariantResponse } from "../../../types/IProduct";
 import type { PurchaseOrderResponse } from "../../../types/IPurchaseOrder";
 import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import "./PurchaseOrderList.css";
-import { getAllProductVariants } from "../../../apis/productVariantApi";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
 import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
 import { Role } from "../../../types/IUser.d";
+import { getProductVariants } from "../../../apis/productApi";
 
 interface PurchaseOrderListState {
 	orders: PurchaseOrderResponse[];
@@ -73,7 +73,7 @@ export default function PurchaseOrderRequest() {
 
 	const fetchProductVariants = async () => {
 		try {
-			const res = await getAllProductVariants(0, 999);
+			const res = await getProductVariants(0, 999);
 			setVariants(res.data.content || []);
 		} catch (error) {
 			console.error("Failed to load variants:", error);
