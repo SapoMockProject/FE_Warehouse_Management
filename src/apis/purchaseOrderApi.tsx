@@ -1,5 +1,6 @@
 import { axiosConfiguration } from "../configurations/AxiosConfiguration";
 import type { BaseResponse } from "../types/BaseResponse";
+import type { HistoryPurchaseOrder } from "../types/HistoryPurchaseOrder";
 import type { PurchaseOrderItemResponse, PurchaseOrderRequest, PurchaseOrderResponse } from "../types/IPurchaseOrder";
 import type { PagedModel } from "../types/PagedModel";
 
@@ -69,6 +70,17 @@ export const updatePurchaseOrderStatus = async (id: number, status: string) => {
 export const updatePurchaseOrder = async (id: number, data: PurchaseOrderRequest) => {
     const res = await axiosConfiguration.put<BaseResponse<PurchaseOrderItemResponse>>(`/purchase-orders/${id}`,
         data,
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+        }
+    );
+    return res.data;
+};
+
+export const getHisoriesByCode = async (code: string) => {
+    const res = await axiosConfiguration.get<BaseResponse<HistoryPurchaseOrder[]>>(`/purchase-orders/${code}/histories`,
         {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token") || ""}`,

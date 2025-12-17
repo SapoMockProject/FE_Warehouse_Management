@@ -3,17 +3,22 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./PurchaseOrderDetail.css"
 import "../PurchaseOrderCreate/PurchaseOrderCreate.css";
 import Button from "../../../components/Button/Button";
-import { getPurchaseOrderById, updatePurchaseOrderStatus } from "../../../apis/purchaseOrderApi";
+import { getHisoriesByCode, getPurchaseOrderById, updatePurchaseOrderStatus } from "../../../apis/purchaseOrderApi";
 import type { PurchaseOrderItemResponse, PurchaseOrderResponse } from "../../../types/IPurchaseOrder";
 import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import { PURCHASE_ORDER_STATUSES } from "../../../constants/status.constant";
 import SupplierInfoCard from "../../../components/Supplier/SupplierCard/SupplierCard";
+import type { HistoryPurchaseOrder } from "../../../types/HistoryPurchaseOrder";
+import { PurchaseOrderHistory } from "./HistoryPurchaseOrder/HistoryPurchaseOrder";
+import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
+import { toast } from "react-toastify";
 
 const PurchaseOrderDetail: React.FC = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
 
     const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrderResponse | null>(null);
+    const [histories, setHistories] = useState<HistoryPurchaseOrder[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -22,15 +27,48 @@ const PurchaseOrderDetail: React.FC = () => {
         }
     }, [id]);
 
+    useEffect(() => {
+        if (purchaseOrder?.purchaseOrderCode) {
+            fetchHistories(purchaseOrder.purchaseOrderCode);
+        }
+    }, [purchaseOrder]);
+
     const fetchPurchaseOrderDetail = async () => {
         try {
             // setLoading(true);
             const response = await getPurchaseOrderById(Number(id));
             setPurchaseOrder(response.data);
-        } catch (error) {
-            console.error("Lỗi khi tải chi tiết đơn đặt hàng:", error);
+        } catch (error: any) {
+            const errorCode = error?.response?.data?.data;
+            const backendMessage = error?.response?.data?.message;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+            } else if (backendMessage) {
+                toast.error(backendMessage);
+            } else {
+                toast.error("Có lỗi xảy ra, vui lòng thử lại");
+            }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchHistories = async (code: string) => {
+        try {
+            const response = await getHisoriesByCode(code);
+            setHistories(response.data);
+        } catch (error: any) {
+            const errorCode = error?.response?.data?.data;
+            const backendMessage = error?.response?.data?.message;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+            } else if (backendMessage) {
+                toast.error(backendMessage);
+            } else {
+                toast.error("Có lỗi xảy ra, vui lòng thử lại");
+            }
         }
     };
 
@@ -308,6 +346,11 @@ const PurchaseOrderDetail: React.FC = () => {
                                 </span>
                             </div>
                         </div>
+                    </div>
+
+                    <div className="purchase-order-section">
+                        <PurchaseOrderHistory histories={histories} />
+
                     </div>
                 </div>
 

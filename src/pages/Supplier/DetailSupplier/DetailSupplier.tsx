@@ -1,28 +1,29 @@
 import React from "react";
 import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
+import { getAllGoodsReceipts } from "../../../apis/goodsReceiptApi";
 import { deleteSupplier, getSupplierById } from "../../../apis/supplierApi";
+import Button from "../../../components/Button/Button";
 import DateField from "../../../components/DateField/DateField";
-import type { BaseResponse } from "../../../types/BaseResponse";
 import type { DateRange } from "../../../types/DateFieldProps";
+import type { GoodsReceiptResponse } from "../../../types/IGoodsReceipt";
 import type { ISupplierResponse } from "../../../types/ISupplier";
 import { getSupplierStatusText, getSupplierStatusVariant } from "../../../utils/Supplier.util";
 import TagComponent from "../Tag/TagComponent";
 import UpdateSupplier from "../UpdateSupplier/UpdateSupplier";
 import "./DetailSupplier.css";
-import Button from "../../../components/Button/Button";
-import Pagination from "../../../components/Pagination/Pagination";
 
 export default function DetailSupplier() {
 	const { id } = useParams<{ id: string }>();
 	const [supplier, setSupplier] = React.useState<ISupplierResponse | null>(null);
+	const [goodsReceipts, setGoodsReceipts] = React.useState<GoodsReceiptResponse[]>([]);
 	const [filter, setFilter] = React.useState<DateRange>({ start: "", end: "", preset: "" });
 	React.useEffect(() => {
-		const fetchSupplierDetail = async () => {
-			const data: BaseResponse<ISupplierResponse> = await getSupplierById(id as string);
-			setSupplier(data.data);
-		};
-		fetchSupplierDetail();
-	}, [id]);
+		Promise.all([getSupplierById(Number(id)), getAllGoodsReceipts(0, 10, id, undefined, undefined, filter.start, filter.end)])
+		.then(([supplierRes, goodsReceiptRes]) => {
+			setSupplier(supplierRes.data);
+			setGoodsReceipts(goodsReceiptRes.data.content);
+		});
+	}, [id, filter]);
 	const handleDeleteSupplier = async (supplierId: number) => {
 		try {
 			await deleteSupplier(supplierId);
@@ -87,16 +88,16 @@ export default function DetailSupplier() {
 							</div>
 							<div className="supplier_detail_card supplier_detail_history_container">
 								<span className="supplier_detail_history_header_title">Lịch sử nhập trả hàng</span>
-								{[...Array(10)].map((_, index) => (
+								{goodsReceipts.map((goodsReceipt, index) => (
 									<div key={index}>
 										<div className="supplier_detail_history_item_wrapper">
 											<div className="supplier_detail_history_item_left_wrapper">
 												<img src="/blue-shopping-cart-10910.png" />
 												<div className="supplier_detail_history_item_left_info">
 													<span style={{ fontSize: "1rem", fontWeight: 450 }}>
-														Đơn nhập <Link to={"/"}>REI00006</Link>
+														Đơn nhập <Link to={"/"}>{goodsReceipt.goodsReceiptCode}</Link>
 													</span>
-													<span style={{ fontSize: "1rem", fontWeight: 450 }}>06/09/2023 10:42</span>
+													<span style={{ fontSize: "1rem", fontWeight: 450 }}>{goodsReceipt.createdDate}</span>
 												</div>
 											</div>
 											<div className="supplier_detail_history_item_right_wrapper">
@@ -109,17 +110,6 @@ export default function DetailSupplier() {
 										</div>
 									</div>
 								))}
-								<Pagination
-									onSizeChange={(limit) => console.log(limit)}
-									onPageChange={(page) => console.log(page)}
-									page={0}
-									size={5}
-									sortOrder="asc"
-									totalPages={5}
-									onSortChange={function (sortOrder: "asc" | "desc"): void {
-										console.log(sortOrder);
-									}}
-								/>
 							</div>
 						</div>
 						<div>

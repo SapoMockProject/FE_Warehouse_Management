@@ -22,6 +22,8 @@ import "./PurchaseOrderCreate.css";
 import { toast } from "react-toastify";
 import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
+import type { AxiosError } from "axios";
+import type { BaseResponse } from "../../../types/BaseResponse";
 
 const PurchaseOrderCreate: React.FC = () => {
 	const navigate = useNavigate();
@@ -512,14 +514,14 @@ const PurchaseOrderCreate: React.FC = () => {
 			} else purchaseOrderRequest.expectedReceiptDate = new Date(purchaseOrderRequest.expectedReceiptDate).toISOString();
 		}
 
-		const accountId = purchaseOrderRequest.assignedToAccountId ? purchaseOrderRequest.assignedToAccountId : user.user.id
+		const accountId = purchaseOrderRequest.assignedToAccountId ? purchaseOrderRequest.assignedToAccountId : user?.user.id
 
 		setError(error);
 		if (Object.keys(error).length > 0) return;
 
 		const bodyRequest: PurchaseOrderRequest = {
 			...purchaseOrderRequest,
-			assignedToAccountId: accountId,
+			assignedToAccountId: accountId || null,
 			status
 		};
 
@@ -528,9 +530,9 @@ const PurchaseOrderCreate: React.FC = () => {
 			toast.success("Tạo đơn đặt hàng thành công");
 			navigate(`/purchase-orders/${response.data.id}`);
 
-		} catch (err: any) {
-			const errorCode = err?.response?.data?.data;
-			const backendMessage = err?.response?.data?.message;
+		} catch (err) {
+			const errorCode = ((err as AxiosError)?.response?.data as BaseResponse<number>)?.data;
+			const backendMessage = ((err as AxiosError)?.response?.data as BaseResponse<number>)?.message;
 			
 			if (typeof errorCode === "number") {
 				toast.error(getErrorMessage(errorCode));
@@ -669,7 +671,7 @@ const PurchaseOrderCreate: React.FC = () => {
 													<div className="purchase-order-product-info">
 														<div className="purchase-order-product-image-placeholder">
 															{item.imageUrl ? (
-																<img src={item.imageUrl} alt={item.imageUrl} />
+																<img src={item.imageUrl}/>
 															) : (
 																<svg
 																	xmlns="http://www.w3.org/2000/svg"
