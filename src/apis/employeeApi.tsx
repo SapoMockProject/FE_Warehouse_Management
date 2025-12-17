@@ -3,7 +3,7 @@ import type { BaseResponse } from "../types/BaseResponse";
 import type { IUserCreateRequest, IUserResponse, IUserUpdateRequest } from "../types/IUser";
 import type { PagedModel } from "../types/PagedModel";
 
-export const getAllEmployees = async (page: number, limit: number, query: string) => {
+export const getAllEmployees = async (page: number, limit: number, query: string, sortDirection: "asc" | "desc") => {
 	const res = await axiosConfiguration.get<BaseResponse<PagedModel<IUserResponse>>>("/users", {
 		headers: {
 			Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
@@ -12,6 +12,7 @@ export const getAllEmployees = async (page: number, limit: number, query: string
 			page,
 			limit,
 			query,
+			sortDirection: sortDirection.toUpperCase()
 		},
 	});
 	return res.data;

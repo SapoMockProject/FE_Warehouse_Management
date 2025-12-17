@@ -21,7 +21,7 @@ export default function EmployeeList() {
 	const navigate = useNavigate();
 	React.useEffect(() => {
 		const fetchEmployees = async () => {
-			const data = await getAllEmployees(page, limit, query);
+			const data = await getAllEmployees(page, limit, query, sortOrder);
 			setEmployees(data.data.content);
 			setPage(data.data.page.number);
 			setTotalPages(data.data.page.totalPages);

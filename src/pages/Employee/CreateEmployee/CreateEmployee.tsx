@@ -1,12 +1,13 @@
 import React from "react";
+import { toast } from "react-toastify";
 import { createEmployee } from "../../../apis/employeeApi";
 import Button from "../../../components/Button/Button";
-import Input from "../../../components/Input/Input";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
 import useModalComponent from "../../../hooks/Modal/useModalComponent";
 import { Role, type IUserCreateRequest } from "../../../types/IUser.d";
 import { handleGetRoleOptions } from "../../../utils/Employee.util";
+import InputEmployeeInfo from "../Input/InputEmployeeInfo";
 import "./CreateEmployee.css";
 
 export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => void }) {
@@ -29,6 +30,7 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 		await createEmployee(employeeData);
 		closeModal();
         realoadFunc();
+		toast.success("Tạo nhân viên thành công");
 	};
 	return (
 		<>
@@ -36,14 +38,14 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 			<ModalComponent>
 					<form className="create-employee-form">
 						<div className="create-employee-row">
-							<Input
+							<InputEmployeeInfo
 								type="text"
 								value={employeeData.fullName}
 								required
 								label="Full Name:"
 								onChange={(value) => handleInputChange("fullName", value as string)}
 							/>
-							<Input
+							<InputEmployeeInfo
 								type="text"
 								value={employeeData.username}
 								required
@@ -52,14 +54,14 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 							/>
 						</div>
 						<div className="create-employee-row">
-							<Input
+							<InputEmployeeInfo
 								type="text"
 								value={employeeData.email}
 								required
 								label="Email:"
 								onChange={(value) => handleInputChange("email", value as string)}
 							/>
-							<Input
+							<InputEmployeeInfo
 								type="text"
 								value={employeeData.phoneNumber}
 								required
@@ -71,7 +73,8 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 							value={employeeData.role}
 							placeholder="Role:"
 							onChange={(value) => handleInputChange("role", value as Role)}
-							multiple={true}
+							multiple={false}
+							showSelectedInTrigger
 						>
 							{handleGetRoleOptions().map((option) => (
 								<SelectOption
