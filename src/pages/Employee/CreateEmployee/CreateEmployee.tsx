@@ -1,13 +1,13 @@
 import React from "react";
+import { createEmployee } from "../../../apis/employeeApi";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
-import { axiosConfiguration } from "../../../configurations/AxiosConfiguration";
-import { Role, type IUserCreateRequest } from "../../../types/IUser.d";
-import useModalComponent from "../../../hooks/Modal/useModalComponent";
-import "./CreateEmployee.css";
-import { handleGetRoleOptions } from "../../../utils/Employee.util";
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
+import useModalComponent from "../../../hooks/Modal/useModalComponent";
+import { Role, type IUserCreateRequest } from "../../../types/IUser.d";
+import { handleGetRoleOptions } from "../../../utils/Employee.util";
+import "./CreateEmployee.css";
 
 export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => void }) {
 	const [employeeData, setEmployeeData] = React.useState<IUserCreateRequest>({
@@ -26,11 +26,7 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 	}
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
-		await axiosConfiguration.post("/users", employeeData, {
-			headers: {
-				Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
-			},
-		});
+		await createEmployee(employeeData);
 		closeModal();
         realoadFunc();
 	};

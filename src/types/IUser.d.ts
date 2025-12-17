@@ -20,6 +20,14 @@ export interface AuthenticationResponse {
 	token: string;
 }
 
+export interface IUserUpdateRequest {
+	fullName: string;
+	phoneNumber: string;
+	email: string;
+	username: string;
+	role: Role;
+}
+
 export enum Role {
 	ADMIN_SYSTEM = "ADMIN_SYSTEM",
 	STORE_KEEPER = "STORE_KEEPER",

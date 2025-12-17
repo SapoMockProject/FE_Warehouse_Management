@@ -1,8 +1,8 @@
-.employee-detail-container {
+.account-detail-container {
     width: 100%;
 }
 
-.employee-detail-title {
+.account-detail-title {
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 20px;
@@ -10,7 +10,7 @@
     text-align: center;
 }
 
-.employee-detail-wrapper {
+.account-detail-wrapper {
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -20,7 +20,7 @@
     background-color: white;
     padding: 50px;
 }
-.employee-detail-avatar-wrapper {
+.account-detail-avatar-wrapper {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -28,11 +28,11 @@
     gap: 20px;
 }
 
-.employee-detail-image-input {
+.account-detail-image-input {
     display: none;
 }
 
-.employee-detail-avatar-wrapper img {
+.account-detail-avatar-wrapper img {
     width: 150px;
     height: 150px;
     border-radius: 50%;
@@ -40,21 +40,21 @@
     cursor: pointer;
 }
 
-.employee-detail-info-wrapper {
+.account-detail-info-wrapper {
     flex: 2;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-.employee-detail-input-wrapper {
+.account-detail-input-wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 40px;
 }
 
-.employee-detail-button {
+.account-detail-button {
     background-color: blue;
     color: white;
     width: 200px;
@@ -64,16 +64,7 @@
     justify-content: center;
 }
 
-.employee-detail-button:hover {
+.account-detail-button:hover {
     cursor: pointer;
     color: blue;
-}
-
-.employee-detail-footer {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 20px;
-    margin-top: 30px;
-    width: 80%;
 }

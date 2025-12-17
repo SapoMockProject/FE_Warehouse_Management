@@ -1,6 +1,6 @@
 import { axiosConfiguration } from "../configurations/AxiosConfiguration";
 import type { BaseResponse } from "../types/BaseResponse";
-import type { IUserCreateRequest, IUserResponse } from "../types/IUser";
+import type { IUserCreateRequest, IUserResponse, IUserUpdateRequest } from "../types/IUser";
 import type { PagedModel } from "../types/PagedModel";
 
 export const getAllEmployees = async (page: number, limit: number, query: string) => {
@@ -17,7 +17,7 @@ export const getAllEmployees = async (page: number, limit: number, query: string
 	return res.data;
 };
 
-export const updateEmployee = async (id: number, data: IUserCreateRequest) => {
+export const updateEmployee = async (id: number, data: IUserUpdateRequest) => {
 	const response = await axiosConfiguration.put(`/users/${id}`, data, {
 		headers: {
 			Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
@@ -58,4 +58,32 @@ export const deleteEmployee = async (id: number) => {
 export const verifyAccount = async (token: string) => {
 	const response = await axiosConfiguration.post("/auth/verify-account", { token });
 	return response.data;
+};
+
+export const getUserById = async (id: number) => {
+	const res = await axiosConfiguration.get<BaseResponse<IUserResponse>>(`/users/${id}`, {
+		headers: {
+			Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+		},
+	});
+	return res.data;
+};
+
+export const uploadAvatarForUser = async (formData: FormData, userId: number) => {
+	const token = localStorage.getItem("token") || "";
+	const response = await axiosConfiguration.patch(`/users/avatar/${userId}`, formData, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+			"Content-Type": "multipart/form-data",
+		},
+	});
+	return response.data;
+};
+
+export const createEmployee = async (employeeData: IUserCreateRequest) => {
+	await axiosConfiguration.post("/users", employeeData, {
+		headers: {
+			Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+		},
+	});
 };
