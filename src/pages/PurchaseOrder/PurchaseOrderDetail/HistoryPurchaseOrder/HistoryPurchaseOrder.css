@@ -1,0 +1,69 @@
+.po-history-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: rgb(31, 41, 55);
+}
+
+.po-history-date-group::before {
+    content: attr(data-date);
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgb(107, 114, 128);
+    margin-bottom: 8px;
+}
+
+.po-history-item {
+    display: flex;
+    gap: 12px;
+    position: relative;
+    padding-bottom: 20px;
+    margin-top: 10px;
+}
+
+.po-history-timeline-marker {
+    position: relative;
+    width: 16px;
+    flex-shrink: 0;
+}
+
+.po-history-dot {
+    width: 10px;
+    height: 10px;
+    background: rgb(18, 155, 247);
+    border-radius: 50%;
+    margin: 4px auto 0;
+    position: relative;
+    z-index: 2;
+}
+
+.po-history-line {
+    position: absolute;
+    top: 20px;              
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 100%;
+    background: rgb(66, 186, 255);
+}
+
+.po-history-content {
+    display: flex;
+    gap: 25px;
+}
+
+
+.po-history-action {
+    color: rgb(55, 65, 81);
+}
+
+.po-history-action a{
+    color: rgb(57, 143, 255);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.po-history-link a:action {
+    text-decoration: underline;
+}

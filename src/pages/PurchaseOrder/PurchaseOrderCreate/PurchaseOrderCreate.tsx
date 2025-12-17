@@ -671,7 +671,7 @@ const PurchaseOrderCreate: React.FC = () => {
 													<div className="purchase-order-product-info">
 														<div className="purchase-order-product-image-placeholder">
 															{item.imageUrl ? (
-																<img src={item.imageUrl} alt={item.imageUrl} />
+																<img src={item.imageUrl}/>
 															) : (
 																<svg
 																	xmlns="http://www.w3.org/2000/svg"
