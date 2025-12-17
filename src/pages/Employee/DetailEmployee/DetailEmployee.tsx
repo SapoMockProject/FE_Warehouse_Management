@@ -22,6 +22,7 @@ export default function DetailEmployee() {
 		phoneNumber: "",
 		role: Role.WAREHOUSE_STAFF,
 		avatar: "",
+		isDeleted: false,
 	});
 	const imageInputRef = React.useRef<HTMLInputElement>(null);
 	const handleInputChange = (field: keyof IUserResponse, value: string | number) => {
@@ -37,7 +38,7 @@ export default function DetailEmployee() {
 		await deleteEmployee(Number(id));
 		toast.success("Xoá nhân viên thành công");
 		navigate(-1);
-	}
+	};
 	React.useEffect(() => {
 		const fetchUser = async () => {
 			const user = await getUserById(Number(id));
@@ -135,7 +136,7 @@ export default function DetailEmployee() {
 					</div>
 				</div>
 				<div className="employee-detail-footer">
-					<Button variant="danger" label="Xoá" size="lg" onClick={handleDeleteUser} />
+					{!employeeInfo.isDeleted && <Button variant="danger" label="Xoá" size="lg" onClick={handleDeleteUser} />}
 					<Button variant="secondary" label="Huỷ" size="lg" onClick={() => navigate(-1)} />
 				</div>
 			</div>

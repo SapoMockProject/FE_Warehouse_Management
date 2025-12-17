@@ -6,6 +6,7 @@ export interface IUserResponse {
 	email: string;
 	role: Role;
 	avatar: string;
+	isDeleted: boolean;
 }
 
 export interface IUserCreateRequest {
