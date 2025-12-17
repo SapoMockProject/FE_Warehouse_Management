@@ -28,8 +28,8 @@ const PurchaseOrderDetail: React.FC = () => {
     }, [id]);
 
     useEffect(() => {
-        if (purchaseOrder?.purchaseOrderCode) {
-            fetchHistories(purchaseOrder.purchaseOrderCode);
+        if (purchaseOrder?.id) {
+            fetchHistories(purchaseOrder.id);
         }
     }, [purchaseOrder]);
 
@@ -54,9 +54,9 @@ const PurchaseOrderDetail: React.FC = () => {
         }
     };
 
-    const fetchHistories = async (code: string) => {
+    const fetchHistories = async (id: number) => {
         try {
-            const response = await getHisoriesByCode(code);
+            const response = await getHisoriesByCode(id);
             setHistories(response.data);
         } catch (error: any) {
             const errorCode = error?.response?.data?.data;
@@ -348,10 +348,13 @@ const PurchaseOrderDetail: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="purchase-order-section">
-                        <PurchaseOrderHistory histories={histories} />
+                    {histories.length > 0 && (
+                        <div className="purchase-order-section">
+                            <PurchaseOrderHistory histories={histories} />
 
-                    </div>
+                        </div>
+                    )}
+
                 </div>
 
                 <div className="purchase-order-right-panel">

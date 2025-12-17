@@ -9,18 +9,23 @@ import Input from "../../../components/Input/Input";
 import SupplierInfoCard from "../../../components/Supplier/SupplierCard/SupplierCard";
 import { ValidationMessage } from "../../../components/ValidationMessage/ValidationMessage";
 import { formatDateTime } from "../../../utils/DateFilterOptions.util";
-import { getGoodsReceiptById, payBillGoodsReceipt, receiveGoods } from "../../../apis/goodsReceiptApi";
+import { getGoodsReceiptById, getHisoriesById, payBillGoodsReceipt, receiveGoods } from "../../../apis/goodsReceiptApi";
 import { getAllPaymentMethods } from "../../../apis/paymentMethodApi";
 import type { PaymentMethod } from "../../../types/IPaymentMethod";
 import type { TransactionRequest } from "../../../types/ITransaction";
 import type { GoodsReceiptItemResponse, GoodsReceiptResponse } from "../../../types/IGoodsReceipt";
 import { TRANSACTION_STATUSES } from "../../../constants/status.constant";
+import type { HistoryGoodsReceipt } from "../../../types/HistoryGoodsReceipt";
+import { toast } from "react-toastify";
+import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
+import { PurchaseOrderHistory } from "../../PurchaseOrder/PurchaseOrderDetail/HistoryPurchaseOrder/HistoryPurchaseOrder";
 
 const GoodsReceiptDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
 
     const [goodsReceipt, setGoodsReceipt] = useState<GoodsReceiptResponse | null>(null);
+    const [histories, setHistories] = useState<HistoryGoodsReceipt[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<Record<string, string>>({});
 
@@ -41,6 +46,12 @@ const GoodsReceiptDetail: React.FC = () => {
         fetchPaymentMethods();
     }, [id]);
 
+    useEffect(() => {
+        if (goodsReceipt?.id) {
+            fetchHistories(goodsReceipt.id);
+        }
+    }, [goodsReceipt]);
+
     const fetchGoodsReceipt = async () => {
         if (!id) return;
 
@@ -49,10 +60,37 @@ const GoodsReceiptDetail: React.FC = () => {
             const response = await getGoodsReceiptById(Number(id));
             setGoodsReceipt(response.data);
             console.log("Goods Receipt Detail:", response.data);
-        } catch (err) {
-            console.error("Error fetching goods receipt:", err);
+        } catch (err: any) {
+            const errorCode = err?.response?.data?.data;
+            const backendMessage = err?.response?.data?.message;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+            } else if (backendMessage) {
+                toast.error(backendMessage);
+            } else {
+                toast.error("Có lỗi xảy ra, vui lòng thử lại");
+            }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchHistories = async (id: number) => {
+        try {
+            const response = await getHisoriesById(id);
+            setHistories(response.data);
+        } catch (error: any) {
+            const errorCode = error?.response?.data?.data;
+            const backendMessage = error?.response?.data?.message;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+            } else if (backendMessage) {
+                toast.error(backendMessage);
+            } else {
+                toast.error("Có lỗi xảy ra, vui lòng thử lại");
+            }
         }
     };
 
@@ -60,8 +98,17 @@ const GoodsReceiptDetail: React.FC = () => {
         try {
             const response = await getAllPaymentMethods(0, 99);
             setPaymentMethods(response.data.content);
-        } catch (error) {
-            console.error("Lỗi khi load phương thức thanh toán:", error);
+        } catch (error: any) {
+            const errorCode = error?.response?.data?.data;
+            const backendMessage = error?.response?.data?.message;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+            } else if (backendMessage) {
+                toast.error(backendMessage);
+            } else {
+                toast.error("Có lỗi xảy ra, vui lòng thử lại");
+            }
         }
     };
 
@@ -87,10 +134,18 @@ const GoodsReceiptDetail: React.FC = () => {
         try {
             await receiveGoods(goodsReceipt.id);
             await fetchGoodsReceipt();
-            alert("Đã nhập hàng vào kho thành công!");
-        } catch (err) {
-            console.error("Error receiving goods:", err);
-            // alert("Có lỗi xảy ra khi nhập hàng vào kho");
+            toast.success("Nhập hàng vào kho thành công!");
+        } catch (error: any) {
+            const errorCode = error?.response?.data?.data;
+            const backendMessage = error?.response?.data?.message;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+            } else if (backendMessage) {
+                toast.error(backendMessage);
+            } else {
+                toast.error("Có lỗi xảy ra, vui lòng thử lại");
+            }
         } finally {
             setProcessingReceive(false);
         }
@@ -144,7 +199,7 @@ const GoodsReceiptDetail: React.FC = () => {
 
         setProcessingPayment(true);
         try {
-            setPaymentData(prev => ({...prev, processedOn: new Date(paymentData.processedOn).toISOString()}))
+            setPaymentData(prev => ({ ...prev, processedOn: new Date(paymentData.processedOn).toISOString() }))
             await payBillGoodsReceipt(goodsReceipt.id, paymentData);
             await fetchGoodsReceipt();
             setShowPaymentForm(false);
@@ -450,35 +505,10 @@ const GoodsReceiptDetail: React.FC = () => {
                         </div>
                     )}
 
-                    {goodsReceipt.transactions && goodsReceipt.transactions.length > 0 && (
+                                        {histories.length > 0 && (
                         <div className="purchase-order-section">
-                            <div style={{ marginBottom: "16px" }}>
-                                <h3 style={{ fontSize: "14px", fontWeight: "600", marginBottom: "12px" }}>
-                                    Lịch sử thanh toán
-                                </h3>
-                                <div className="transactions-list">
-                                    {goodsReceipt.transactions.map((transaction) => (
-                                        <div key={transaction.id} className="transaction-item">
-                                            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                                                <span style={{ fontWeight: "500" }}>
-                                                    {transaction.paymentMethodName || "N/A"}
-                                                </span>
-                                                <strong style={{ color: "#52c41a" }}>
-                                                    {transaction.amount.toLocaleString("vi-VN")}đ
-                                                </strong>
-                                            </div>
-                                            <div style={{ fontSize: "12px", color: "#666" }}>
-                                                {formatDateTime(transaction.processedOn)}
-                                            </div>
-                                            {transaction.referenceCode && (
-                                                <div style={{ fontSize: "12px", color: "#999" }}>
-                                                    Mã GD: {transaction.referenceCode}
-                                                </div>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                            <PurchaseOrderHistory histories={histories} />
+
                         </div>
                     )}
                 </div>

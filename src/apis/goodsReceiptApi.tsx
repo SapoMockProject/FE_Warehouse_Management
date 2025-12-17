@@ -2,6 +2,7 @@ import { axiosConfiguration } from "../configurations/AxiosConfiguration";
 import type { BaseResponse } from "../types/BaseResponse";
 import type { GoodsReceiptRequest, GoodsReceiptResponse } from "../types/IGoodsReceipt";
 import type { TransactionRequest } from "../types/ITransaction";
+import type { HistoryGoodsReceipt } from "../types/HistoryGoodsReceipt";
 import type { PagedModel } from "../types/PagedModel";
 
 export const createGoodsReceipt = async (bodyRequest: GoodsReceiptRequest) => {
@@ -88,4 +89,15 @@ export const payBillGoodsReceipt = async (id: number, bodyRequest: TransactionRe
             }
         })
     return res.data
+};
+
+export const getHisoriesById = async (id: number) => {
+    const res = await axiosConfiguration.get<BaseResponse<HistoryGoodsReceipt[]>>(`/goods-receipts/${id}/histories`,
+        {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+            },
+        }
+    );
+    return res.data;
 };

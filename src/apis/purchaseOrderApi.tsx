@@ -79,8 +79,8 @@ export const updatePurchaseOrder = async (id: number, data: PurchaseOrderRequest
     return res.data;
 };
 
-export const getHisoriesByCode = async (code: string) => {
-    const res = await axiosConfiguration.get<BaseResponse<HistoryPurchaseOrder[]>>(`/purchase-orders/${code}/histories`,
+export const getHisoriesByCode = async (id: number) => {
+    const res = await axiosConfiguration.get<BaseResponse<HistoryPurchaseOrder[]>>(`/purchase-orders/${id}/histories`,
         {
             headers: {
                 Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
