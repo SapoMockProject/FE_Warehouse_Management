@@ -1,26 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
-import "../PurchaseOrderCreate/PurchaseOrderCreate.css";
-import type { ProductVariantItem, VariantResponse } from "../../../types/IProduct";
-import Input from "../../../components/Input/Input";
-import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
-import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import { getAllEmployees } from "../../../apis/employeeApi";
+import { getProductVariants } from "../../../apis/productApi";
+import { getPurchaseOrderById, updatePurchaseOrder } from "../../../apis/purchaseOrderApi";
+import { getAllSupliers } from "../../../apis/supplierApi";
 import Button from "../../../components/Button/Button";
 import DateField from "../../../components/DateField/DateField";
-import { useNavigate, useParams } from "react-router-dom";
-import EditPriceProductItem from "../PurchaseOrderCreate/EditPriceProductItem/EditPriceProductItem";
+import Input from "../../../components/Input/Input";
 import { ProductItemSearch } from "../../../components/ProductItemSearch/ProductItemSearch";
-import type { ISupplierResponse } from "../../../types/ISupplier";
-import SupplierItem from "../../../components/Supplier/SupplierItem/SupplierItem";
+import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
+import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
 import SupplierInfoCard from "../../../components/Supplier/SupplierCard/SupplierCard";
-import type { PurchaseOrderItemRequest, PurchaseOrderRequest } from "../../../types/IPurchaseOrder";
-import { getAllSupliers } from "../../../apis/supplierApi";
-import type { IUserResponse } from "../../../types/IUser";
-import { getAllEmployees } from "../../../apis/employeeApi";
+import SupplierItem from "../../../components/Supplier/SupplierItem/SupplierItem";
 import { ValidationMessage } from "../../../components/ValidationMessage/ValidationMessage";
-import { getPurchaseOrderById, updatePurchaseOrder } from "../../../apis/purchaseOrderApi";
-import { getAllProductVariants } from "../../../apis/productVariantApi";
-import { toast } from "react-toastify";
+import type { ProductVariantItem, VariantResponse } from "../../../types/IProduct";
+import type { PurchaseOrderItemRequest, PurchaseOrderRequest } from "../../../types/IPurchaseOrder";
+import type { ISupplierResponse } from "../../../types/ISupplier";
+import type { IUserResponse } from "../../../types/IUser";
 import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
+import EditPriceProductItem from "../PurchaseOrderCreate/EditPriceProductItem/EditPriceProductItem";
+import "../PurchaseOrderCreate/PurchaseOrderCreate.css";
 
 const PurchaseOrderEdit: React.FC = () => {
     const navigate = useNavigate();
@@ -223,7 +223,7 @@ const PurchaseOrderEdit: React.FC = () => {
         setLoadingVariant(true);
 
         try {
-            const res = await getAllProductVariants(page, 5, keyword);
+            const res = await getProductVariants(page, 5, keyword);
             const data = res.data;
 
             const productVariantList = convertToProductVariants(data.content);
@@ -279,7 +279,7 @@ const PurchaseOrderEdit: React.FC = () => {
     const fetchEmployees = async (page: number, query: string) => {
         setLoadingSupplier(true);
         try {
-            const res = await getAllEmployees(page, 999, query);
+            const res = await getAllEmployees(page, 999, query, "desc", false);
 
             const data = res.data;
 
@@ -341,14 +341,11 @@ const PurchaseOrderEdit: React.FC = () => {
     }, [inputValue]);
 
     useEffect(() => {
-        if (!isOpenSearchVariant) return;
-
         const load = async () => {
             await fetchProductVariants(pageSearchVariant, inputValue);
         };
-
         load();
-    }, [pageSearchVariant, isOpenSearchVariant]);
+    }, [pageSearchVariant,]);
 
     useEffect(() => {
         if (!observerProductRef.current) return;
@@ -361,11 +358,13 @@ const PurchaseOrderEdit: React.FC = () => {
             },
             { threshold: 1 }
         );
-
-        observer.observe(observerProductRef.current);
-
+        const lastChildOfList = observerProductRef.current.querySelector(".purchase-order-search-product-item:last-child");
+        if (lastChildOfList) {
+            console.log("Observing last child of supplier list: ", lastChildOfList);
+            observer.observe(lastChildOfList);
+        }
         return () => observer.disconnect();
-    }, [hasMoreProduct, loadingVariant]);
+    }, [hasMoreProduct, loadingVariant, isOpenSearchVariant]);
 
     useEffect(() => {
         if (!isOpenSearchSupplier) return;
@@ -379,16 +378,13 @@ const PurchaseOrderEdit: React.FC = () => {
     }, [inputSearchSupplier]);
 
     useEffect(() => {
-        if (!isOpenSearchSupplier) return;
-
         const load = async () => {
             await fetchSuppliers(pageSearchSupplier, inputSearchSupplier);
         };
-
         load();
-    }, [pageSearchSupplier, isOpenSearchSupplier]);
+    }, [pageSearchSupplier]);
 
-    useEffect(() => {
+    useEffect(() => {        
         if (!observerSupplierRef.current) return;
 
         const observer = new IntersectionObserver(
@@ -397,13 +393,16 @@ const PurchaseOrderEdit: React.FC = () => {
                     setPageSearchSupplier((prev) => prev + 1);
                 }
             },
-            { threshold: 1 }
+            { threshold: 0.5 }
         );
 
-        observer.observe(observerSupplierRef.current);
-
+        const lastChildOfList = observerSupplierRef.current.querySelector(".purchase-order-supplier-dropdown-item:last-child");
+        if (lastChildOfList) {
+            console.log("Observing last child of supplier list: ", lastChildOfList);
+            observer.observe(lastChildOfList);
+        }
         return () => observer.disconnect();
-    }, [hasMoreSupplier, loadingSupplier]);
+    }, [hasMoreSupplier, loadingSupplier, isOpenSearchSupplier]);
 
     useEffect(() => {
         fetchEmployees(0, "")
@@ -466,9 +465,9 @@ const PurchaseOrderEdit: React.FC = () => {
     const handleSearchVariant = () => {
         if (!isOpenSearchVariant) {
             setIsOpenSearchVariant((prev) => (prev ? prev : true));
-            setSearchProductVariants([]);
-            setPageSearchVariant(0);
-            setHasMoreVariant(true);
+            // setSearchProductVariants([]);
+            // setPageSearchVariant(0);
+            // setHasMoreVariant(true);
         }
     };
 
@@ -592,10 +591,10 @@ const PurchaseOrderEdit: React.FC = () => {
 
     const handleSupplierInputClick = () => {
         if (!isOpenSearchSupplier) {
-            setSuppliers([]);
             setIsOpenSearchSupplier((prev) => (prev ? prev : true));
-            setPageSearchSupplier(0);
-            setHasMoreSupplier(true);
+            // setSuppliers([]);
+            // setPageSearchSupplier(0);
+            // setHasMoreSupplier(true);
         }
     };
 
@@ -645,7 +644,7 @@ const PurchaseOrderEdit: React.FC = () => {
         } catch (err: any) {
             const errorCode = err?.response?.data?.data;
             const backendMessage = err?.response?.data?.message;
-            
+
             if (typeof errorCode === "number") {
                 toast.error(getErrorMessage(errorCode));
                 return
@@ -656,7 +655,8 @@ const PurchaseOrderEdit: React.FC = () => {
                 return
             }
 
-            toast.error("Có lỗi xảy ra, vui lòng thử lại");        }
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
+        }
     };
 
     if (loading) {
@@ -708,7 +708,7 @@ const PurchaseOrderEdit: React.FC = () => {
                                     className="input-search-product"
                                 />
                                 {isOpenSearchVariant && (
-                                    <div className="purchase-order-dropdown">
+                                    <div className="purchase-order-dropdown" ref={observerProductRef}>
                                         <div className="purchase-order-dropdown-item">
                                             {searchProductVariants.map((p) => (
                                                 <ProductItemSearch
@@ -724,24 +724,9 @@ const PurchaseOrderEdit: React.FC = () => {
                                                     stock={p.stock}
                                                     quantityPurchase={1}
                                                     onClick={(id) => handleSelectVariant(Number(id))}
+                                                    className="purchase-order-search-product-item"
                                                 />
                                             ))}
-
-                                            <div
-                                                ref={observerProductRef}
-                                                style={{
-                                                    height: "10px",
-                                                    marginTop: "10px",
-                                                    textAlign: "center",
-                                                    paddingTop: "10px",
-                                                }}
-                                            >
-                                                {loadingVariant
-                                                    ? ""
-                                                    : hasMoreProduct
-                                                        ? "Cuộn để tải thêm"
-                                                        : ""}
-                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -784,7 +769,7 @@ const PurchaseOrderEdit: React.FC = () => {
                                                 <td>
                                                     <div className="purchase-order-product-info">
                                                         <div className="purchase-order-product-image-placeholder">
-                                                            {item.imageUrl ? (<img src={item.imageUrl} alt={item.imageUrl} />)
+                                                            {item.imageUrl ? (<img src={item.imageUrl}/>)
                                                                 : (<svg
                                                                     xmlns="http://www.w3.org/2000/svg"
                                                                     width="20"
@@ -944,7 +929,7 @@ const PurchaseOrderEdit: React.FC = () => {
                                     />
 
                                     {isOpenSearchSupplier && (
-                                        <div className="purchase-order-dropdown">
+                                        <div className="purchase-order-dropdown" ref={observerSupplierRef}>
                                             <div className="purchase-order-dropdown-item">
                                                 {suppliers.map((s) => (
                                                     <SupplierItem
@@ -956,19 +941,9 @@ const PurchaseOrderEdit: React.FC = () => {
                                                         address={s.address || ""}
                                                         email={s.email || ""}
                                                         onClick={() => handleSelectSupplier(s)}
+                                                        className="purchase-order-supplier-dropdown-item"
                                                     />
                                                 ))}
-                                            </div>
-
-                                            <div
-                                                ref={observerSupplierRef}
-                                                style={{ textAlign: "center", padding: "10px" }}
-                                            >
-                                                {loadingSupplier
-                                                    ? "Đang tải..."
-                                                    : hasMoreSupplier
-                                                        ? "Cuộn để tải thêm"
-                                                        : ""}
                                             </div>
                                         </div>
                                     )}
