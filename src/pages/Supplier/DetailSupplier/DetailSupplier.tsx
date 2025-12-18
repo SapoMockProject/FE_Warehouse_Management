@@ -19,7 +19,8 @@ export default function DetailSupplier() {
 	const [goodsReceipts, setGoodsReceipts] = React.useState<GoodsReceiptResponse[]>([]);
 	const [filter, setFilter] = React.useState<DateRange>({ start: "", end: "", preset: "" });
 	React.useEffect(() => {
-		Promise.all([getSupplierById(Number(id)), getAllGoodsReceipts(0, 10, id, undefined, undefined, filter.start, filter.end)]).then(
+		Promise.all([getSupplierById(Number(id)), getAllGoodsReceipts(0, 10, id, undefined, undefined, filter.start, filter.end)])
+		.then(
 			([supplierRes, goodsReceiptRes]) => {
 				setSupplier(supplierRes.data);
 				setGoodsReceipts(goodsReceiptRes.data.content);
@@ -97,16 +98,27 @@ export default function DetailSupplier() {
 												<img src="/blue-shopping-cart-10910.png" />
 												<div className="supplier_detail_history_item_left_info">
 													<span style={{ fontSize: "1rem", fontWeight: 450 }}>
-														Đơn nhập <Link to={"/"}>{goodsReceipt.goodsReceiptCode}</Link>
+														Đơn nhập <Link to={`/goods-receipts/${goodsReceipt.id}`}>{goodsReceipt.goodsReceiptCode}</Link>
 													</span>
 													<span style={{ fontSize: "1rem", fontWeight: 450 }}>{goodsReceipt.createdDate}</span>
 												</div>
 											</div>
 											<div className="supplier_detail_history_item_right_wrapper">
-												<span className="supplier_detail_item_money">0đ</span>
+												<span className="supplier_detail_item_money">
+													{goodsReceipt.totalPrice.toLocaleString("vi-VN")}đ
+												</span>
 												<div>
-													<TagComponent style={{ marginRight: "20px" }} variant="default" message="Đã nhập" />
-													<TagComponent variant="default" message="Đã thanh toán" />
+													<TagComponent
+														style={{ marginRight: "20px" }}
+														variant={goodsReceipt.transactionStatus === "PAID" ? "success" : "warning"}
+														message={
+															goodsReceipt.transactionStatus === "PAID" ? "Đã thanh toán" : "Chưa thanh toán"
+														}
+													/>
+													<TagComponent
+														variant={goodsReceipt.receiptStatus ? "default" : "success"}
+														message={goodsReceipt.receiptStatus ? "Đang chờ" : "Đã nhập"}
+													/>
 												</div>
 											</div>
 										</div>

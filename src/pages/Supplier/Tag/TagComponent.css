@@ -1,31 +1,31 @@
 .supplier-tag {
-    padding: 4px 8px;
-    border-radius: 20px;
-    font-size: 12px;
-    cursor: pointer;
+	padding: 4px 8px;
+	border-radius: 20px;
+	font-size: 12px;
+	cursor: pointer;
 }
 
 .supplier-tag-default {
-    background-color: #e0e0e0;
-    color: #333333;
+	background-color: #e0e0e0;
+	color: #333333;
 }
 
 .supplier-tag-primary {
-    background-color: #1976d2;
-    color: #ffffff;
+	background-color: #1976d2;
+	color: #ffffff;
 }
 
 .supplier-tag-success {
-    background-color: #388e3c;
-    color: #ffffff;
+	background-color: #f6ffed;
+	color: #52c41a;
 }
 
 .supplier-tag-warning {
-    background-color: #f57c00;
-    color: #ffffff;
+	background-color: #fff1f0;
+	color: #ff4d4f;
 }
 
 .supplier-tag-danger {
-    background-color: #d32f2f;
-    color: #ffffff;
+	background-color: #e2e2e2;
+    color: #1c1c1c;
 }
