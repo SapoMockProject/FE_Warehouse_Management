@@ -16,6 +16,8 @@ import { RECEIPT_STATUSES, TRANSACTION_STATUSES } from "../../../constants/statu
 import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
 import { getProductVariants } from "../../../apis/productApi";
+import { toast } from "react-toastify";
+import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 interface GoodsReceiptListState {
 	receipts: GoodsReceiptResponse[];
 	loading: boolean;
@@ -67,8 +69,16 @@ const GoodsReceiptList: React.FC = () => {
 		try {
 			const res = await getProductVariants(0, 999, "");
 			setVariants(res.data.content || []);
-		} catch (error) {
-			console.error("Failed to load variants:", error);
+		} catch (err: any) {
+			const errorCode = err?.response?.data?.data;
+
+			if (typeof errorCode === "number") {
+				toast.error(getErrorMessage(errorCode));
+				return
+			}
+
+			toast.error("Có lỗi xảy ra, vui lòng thử lại");
+			console.error("Lỗi fetch variants:", err);
 		}
 	};
 
@@ -106,8 +116,22 @@ const GoodsReceiptList: React.FC = () => {
 			});
 
 			console.log("Fetched receipts:", data);
-		} catch (err) {
-			console.error("Error fetching receipts:", err);
+		} catch (err: any) {
+			const errorCode = err?.response?.data?.data;
+			const backendMessage = err?.response?.data?.data;
+
+			if (typeof errorCode === "number") {
+				toast.error(getErrorMessage(errorCode));
+				return
+			}
+
+			if (backendMessage) {
+				toast.error(backendMessage || "Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
+				return
+			}
+
+			toast.error("Có lỗi xảy ra, vui lòng thử lại");
+			console.error("Lỗi fetching receipts:", err);
 			updateState({
 				error: "Không thể tải danh sách phiếu nhập hàng. Vui lòng thử lại.",
 				loading: false,

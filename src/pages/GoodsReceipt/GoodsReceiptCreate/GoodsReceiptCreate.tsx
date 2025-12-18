@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import { getAllEmployees } from "../../../apis/employeeApi";
 import { createGoodsReceipt } from "../../../apis/goodsReceiptApi";
 import { getAllPaymentMethods } from "../../../apis/paymentMethodApi";
-import { getAllProductVariants } from "../../../apis/productVariantApi";
+import { getProductVariants } from "../../../apis/productApi";
 import { getAllSupliers } from "../../../apis/supplierApi";
 import Button from "../../../components/Button/Button";
 import DateField from "../../../components/DateField/DateField";
@@ -203,7 +203,7 @@ const GoodsReceiptCreate: React.FC = () => {
     setLoadingVariant(true);
 
     try {
-      const res = await getAllProductVariants(page, 5, keyword);
+      const res = await getProductVariants(page, 10, keyword);
       const data = res.data;
 
       const productVariantList = convertToProductVariants(data.content);
@@ -221,8 +221,16 @@ const GoodsReceiptCreate: React.FC = () => {
       if (page + 1 >= totalPage) {
         setHasMoreVariant(false);
       }
-    } catch (error) {
-      console.error("Error fetch products:", error);
+    } catch (err: any) {
+      const errorCode = err?.response?.data?.data;
+
+      if (typeof errorCode === "number") {
+        toast.error(getErrorMessage(errorCode));
+        return
+      }
+
+      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+      console.error("Lỗi fetch products:", err);
     }
 
     setLoadingVariant(false);
@@ -249,8 +257,16 @@ const GoodsReceiptCreate: React.FC = () => {
       if (page + 1 >= totalPage) {
         setHasMoreSupplier(false);
       }
-    } catch (error) {
-      console.error("Lỗi khi load nhà cung cấp:", error);
+    } catch (err: any) {
+      const errorCode = err?.response?.data?.data;
+
+      if (typeof errorCode === "number") {
+        toast.error(getErrorMessage(errorCode));
+        return
+      }
+
+      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+      console.error("Lỗi khi load nhà cung cấp:", err);
     } finally {
       setLoadingSupplier(false);
     }
@@ -259,7 +275,7 @@ const GoodsReceiptCreate: React.FC = () => {
   const fetchEmployees = async (page: number, query: string) => {
     setLoadingSupplier(true);
     try {
-      const res = await getAllEmployees(page, 999, query);
+      const res = await getAllEmployees(page, 999, query, "desc", false);
 
       const data = res.data;
 
@@ -271,8 +287,16 @@ const GoodsReceiptCreate: React.FC = () => {
       }
 
       setEmployees((prev) => [...prev, ...employeeList]);
-    } catch (error) {
-      console.error("Lỗi khi load nhân viên:", error);
+    } catch (err: any) {
+      const errorCode = err?.response?.data?.data;
+
+      if (typeof errorCode === "number") {
+        toast.error(getErrorMessage(errorCode));
+        return
+      }
+
+      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+      console.error("Lỗi khi load nhân viên:", err);
     } finally {
       setLoadingSupplier(false);
     }
@@ -283,8 +307,16 @@ const GoodsReceiptCreate: React.FC = () => {
     try {
       const response = await getAllPaymentMethods(0, 99);
       setPaymentMethods(response.data.content);
-    } catch (error) {
-      console.error("Lỗi khi load phương thức thanh toán:", error);
+    } catch (err: any) {
+      const errorCode = err?.response?.data?.data;
+
+      if (typeof errorCode === "number") {
+        toast.error(getErrorMessage(errorCode));
+        return
+      }
+
+      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+      console.error("Lỗi khi load phương thức thanh toán:", err);
     } finally {
       setLoadingPaymentMethods(false);
     }
@@ -332,14 +364,12 @@ const GoodsReceiptCreate: React.FC = () => {
   }, [inputValue]);
 
   useEffect(() => {
-    if (!isOpenSearchVariant) return;
-
     const load = async () => {
       await fetchProductVariants(pageSearchVariant, inputValue);
     };
 
     load();
-  }, [pageSearchVariant, isOpenSearchVariant]);
+  }, [pageSearchVariant]);
 
   useEffect(() => {
     if (!observerProductRef.current) return;
@@ -350,16 +380,16 @@ const GoodsReceiptCreate: React.FC = () => {
           setPageSearchVariant((prev) => prev + 1);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 1 }
     );
 
-		const lastChildOfList = observerProductRef.current.querySelector(".purchase-order-search-product-item:last-child");
-		if (lastChildOfList) {
-			console.log("Observing last child of supplier list: ", lastChildOfList);
-			observer.observe(lastChildOfList);
-		}
-		return () => observer.disconnect();
-  }, [hasMoreVariant, loadingVariant]);
+    const lastChildOfList = observerProductRef.current.querySelector(".purchase-order-search-product-item:last-child");
+    if (lastChildOfList) {
+      console.log("Observing last child of supplier list: ", lastChildOfList);
+      observer.observe(lastChildOfList);
+    }
+    return () => observer.disconnect();
+  }, [hasMoreVariant, loadingVariant, isOpenSearchVariant]);
 
   useEffect(() => {
     if (!isOpenSearchSupplier) return;
@@ -373,14 +403,12 @@ const GoodsReceiptCreate: React.FC = () => {
   }, [inputSearchSupplier]);
 
   useEffect(() => {
-    if (!isOpenSearchSupplier) return;
-
     const load = async () => {
       await fetchSuppliers(pageSearchSupplier, inputSearchSupplier);
     };
 
     load();
-  }, [pageSearchSupplier, isOpenSearchSupplier]);
+  }, [pageSearchSupplier]);
 
   useEffect(() => {
     if (!observerSupplierRef.current) return;
@@ -400,7 +428,7 @@ const GoodsReceiptCreate: React.FC = () => {
       observer.observe(lastChildOfList);
     }
     return () => observer.disconnect();
-  }, [hasMoreSupplier, loadingSupplier]);
+  }, [hasMoreSupplier, loadingSupplier, isOpenSearchSupplier]);
 
   useEffect(() => {
     fetchEmployees(0, "");
@@ -452,9 +480,9 @@ const GoodsReceiptCreate: React.FC = () => {
   const handleSearchVariant = () => {
     if (!isOpenSearchVariant) {
       setIsOpenSearchVariant((prev) => (prev ? prev : true));
-      setSearchProductVariants([]);
-      setPageSearchVariant(0);
-      setHasMoreVariant(true);
+      // setSearchProductVariants([]);
+      // setPageSearchVariant(0);
+      // setHasMoreVariant(true);
     }
   };
 
@@ -575,10 +603,10 @@ const GoodsReceiptCreate: React.FC = () => {
 
   const handleSupplierInputClick = () => {
     if (!isOpenSearchSupplier) {
-      setSuppliers([]);
+      // setSuppliers([]);
       setIsOpenSearchSupplier((prev) => (prev ? prev : true));
-      setPageSearchSupplier(0);
-      setHasMoreSupplier(true);
+      // setPageSearchSupplier(0);
+      // setHasMoreSupplier(true);
     }
   };
 
@@ -839,7 +867,7 @@ const GoodsReceiptCreate: React.FC = () => {
                           <div className="purchase-order-product-info">
                             <div className="purchase-order-product-image-placeholder">
                               {item.imageUrl ? (
-                                <img src={item.imageUrl}/>
+                                <img src={item.imageUrl} />
                               ) : (
                                 <svg
                                   xmlns="http://www.w3.org/2000/svg"

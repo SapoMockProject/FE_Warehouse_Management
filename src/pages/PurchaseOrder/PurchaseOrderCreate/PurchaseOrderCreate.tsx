@@ -1,7 +1,9 @@
+import type { AxiosError } from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import { getAllEmployees } from "../../../apis/employeeApi";
-import { getAllProductVariants } from "../../../apis/productVariantApi";
+import { getProductVariants } from "../../../apis/productApi";
 import { createPurchaseOrder } from "../../../apis/purchaseOrderApi";
 import { getAllSupliers } from "../../../apis/supplierApi";
 import Button from "../../../components/Button/Button";
@@ -13,17 +15,15 @@ import { SelectOption } from "../../../components/Select/SelectOption/SelectOpti
 import SupplierInfoCard from "../../../components/Supplier/SupplierCard/SupplierCard";
 import SupplierItem from "../../../components/Supplier/SupplierItem/SupplierItem";
 import { ValidationMessage } from "../../../components/ValidationMessage/ValidationMessage";
+import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
+import type { BaseResponse } from "../../../types/BaseResponse";
 import type { ProductVariantItem, VariantResponse } from "../../../types/IProduct";
 import type { PurchaseOrderItemRequest, PurchaseOrderRequest } from "../../../types/IPurchaseOrder";
 import type { ISupplierResponse } from "../../../types/ISupplier";
 import type { IUserResponse } from "../../../types/IUser";
+import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 import EditPriceProductItem from "./EditPriceProductItem/EditPriceProductItem";
 import "./PurchaseOrderCreate.css";
-import { toast } from "react-toastify";
-import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
-import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
-import type { AxiosError } from "axios";
-import type { BaseResponse } from "../../../types/BaseResponse";
 
 const PurchaseOrderCreate: React.FC = () => {
 	const navigate = useNavigate();
@@ -132,7 +132,7 @@ const PurchaseOrderCreate: React.FC = () => {
 		setLoadingVariant(true);
 
 		try {
-			const res = await getAllProductVariants(page, 5, keyword);
+			const res = await getProductVariants(page, 5, keyword);
 			const data = res.data;
 
 			const productVariantList = convertToProductVariants(data.content);
@@ -151,8 +151,16 @@ const PurchaseOrderCreate: React.FC = () => {
 			if (page + 1 >= totalPage) {
 				setHasMoreVariant(false);
 			}
-		} catch (error) {
-			console.error("Error fetch products:", error);
+		} catch (err: any) {
+			const errorCode = err?.response?.data?.data;
+
+			if (typeof errorCode === "number") {
+				toast.error(getErrorMessage(errorCode));
+				return
+			}
+
+			toast.error("Có lỗi xảy ra, vui lòng thử lại");
+			console.error("Lỗi fetch products:", err);
 		}
 
 		setLoadingVariant(false);
@@ -167,7 +175,7 @@ const PurchaseOrderCreate: React.FC = () => {
 			console.log("Supplier: ", data);
 
 			const supplierList = data.content;
-			// const totalPage = data.page.totalPages;
+			const totalPage = data.page.totalPages;
 
 			if (!supplierList || supplierList.length === 0) {
 				setHasMoreSupplier(false);
@@ -177,11 +185,19 @@ const PurchaseOrderCreate: React.FC = () => {
 
 			setSuppliers((prev) => [...prev, ...supplierList]);
 
-			// if (page + 1 >= totalPage) {
-			// 	setHasMoreSupplier(false);
-			// }
-		} catch (error) {
-			console.error("Lỗi khi load nhà cung cấp:", error);
+			if (page + 1 >= totalPage) {
+				setHasMoreSupplier(false);
+			}
+		} catch (err: any) {
+			const errorCode = err?.response?.data?.data;
+
+			if (typeof errorCode === "number") {
+				toast.error(getErrorMessage(errorCode));
+				return
+			}
+
+			toast.error("Có lỗi xảy ra, vui lòng thử lại");
+			console.error("Lỗi khi load nhà cung cấp:", err);
 		} finally {
 			setLoadingSupplier(false);
 		}
@@ -190,10 +206,10 @@ const PurchaseOrderCreate: React.FC = () => {
 	const fetchEmployees = async (query: string) => {
 		setLoadingSupplier(true);
 		try {
-			const res = await getAllEmployees(0, 999, query);
+			const res = await getAllEmployees(0, 999, query, "asc", false);
 
 			const data = res.data;
-			console.log("Supplier: ", data);
+			console.log("Employee: ", data);
 
 			const employeeList = data.content;
 
@@ -203,7 +219,15 @@ const PurchaseOrderCreate: React.FC = () => {
 			}
 
 			setEmployees((prev) => [...prev, ...employeeList]);
-		} catch (error) {
+		} catch (err: any) {
+			const errorCode = err?.response?.data?.data;
+
+			if (typeof errorCode === "number") {
+				toast.error(getErrorMessage(errorCode));
+				return
+			}
+
+			toast.error("Có lỗi xảy ra, vui lòng thử lại");
 			console.error("Lỗi khi load nhân viên:", error);
 		} finally {
 			setLoadingSupplier(false);
@@ -237,63 +261,49 @@ const PurchaseOrderCreate: React.FC = () => {
 	}, [inputSearchSupplier]);
 
 	useEffect(() => {
-		if (!isOpenSearchVariant) return;
-
 		const load = async () => {
 			await fetchProductVariants(pageSearchVariant, inputValue);
 		};
 
 		load();
-	}, [pageSearchVariant, isOpenSearchVariant]);
+	}, [pageSearchVariant]);
 
-	  useEffect(() => {
+	useEffect(() => {
 		if (!observerProductRef.current) return;
-	
+
 		const observer = new IntersectionObserver(
-		  (entries) => {
-			if (entries[0].isIntersecting && hasMoreVariant && !loadingVariant) {
-			  setPageSearchVariant((prev) => prev + 1);
-			}
-		  },
-		  { threshold: 0.5 }
+			(entries) => {
+				if (entries[0].isIntersecting && hasMoreVariant && !loadingVariant) {
+					setPageSearchVariant((prev) => prev + 1);
+				}
+			},
+			{ threshold: 0.5 }
 		);
-	
-			const lastChildOfList = observerProductRef.current.querySelector(".purchase-order-search-product-item:last-child");
-			if (lastChildOfList) {
-				console.log("Observing last child of supplier list: ", lastChildOfList);
-				observer.observe(lastChildOfList);
-			}
-			return () => observer.disconnect();
-	  }, [hasMoreVariant, loadingVariant]);
+
+		const lastChildOfList = observerProductRef.current.querySelector(".purchase-order-search-product-item:last-child");
+		if (lastChildOfList) {
+			console.log("Observing last child of supplier list: ", lastChildOfList);
+			observer.observe(lastChildOfList);
+		}
+		return () => observer.disconnect();
+	}, [hasMoreVariant, loadingVariant, isOpenSearchVariant]);
 
 	useEffect(() => {
-		if (!isOpenSearchSupplier) return;
-		const delayDebounce = setTimeout(async () => {
-			setSuppliers([]);
-			setPageSearchSupplier(0);
-			setHasMoreSupplier(true);
-			await fetchSuppliers(0, inputSearchSupplier);
-		}, 500);
-		return () => clearTimeout(delayDebounce);
-	}, [inputSearchSupplier]);
-
-	useEffect(() => {
-		if (!isOpenSearchSupplier) return;
-
 		const load = async () => {
 			await fetchSuppliers(pageSearchSupplier, inputSearchSupplier);
 		};
-
 		load();
-	}, [pageSearchSupplier, isOpenSearchSupplier]);
+	}, [pageSearchSupplier]);
 
 	useEffect(() => {
 		if (!observerSupplierRef.current) return;
+		console.log(observerSupplierRef.current);
 		const observer = new IntersectionObserver(
 			(entries) => {
 				console.log("Length", entries.length);
 				console.log("Observing supplier scroll: ", entries[0], "isVisible:", entries[0].isIntersecting);
 				if (entries[0].isIntersecting && hasMoreSupplier && !loadingSupplier) {
+					console.log("Load more suppliers...");
 					setPageSearchSupplier((prev) => prev + 1);
 				}
 			},
@@ -305,7 +315,7 @@ const PurchaseOrderCreate: React.FC = () => {
 			observer.observe(lastChildOfList);
 		}
 		return () => observer.disconnect();
-	}, [hasMoreSupplier, loadingSupplier]);
+	}, [hasMoreSupplier, loadingSupplier, isOpenSearchSupplier]);
 
 	useEffect(() => {
 		fetchEmployees("");
@@ -318,9 +328,9 @@ const PurchaseOrderCreate: React.FC = () => {
 	const handleSearchProductInputClick = () => {
 		if (!isOpenSearchVariant) {
 			setIsOpenSearchVariant((prev) => (prev ? prev : true));
-			setSearchProductVariants([]);
-			setPageSearchVariant(0);
-			setHasMoreVariant(true);
+			// setSearchProductVariants([]);
+			// setPageSearchVariant(0);
+			// setHasMoreVariant(true);
 		}
 	};
 
@@ -437,10 +447,10 @@ const PurchaseOrderCreate: React.FC = () => {
 
 	const handleSupplierInputClick = () => {
 		if (!isOpenSearchSupplier) {
-			setSuppliers([]);
+			// setSuppliers([]);
 			setIsOpenSearchSupplier((prev) => (prev ? prev : true));
-			setPageSearchSupplier(0);
-			setHasMoreSupplier(true);
+			// setPageSearchSupplier(0);
+			// setHasMoreSupplier(true);
 		}
 	};
 
@@ -536,7 +546,7 @@ const PurchaseOrderCreate: React.FC = () => {
 		} catch (err) {
 			const errorCode = ((err as AxiosError)?.response?.data as BaseResponse<number>)?.data;
 			const backendMessage = ((err as AxiosError)?.response?.data as BaseResponse<number>)?.message;
-			
+
 			if (typeof errorCode === "number") {
 				toast.error(getErrorMessage(errorCode));
 				return
@@ -548,8 +558,6 @@ const PurchaseOrderCreate: React.FC = () => {
 			}
 
 			toast.error("Có lỗi xảy ra, vui lòng thử lại");
-
-
 			console.error("Lỗi tạo đơn đặt hàng:", err);
 		}
 	};
@@ -663,7 +671,7 @@ const PurchaseOrderCreate: React.FC = () => {
 													<div className="purchase-order-product-info">
 														<div className="purchase-order-product-image-placeholder">
 															{item.imageUrl ? (
-																<img src={item.imageUrl}/>
+																<img src={item.imageUrl} />
 															) : (
 																<svg
 																	xmlns="http://www.w3.org/2000/svg"

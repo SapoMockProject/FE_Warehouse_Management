@@ -1,5 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
+import { Bounce, ToastContainer } from "react-toastify";
 import ContainerComponent from "../components/Container/ContainerComponent";
 import { AuthenticationProvider } from "../contexts/AuthenticationProvider";
 import { DefaultLayout } from "../layouts/DefaultLayout";
@@ -28,12 +28,16 @@ export const AppRouter = () => {
 		<BrowserRouter>
 			<ToastContainer
 				position="top-right"
-				autoClose={2000}
+				autoClose={3000}
 				hideProgressBar={false}
-				newestOnTop
-				closeOnClick
-				pauseOnHover
+				newestOnTop={false}
+				closeOnClick={false}
+				rtl={false}
+				pauseOnFocusLoss
 				draggable
+				pauseOnHover
+				theme="light"
+				transition={Bounce}
 			/>
 			<ContainerComponent>
 				<Routes>
