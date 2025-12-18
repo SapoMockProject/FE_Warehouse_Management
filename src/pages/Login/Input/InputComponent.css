@@ -1,54 +1,61 @@
-.input_login_container {
-    position: relative;
+.input_login_wrapper {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    position: relative;
 }
 
 .input-login {
-    font-size: 16px;
-    font-weight: 400;
-    color: #333;
-    border: solid 1px #e7e7e7;
-    padding: 23px;
-    border-radius: 50px;
     width: 100%;
-    line-height: 1.5;
-    outline: 0;
-    box-shadow: none;
-    background: #fff;
+    padding: 15px 20px;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+    border: 1.5px solid #d9d9d9;
+    border-radius: 8px;
+    background-color: #fff;
+    transition: all 0.2s ease;
     font-family: inherit;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+}
+
+.input-login:focus {
+    outline: none;
+    border-color: #26cb87;
+    box-shadow: 0 0 0 2px rgba(47, 250, 166, 0.12);
+}
+
+.floating_label_login {
+    position: absolute;
+    left: 14px;
+    top: 60%;
+    transform: translateY(-50%);
+    background: #fff;
+    padding: 0 4px;
+    font-size: 14px;
+    color: #999;
+    pointer-events: none;
+    transition: all 0.2s ease;
+}
+
+.input-login:focus + .floating_label_login,
+.input_login_container.has-value .floating_label_login {
+    top: 10px;
+    font-size: 1rem;
+    color: #7e7e7e;
 }
 
 .icon-input {
     position: absolute;
-    right: 20px;
-    top: 50%;
+    right: 12px;
+    top: 60%;
     transform: translateY(-50%);
     cursor: pointer;
+    color: #8b8b8b;
 }
 
 .error_message {
-    color: red;
-    font-size: 14px;
-    margin-top: 8px;
-    margin-left: 20px;
-}
-
-.label_login_title {
-    font-size: 18px;
-    margin-bottom: 12px;
-    color: #333;
-    margin-left: 20px;
-}
-
-.require {
-    color: red;
-    margin-left: 0.5px;
-}
-
-.input_login_wrapper {
-    width: 100%;
-    position: relative;
+    font-size: 0.875rem;
+    color: #ff4d4f;
+    margin-left: 4px;
 }

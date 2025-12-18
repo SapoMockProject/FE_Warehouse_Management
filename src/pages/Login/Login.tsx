@@ -1,7 +1,7 @@
 import type { AxiosError } from "axios";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Bounce, toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import { loginAccount, loginGoogle } from "../../apis/authApi";
 import Button from "../../components/Button/Button";
 import type { BaseResponse } from "../../types/BaseResponse";
@@ -80,19 +80,6 @@ export default function Login() {
 	}, []);
 	return (
 		<>
-			<ToastContainer
-				position="top-right"
-				autoClose={5000}
-				hideProgressBar={false}
-				newestOnTop={false}
-				closeOnClick={false}
-				rtl={false}
-				pauseOnFocusLoss
-				draggable
-				pauseOnHover
-				theme="light"
-				transition={Bounce}
-			/>
 			<div className="container">
 				<div className="content">
 					<div className="logo">
@@ -101,12 +88,17 @@ export default function Login() {
 							alt="Sapo Logo"
 						/>
 					</div>
+
+					<div className="model_content">
+						<h2 className="model_title">Vui lòng đăng nhập để sử dụng hệ thống</h2>
+					</div>
+
 					<div className="model_content">
 						<InputComponent
 							value={loginValue.username}
-							placeholder="Username của bạn"
+							placeholder="Tên đăng nhập"
 							error={errors.username}
-							title="Username"
+							title="Tên đăng nhập"
 							required
 							onKeyDown={(e) => {
 								if (e.key === "Enter") {
@@ -117,7 +109,7 @@ export default function Login() {
 						/>
 						<InputComponent
 							value={loginValue.password}
-							placeholder="Mật khẩu của bạn"
+							placeholder="Mật khẩu"
 							type="password"
 							error={errors.password}
 							title="Mật khẩu"
@@ -129,16 +121,22 @@ export default function Login() {
 							}}
 							onChange={(e) => setLoginValue((prev) => ({ ...prev, password: e.target.value }))}
 						/>
-						<button onClick={login} className="login_button">
-							Đăng nhập
-						</button>
+
+						<Button
+							onClick={login}
+							className="login_button"
+							label="Đăng nhập"
+							variant="success"
+							size="lg"
+						/>
+
 					</div>
-					<div className="login_subtext_login_social">Hoặc đăng nhập với</div>
+					<div className="login_subtext_login_social">hoặc với</div>
 					<div className="login_social_button_wrapper">
 						<Button
 							onClick={handleRedirect}
 							className="login_google_btn"
-							label="Login With Google"
+							label="Đăng nhập với Google"
 							icon={<img width={20} height={20} src={"/google-icon-logo-svgrepo-com.svg"} alt="Google Icon" />}
 						/>
 					</div>
