@@ -80,17 +80,21 @@ const GoodsReceiptDetail: React.FC = () => {
         try {
             const response = await getHisoriesById(id);
             setHistories(response.data);
-        } catch (error: any) {
-            const errorCode = error?.response?.data?.data;
-            const backendMessage = error?.response?.data?.message;
+        } catch (err: any) {
+            const errorCode = err?.response?.data?.data;
+            const backendMessage = err?.response?.data?.data;
 
             if (typeof errorCode === "number") {
                 toast.error(getErrorMessage(errorCode));
-            } else if (backendMessage) {
-                toast.error(backendMessage);
-            } else {
-                toast.error("Có lỗi xảy ra, vui lòng thử lại");
+                return
             }
+
+            if (backendMessage) {
+                toast.error(backendMessage || "Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
+                return
+            }
+
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
         }
     };
 
@@ -209,8 +213,22 @@ const GoodsReceiptDetail: React.FC = () => {
                 referenceCode: "",
                 processedOn: new Date().toISOString()
             });
-        } catch (err) {
-            console.error("Error adding payment:", err);
+        } catch (err: any) {
+            const errorCode = err?.response?.data?.data;
+            const backendMessage = err?.response?.data?.data;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+                return
+            }
+
+            if (backendMessage) {
+                toast.error(backendMessage || "Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
+                return
+            }
+
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
+            console.error("Lỗi adding payment:", err);
         } finally {
             setProcessingPayment(false);
         }
@@ -505,7 +523,7 @@ const GoodsReceiptDetail: React.FC = () => {
                         </div>
                     )}
 
-                                        {histories.length > 0 && (
+                    {histories.length > 0 && (
                         <div className="purchase-order-section">
                             <PurchaseOrderHistory histories={histories} />
 

@@ -221,8 +221,16 @@ const GoodsReceiptCreate: React.FC = () => {
       if (page + 1 >= totalPage) {
         setHasMoreVariant(false);
       }
-    } catch (error) {
-      console.error("Error fetch products:", error);
+    } catch (err: any) {
+      const errorCode = err?.response?.data?.data;
+
+      if (typeof errorCode === "number") {
+        toast.error(getErrorMessage(errorCode));
+        return
+      }
+
+      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+      console.error("Lỗi fetch products:", err);
     }
 
     setLoadingVariant(false);
@@ -249,8 +257,16 @@ const GoodsReceiptCreate: React.FC = () => {
       if (page + 1 >= totalPage) {
         setHasMoreSupplier(false);
       }
-    } catch (error) {
-      console.error("Lỗi khi load nhà cung cấp:", error);
+    } catch (err: any) {
+      const errorCode = err?.response?.data?.data;
+
+      if (typeof errorCode === "number") {
+        toast.error(getErrorMessage(errorCode));
+        return
+      }
+
+      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+      console.error("Lỗi khi load nhà cung cấp:", err);
     } finally {
       setLoadingSupplier(false);
     }
@@ -271,8 +287,16 @@ const GoodsReceiptCreate: React.FC = () => {
       }
 
       setEmployees((prev) => [...prev, ...employeeList]);
-    } catch (error) {
-      console.error("Lỗi khi load nhân viên:", error);
+    } catch (err: any) {
+      const errorCode = err?.response?.data?.data;
+
+      if (typeof errorCode === "number") {
+        toast.error(getErrorMessage(errorCode));
+        return
+      }
+
+      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+      console.error("Lỗi khi load nhân viên:", err);
     } finally {
       setLoadingSupplier(false);
     }
@@ -283,8 +307,16 @@ const GoodsReceiptCreate: React.FC = () => {
     try {
       const response = await getAllPaymentMethods(0, 99);
       setPaymentMethods(response.data.content);
-    } catch (error) {
-      console.error("Lỗi khi load phương thức thanh toán:", error);
+    } catch (err: any) {
+      const errorCode = err?.response?.data?.data;
+
+      if (typeof errorCode === "number") {
+        toast.error(getErrorMessage(errorCode));
+        return
+      }
+
+      toast.error("Có lỗi xảy ra, vui lòng thử lại");
+      console.error("Lỗi khi load phương thức thanh toán:", err);
     } finally {
       setLoadingPaymentMethods(false);
     }

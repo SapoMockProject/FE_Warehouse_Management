@@ -18,6 +18,8 @@ import { SelectOption } from "../../../components/Select/SelectOption/SelectOpti
 import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
 import { Role } from "../../../types/IUser.d";
 import { getProductVariants } from "../../../apis/productApi";
+import { toast } from "react-toastify";
+import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 
 interface PurchaseOrderListState {
 	orders: PurchaseOrderResponse[];
@@ -73,10 +75,24 @@ export default function PurchaseOrderRequest() {
 
 	const fetchProductVariants = async () => {
 		try {
-			const res = await getProductVariants(0, 999);
+			const res = await getProductVariants(0, 999, "");
 			setVariants(res.data.content || []);
-		} catch (error) {
-			console.error("Failed to load variants:", error);
+		} catch (err: any) {
+			const errorCode = err?.response?.data?.data;
+			const backendMessage = err?.response?.data?.data;
+
+			if (typeof errorCode === "number") {
+				toast.error(getErrorMessage(errorCode));
+				return
+			}
+
+			if (backendMessage) {
+				toast.error(backendMessage || "Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
+				return
+			}
+
+			toast.error("Có lỗi xảy ra, vui lòng thử lại");
+			console.error("Failed to load variants:", err);
 		}
 	};
 
@@ -118,8 +134,17 @@ export default function PurchaseOrderRequest() {
 			});
 
 			console.log("Fetched orders:", data);
-		} catch (err) {
-			console.error("Error fetching orders:", err);
+		} catch (err: any) {
+			const errorCode = err?.response?.data?.data;
+
+			if (typeof errorCode === "number") {
+				toast.error(getErrorMessage(errorCode));
+				return
+			}
+
+			toast.error("Có lỗi xảy ra, vui lòng thử lại");
+			console.log("Lỗi fetch orders: ", err);
+
 			updateState({
 				error: "Không thể tải danh sách đơn hàng. Vui lòng thử lại.",
 				loading: false,

@@ -181,8 +181,17 @@ const PurchaseOrderEdit: React.FC = () => {
 
             setSelectSupplier(data.supplierResponse);
 
-        } catch (error) {
-            console.error("Lỗi khi tải chi tiết đơn đặt hàng:", error);
+        } catch (err: any) {
+            const errorCode = err?.response?.data?.data;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+                return
+            }
+
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
+            console.log("Lỗi load PurchaseDetail: ", err);
+            
         } finally {
             setLoading(false);
         }
@@ -241,8 +250,16 @@ const PurchaseOrderEdit: React.FC = () => {
             if (page + 1 >= totalPage) {
                 setHasMoreVariant(false);
             }
-        } catch (error) {
-            console.error("Error fetch products:", error);
+        } catch (err: any) {
+            const errorCode = err?.response?.data?.data;
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+                return
+            }
+
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
+            console.log("Lỗi load danh sách variant: ", err);
+            
         }
 
         setLoadingVariant(false);
@@ -269,7 +286,15 @@ const PurchaseOrderEdit: React.FC = () => {
             if (page + 1 >= totalPage) {
                 setHasMoreSupplier(false);
             }
-        } catch (error) {
+        } catch (err: any) {
+            const errorCode = err?.response?.data?.data;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+                return
+            }
+
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
             console.error("Lỗi khi load nhà cung cấp:", error);
         } finally {
             setLoadingSupplier(false);
@@ -292,7 +317,15 @@ const PurchaseOrderEdit: React.FC = () => {
 
             setEmployees((prev) => [...prev, ...employeeList]);
 
-        } catch (error) {
+        } catch (err: any) {
+            const errorCode = err?.response?.data?.data;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+                return
+            }
+
+            toast.error("Có lỗi xảy ra, vui lòng thử lại");
             console.error("Lỗi khi load nhân viên:", error);
         } finally {
             setLoadingSupplier(false);
@@ -643,19 +676,20 @@ const PurchaseOrderEdit: React.FC = () => {
             navigate(`/purchase-orders/${id}`);
         } catch (err: any) {
             const errorCode = err?.response?.data?.data;
-            const backendMessage = err?.response?.data?.message;
+            const backendMessage = err?.response?.data?.data;
 
             if (typeof errorCode === "number") {
                 toast.error(getErrorMessage(errorCode));
                 return
             }
 
-            if (backendMessage == "Validation failed") {
-                toast.error("Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
+            if (backendMessage) {
+                toast.error(backendMessage || "Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
                 return
             }
 
             toast.error("Có lỗi xảy ra, vui lòng thử lại");
+            console.error("Lỗi khi cập nhật đơn đặt hàng:", err);
         }
     };
 
