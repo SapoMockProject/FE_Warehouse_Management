@@ -18,7 +18,7 @@ const ProductList = () => {
   const [page, setPage] = React.useState(0);
   const [limit, setLimit] = React.useState(10);
   const [totalPages, setTotalPages] = React.useState(0);
-  const [sortOrder, setSortOrder] = React.useState("asc");
+  const [sortOrder, setSortOrder] = React.useState<"asc" | "desc">("asc");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
   const [search, setSearch] = React.useState("");
@@ -29,7 +29,7 @@ const ProductList = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await getAllProducts(page, limit, query);
+        const response = await getAllProducts(page, limit, query, sortOrder);
         setItem(response?.data.content || []);
         setTotalPages(response?.data.page?.totalPages || 0);
       } catch (err) {
@@ -64,10 +64,7 @@ const ProductList = () => {
       <div className="product-list-header">
         <h2>Danh sách sản phẩm</h2>
         <div className="product-list-header-right">
-          <Button label="Xuất file" variant="secondary" size="md" />
-          <Button label="Nhập file" variant="secondary" size="md" />
-
-          {(user?.user.role !== Role.COORDINATOR) && (
+          {user?.user.role !== Role.COORDINATOR && (
             <Link to="/products/create">
               <Button label="+ Thêm sản phẩm" variant="primary" size="md" />
             </Link>
@@ -102,9 +99,6 @@ const ProductList = () => {
         <CustomSelect onChange={() => {}} value={""}>
           <SelectOption value="" label="Kênh bán hàng" />
         </CustomSelect>
-
-        <Button label="Bộ lọc khác" variant="secondary" size="md" />
-        <Button label="Lưu bộ lọc" variant="secondary" size="md" />
       </div>
 
       {/* ================= STATUS ================= */}
@@ -219,7 +213,6 @@ const ProductList = () => {
         }}
         onSortChange={(newSort) => {
           setSortOrder(newSort);
-          setPage(0);
         }}
       />
     </div>

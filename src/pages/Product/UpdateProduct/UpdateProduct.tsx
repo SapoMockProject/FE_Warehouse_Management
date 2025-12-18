@@ -86,6 +86,8 @@ export default function UpdateProduct() {
 
     if (hasEmptyAttribute) return;
     const combinations = generateOptionCombinations(attributes);
+    // console.log("attributes", attributes);
+    // console.log("combinations", combinations);
 
     const newList: ProductVariant[] = combinations.map((combo) => {
       const existed = product.variants.find((v) => isSameVariant(combo, v));
@@ -135,9 +137,7 @@ export default function UpdateProduct() {
 
   function isSameVariant(a: any, b: ProductVariant) {
     return (
-      a.option1value === b.option1value &&
-      a.option2value === b.option2value &&
-      a.option3value === b.option3value
+      a.option1value === b.option1value && a.option2value === b.option2value
     );
   }
 
@@ -388,48 +388,25 @@ export default function UpdateProduct() {
   };
 
   //Mở modal
-  const applyNewSku = async () => {
-    if (!newSku) return;
+  const applyNewSku = () => {
+    setVariantList((prev) =>
+      prev.map((variant) => {
+        if (!selectedArray.includes(variant.id)) return variant;
 
-    const updateList = Object.entries(newSku).map(([id, sku]) => ({
-      id: Number(id),
-      sku,
-    }));
+        const updatedSku = newSku[variant.id];
 
-    // console.log("-----", updates);
-    console.log("-----2----", newSku);
-    console.log("----3----", updateList);
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.put(
-        "http://localhost:8080/api/v1/product-variant/update-skus",
-        updateList,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+        if (!updatedSku || updatedSku.trim() === "") {
+          return variant;
         }
-      );
 
-      console.log("Update SKU thành công:", res.data);
-
-      setProduct((prev) => {
-        if (!prev) return prev;
-
-        const updatedVariants = prev.variants.map((v) => {
-          const updated = updateList.find((u) => u.id === v.id);
-          return updated ? { ...v, sku: updated.sku } : v;
-        });
-
-        return { ...prev, variants: updatedVariants };
-      });
-    } catch (error) {
-      console.error("Lỗi update SKU:", error);
-    }
+        return {
+          ...variant,
+          sku: updatedSku.trim(),
+        };
+      })
+    );
 
     setIsModalOpenSKU(false);
-    setNewSku("");
   };
 
   const applyNewPrice = async () => {
@@ -441,24 +418,10 @@ export default function UpdateProduct() {
     }));
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.put(
-        "http://localhost:8080/api/v1/product-variant/update-prices",
-        updateList,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("Update price thành công:", res.data);
-
-      setProduct((prev) => {
+      setVariantList((prev) => {
         if (!prev) return prev;
 
-        const updatedVariants = prev.variants.map((v) => {
+        const updatedVariants = prev.map((v) => {
           const updated = updateList.find((u) => u.id === v.id);
           return updated ? { ...v, price: updated.price } : v;
         });
@@ -481,24 +444,10 @@ export default function UpdateProduct() {
     }));
 
     try {
-      const token = localStorage.getItem("token");
-      const res = await axios.put(
-        "http://localhost:8080/api/v1/product-variant/update-stocks",
-        updateList,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      console.log("Update stock thành công:", res.data);
-
-      setProduct((prev) => {
+      setVariantList((prev) => {
         if (!prev) return prev;
 
-        const updatedVariants = prev.variants.map((v) => {
+        const updatedVariants = prev.map((v) => {
           const updated = updateList.find((u) => u.id === v.id);
           return updated ? { ...v, stock: updated.stock } : v;
         });
@@ -522,25 +471,12 @@ export default function UpdateProduct() {
     };
     console.log("---------10---------", payload);
     try {
-      const token = localStorage.getItem("token");
-
-      await axios.put(
-        "http://localhost:8080/api/v1/product-variant/update-all-prices",
-        payload,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setProduct((prev) => {
+      setVariantList((prev) => {
         if (!prev) return prev;
 
         return {
           ...prev,
-          variants: prev.variants.map((v) =>
+          variants: prev.map((v) =>
             selectedArray.includes(v.id) ? { ...v, price: Number(price) } : v
           ),
         };
@@ -558,24 +494,12 @@ export default function UpdateProduct() {
       stock: stock,
     };
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(
-        "http://localhost:8080/api/v1/product-variant/update-all-stocks",
-        loadStock,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      setProduct((prev) => {
+      setVariantList((prev) => {
         if (!prev) return prev;
 
         return {
           ...prev,
-          variants: prev.variants.map((v) =>
+          variants: prev.map((v) =>
             selectedArray.includes(v.id) ? { ...v, stock: Number(stock) } : v
           ),
         };
@@ -773,7 +697,7 @@ export default function UpdateProduct() {
                           <div className="update-variant-sku-modal-box">
                             <h3>Chỉnh sửa SKU</h3>
 
-                            {product?.variants
+                            {variantList
                               .filter((e) => selectedArray.includes(e.id))
                               .map((e) => (
                                 <div className="update-variant-sku" key={e.id}>
@@ -849,7 +773,7 @@ export default function UpdateProduct() {
                                 />
                               </div>
                             </div>
-                            {product?.variants
+                            {variantList
                               .filter((e) => selectedArray.includes(e.id))
                               .map((e) => (
                                 <div
@@ -930,7 +854,7 @@ export default function UpdateProduct() {
                                 />
                               </div>
                             </div>
-                            {product?.variants
+                            {variantList
                               .filter((e) => selectedArray.includes(e.id))
                               .map((e) => (
                                 <div

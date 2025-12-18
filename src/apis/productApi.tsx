@@ -6,7 +6,8 @@ import type { PagedModel } from "../types/PagedModel";
 export const getAllProducts = async (
   page: number,
   limit: number,
-  query: string
+  query: string,
+  sortOrder: "asc" | "desc"
 ) => {
   const res = await axiosConfiguration.get<
     BaseResponse<PagedModel<ProductResponse>>
@@ -18,6 +19,7 @@ export const getAllProducts = async (
       page,
       limit,
       query,
+      sortOrder: sortOrder.toUpperCase(),
     },
   });
   return res.data;
