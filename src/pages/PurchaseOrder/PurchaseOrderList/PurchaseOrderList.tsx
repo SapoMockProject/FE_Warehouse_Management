@@ -258,11 +258,20 @@ export default function PurchaseOrderRequest() {
 						/>
 					</li>
 
-					<li className="opr_status completed">
+					<li className="opr_status import-partial">
 						<Button
-							label="Đã nhập"
-							className={`opr_status-btn ${state.activeTab === "completed" ? "btn-active" : ""}`}
-							onClick={() => handleTabChange("completed")}
+							label="Nhập một phần"
+							className={`opr_status-btn ${state.activeTab === "imported-partial" ? "btn-active" : ""}`}
+							onClick={() => handleTabChange("imported_partial")}
+							size="md"
+						/>
+					</li>
+
+					<li className="opr_status import-all">
+						<Button
+							label="Nhập toàn bộ"
+							className={`opr_status-btn ${state.activeTab === "imported-all" ? "btn-active" : ""}`}
+							onClick={() => handleTabChange("imported_all")}
 							size="md"
 						/>
 					</li>
