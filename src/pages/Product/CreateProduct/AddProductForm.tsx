@@ -8,6 +8,7 @@ import { CustomSelect } from "../../../components/Select/CustomSelect/CustomSele
 import { SelectOption } from "../../../components/Select/SelectOption/SelectOption";
 import type { Category } from "../../../types/ICategory";
 import "./CreateProduct.css";
+import { toast } from "react-toastify";
 
 interface Attribute {
   name: string;
@@ -190,8 +191,10 @@ const AddProductForm: React.FC = () => {
       }
       await createProduct(formData);
       navigate("/products");
+      toast.success("Thêm sản phẩm thành công");
     } catch (err) {
       console.error(err);
+      toast.error("Thêm sản phẩm thất bại");
     }
   };
 

@@ -23,7 +23,7 @@ export interface VariantResponse {
 	productId?: number;
 }
 
-export interface ProductVariantItem extends VariantResponse{
+export interface ProductVariantItem extends VariantResponse {
 	variantName: string;
 	unit?: string;
 	quantityPurchase: number;
@@ -44,17 +44,17 @@ export interface ProductSelectProps {
 	renderProductLabel?: (product: Product) => string;
 }
 export interface ProductResponse {
-  id: number;
-  name: string;
-  categoryName: string;
-  description: string;
-  option1name: string;
-  option2name: string;
-  option3name: string;
-  variants: VariantResponse[];
-  variantCount: number;
-  thumbnail: string;
-  quantity: number;
-  createdDate: string;
-  createdBy: string;
+	id: number;
+	name: string;
+	categoryName: string;
+	description: string;
+	option1name: string;
+	option2name: string;
+	option3name: string;
+	variants: VariantResponse[];
+	variantCount: number;
+	thumbnail: string;
+	quantity: number;
+	createdDate: string;
+	createdBy: string;
 }
