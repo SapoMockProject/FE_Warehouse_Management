@@ -7,7 +7,7 @@ import "./CreateSupplier.css";
 import { createSupplier } from "../../../apis/supplierApi";
 
 export default function CreateSupplier() {
-	const [openModal, closeModal, ModalComponent] = useModalComponent();
+	const [openModal, closeModal, ModalComponent] = useModalComponent({});
 	const [supplierData, setSupplierData] = React.useState<ISupplierCreateRequest>({
 		name: "",
 		address: "",

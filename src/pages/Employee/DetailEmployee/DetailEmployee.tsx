@@ -9,6 +9,7 @@ import { Role, type IUserResponse, type IUserUpdateRequest } from "../../../type
 import { handleGetRoleOptions } from "../../../utils/Employee.util";
 import InputEmployeeInfo from "../../Employee/Input/InputEmployeeInfo";
 import "./DetailEmployee.css";
+import PopConfirm from "../../../components/PopConfirm/PopConfirm";
 
 export default function DetailEmployee() {
 	const { id } = useParams<{ id: string }>();
@@ -136,7 +137,15 @@ export default function DetailEmployee() {
 					</div>
 				</div>
 				<div className="employee-detail-footer">
-					{!employeeInfo.isDeleted && <Button variant="danger" label="Xoá" size="lg" onClick={handleDeleteUser} />}
+					{!employeeInfo.isDeleted && (
+						<PopConfirm
+							title="Bạn có chắc chắn muốn xóa?"
+							actions={[{ label: "Xác nhận", variant: "danger", onClick: handleDeleteUser }]}
+							description="Bạn hoàn toàn có thể khôi khục trong mục Đã Xoá!"
+						>
+							<Button variant="danger" label="Xoá" size="lg" />
+						</PopConfirm>
+					)}
 					<Button variant="secondary" label="Huỷ" size="lg" onClick={() => navigate(-1)} />
 				</div>
 			</div>

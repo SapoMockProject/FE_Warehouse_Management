@@ -1,6 +1,10 @@
 import React from "react";
 import "./ModelComponent.css";
-export default function useModalComponent(): [() => void, () => void, ({ children }: { children: React.ReactNode }) => React.ReactNode] {
+export default function useModalComponent({
+	className,
+}: {
+	className?: string;
+}): [() => void, () => void, ({ children }: { children: React.ReactNode }) => React.ReactNode] {
 	const modalRef = React.useRef<HTMLDivElement | null>(null);
 	const [isVisible, setIsVisible] = React.useState<boolean>(false);
 	function openModal() {
@@ -15,17 +19,20 @@ export default function useModalComponent(): [() => void, () => void, ({ childre
 			setIsVisible(false);
 		}
 	}
-	const ModalComponent = React.useCallback(({ children }: { children: React.ReactNode }): React.ReactNode => (
-		<>
-			<div className="modal-container" style={isVisible ? { display: "block" } : { display: "none" }} ref={modalRef}>
-				<div className="modal-content">
-					<span className="modal-close-btn" onClick={closeModal}>
-						&times;
-					</span>
-					{children}
+	const ModalComponent = React.useCallback(
+		({ children }: { children: React.ReactNode }): React.ReactNode => (
+			<>
+				<div className="modal-container" style={isVisible ? { display: "block" } : { display: "none" }} ref={modalRef}>
+					<div className={`modal-content ${className ? className : ""}`}>
+						<span className="modal-close-btn" onClick={closeModal}>
+							&times;
+						</span>
+						{children}
+					</div>
 				</div>
-			</div>
-		</>
-	), [isVisible]);
+			</>
+		),
+		[isVisible, className]
+	);
 	return [openModal, closeModal, ModalComponent];
 }
