@@ -11,6 +11,7 @@
 	cursor: pointer;
 	position: relative;
 	overflow: hidden;
+	width: 100%;
 }
 
 .statistic_card_wrapper:hover {
