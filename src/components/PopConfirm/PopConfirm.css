@@ -1,28 +1,52 @@
-.pop-confirm-container {
-    position: relative;
+.pop-confirm {
+    z-index: 1000;
+    width: 100%;
+    height: 100%;
     display: flex;
-    flex-direction: column;;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    gap: 10px;
+    align-items: center;
+    padding: 20px;
 }
 
-.pop-confirm {
-    background-color: #fff;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-    padding: 16px;
-    z-index: 1000;
-    border-radius: 10px 10px 10px 10px;
+.pop-confirm-title-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.pop-confirm-title {
+    font-size: 18px;
+    font-weight: 600;
+    text-align: left;
+    margin-bottom: 12px;
+}
+
+.pop-confirm-description-container {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 8px;
+}
+
+.pop-confirm-description {
+    font-size: 14px;
+    text-align: center;
+    color: #555555;
 }
 
 .pop-confirm-actions {
+    width: 100%;
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     align-items: center;
     gap: 8px;
     margin-top: 16px;
 }
 
-.pop-confirm-hidden {
-    display: none;
+.modal-container .pop-confirm-modal {
+    width: 25%;
+    padding: 10px;
 }

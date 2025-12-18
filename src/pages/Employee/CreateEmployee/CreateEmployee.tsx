@@ -18,7 +18,7 @@ export default function CreateEmployee({ realoadFunc }: { realoadFunc: () => voi
 		username: "",
 		role: Role.WAREHOUSE_STAFF,
 	});
-    const [openModal, closeModal, ModalComponent] = useModalComponent();
+    const [openModal, closeModal, ModalComponent] = useModalComponent({});
 	function handleInputChange(field: keyof IUserCreateRequest, value: string) {
 		setEmployeeData({
 			...employeeData,
