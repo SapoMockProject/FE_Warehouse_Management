@@ -1,5 +1,5 @@
-.statistic_container{
-    color: black;
+.statistic_container {
+	color: black;
 	display: flex;
 	flex-direction: column;
 	height: calc(100vh - 52px);
@@ -9,9 +9,18 @@
 	display: flex;
 	justify-content: space-around;
 	padding: 20px;
+	gap: 20px;
+}
+
+.statistic_chart_container {
+	display: flex;
+	justify-content: space-between;
+	gap: 20px;
+	height: 100%;
 }
 
 .statistic_chart {
-	flex: 1;
 	text-align: center;
+	width: 50%;
+	min-height: 100%;
 }
