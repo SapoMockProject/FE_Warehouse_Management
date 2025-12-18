@@ -61,7 +61,7 @@ export default function SupplierList() {
 	const refreshData = () => setReload(!reload);
 	React.useEffect(() => {
 		const fetchEmployees = async () => {
-			const response = await getAllEmployees(page, 10, "");
+			const response = await getAllEmployees(page, 10, "", "asc", false);
 			setEmployees((prev) => ({
 				...prev,
 				content: [...prev.content, ...response.data.content],
@@ -126,7 +126,6 @@ export default function SupplierList() {
 							onChange={handleChangeEmployeeUsername}
 							value={selectedEmployees}
 							multiple
-							className="supplier_employee_list"
 							onScroll={handlePaginationEmployeeList}
 						>
 							{employees.content.map((employee) => (
