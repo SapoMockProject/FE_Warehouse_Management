@@ -23,19 +23,19 @@ const options = {
 	},
 };
 
-export default function InventoryOverTime({ statisticOverTime }: { statisticOverTime: { first: string; second: number }[] }) {
-	const labels = statisticOverTime.map((item) => item.first);
+export default function GoodReceiptOverProduct({ goodsReceiptItemCountMap }: { goodsReceiptItemCountMap: { first: number; second: number }[] }) {
+	const labels = goodsReceiptItemCountMap.map((item) => item.first.toString());
 
 	const data = {
 		labels,
 		datasets: [
 			{
 				type: "line" as const,
-				label: "Số lượng sản phẩm mới theo thời gian",
+				label: "Số lượng đơn hàng nhập theo từng sản phẩm trong tháng này",
 				borderColor: "rgb(255, 99, 132)",
 				borderWidth: 2,
 				fill: false,
-				data: statisticOverTime.map((item) => item.second),
+				data: goodsReceiptItemCountMap.map((item) => item.second),
 			},
 		],
 	};
