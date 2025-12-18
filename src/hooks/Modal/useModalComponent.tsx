@@ -1,8 +1,6 @@
 import React from "react";
 import "./ModelComponent.css";
-export default function useModalComponent({
-	className,
-}: {
+export default function useModalComponent(props: {
 	className?: string;
 }): [() => void, () => void, ({ children }: { children: React.ReactNode }) => React.ReactNode] {
 	const modalRef = React.useRef<HTMLDivElement | null>(null);
@@ -23,7 +21,7 @@ export default function useModalComponent({
 		({ children }: { children: React.ReactNode }): React.ReactNode => (
 			<>
 				<div className="modal-container" style={isVisible ? { display: "block" } : { display: "none" }} ref={modalRef}>
-					<div className={`modal-content ${className ? className : ""}`}>
+					<div className={`modal-content ${props.className ? props.className : ""}`}>
 						<span className="modal-close-btn" onClick={closeModal}>
 							&times;
 						</span>
@@ -32,7 +30,7 @@ export default function useModalComponent({
 				</div>
 			</>
 		),
-		[isVisible, className]
+		[isVisible, props]
 	);
 	return [openModal, closeModal, ModalComponent];
 }

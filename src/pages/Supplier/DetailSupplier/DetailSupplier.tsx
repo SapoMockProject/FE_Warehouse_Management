@@ -4,6 +4,7 @@ import { getAllGoodsReceipts } from "../../../apis/goodsReceiptApi";
 import { deleteSupplier, getSupplierById } from "../../../apis/supplierApi";
 import Button from "../../../components/Button/Button";
 import DateField from "../../../components/DateField/DateField";
+import PopConfirm from "../../../components/PopConfirm/PopConfirm";
 import type { DateRange } from "../../../types/DateFieldProps";
 import type { GoodsReceiptResponse } from "../../../types/IGoodsReceipt";
 import type { ISupplierResponse } from "../../../types/ISupplier";
@@ -18,15 +19,16 @@ export default function DetailSupplier() {
 	const [goodsReceipts, setGoodsReceipts] = React.useState<GoodsReceiptResponse[]>([]);
 	const [filter, setFilter] = React.useState<DateRange>({ start: "", end: "", preset: "" });
 	React.useEffect(() => {
-		Promise.all([getSupplierById(Number(id)), getAllGoodsReceipts(0, 10, id, undefined, undefined, filter.start, filter.end)])
-		.then(([supplierRes, goodsReceiptRes]) => {
-			setSupplier(supplierRes.data);
-			setGoodsReceipts(goodsReceiptRes.data.content);
-		});
+		Promise.all([getSupplierById(Number(id)), getAllGoodsReceipts(0, 10, id, undefined, undefined, filter.start, filter.end)]).then(
+			([supplierRes, goodsReceiptRes]) => {
+				setSupplier(supplierRes.data);
+				setGoodsReceipts(goodsReceiptRes.data.content);
+			}
+		);
 	}, [id, filter]);
-	const handleDeleteSupplier = async (supplierId: number) => {
+	const handleDeleteSupplier = async () => {
 		try {
-			await deleteSupplier(supplierId);
+			await deleteSupplier((supplier as ISupplierResponse).id);
 			navigate(-1);
 		} catch (error) {
 			console.error("Error deleting supplier:", error);
@@ -150,13 +152,19 @@ export default function DetailSupplier() {
 				<div>
 					<div className="supplier_detail_footer">
 						{supplier && (
-							<Button
-								onClick={() => handleDeleteSupplier(supplier.id)}
-								label="Xóa"
-								variant="danger"
-								type="button"
-								size="md"
-							/>
+							<PopConfirm
+								title="Bạn có chắc muốn xoá?"
+								description="Bạn có thể khôi khục trong mục Đã xoá?"
+								actions={[
+									{
+										label: "Xóa",
+										variant: "danger",
+										onClick: handleDeleteSupplier,
+									},
+								]}
+							>
+								<Button label="Xóa" variant="danger" type="button" size="md" />
+							</PopConfirm>
 						)}
 						<Button size="md" label="Huỷ" variant="tertiary" onClick={() => navigate(-1)} />
 					</div>

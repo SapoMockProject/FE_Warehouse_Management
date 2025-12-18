@@ -7,7 +7,7 @@ import InputSupplier from "../InputSupplier/InputSupplier";
 import type { BaseResponse } from "../../../types/BaseResponse";
 
 export default function UpdateSupplier({ supplier, refreshData }: { supplier: ISupplierResponse; refreshData?: (supplier: ISupplierResponse) => void }) {
-	const [openModal, closeModal, ModalComponent] = useModalComponent();
+	const [openModal, closeModal, ModalComponent] = useModalComponent({});
 	const [supplierData, setSupplierData] = React.useState<ISupplierUpdateRequest>({
 		name: supplier.name,
 		address: supplier.address,
