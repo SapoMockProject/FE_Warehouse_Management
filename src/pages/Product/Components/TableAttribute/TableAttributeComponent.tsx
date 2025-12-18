@@ -5,7 +5,7 @@ import { AuthenticationContext } from "../../../../contexts/AuthenticationContex
 import type { Attribute } from "../../../../types/IAttribute.d";
 import type { ProductResponse, VariantResponse } from "../../../../types/IProduct";
 import { Role } from "../../../../types/IUser.d";
-import { generateCombinations, isSameVariant } from "../../../../utils/Attribute.util";
+import { generateCombinations, isSameVariant, isValidVariant } from "../../../../utils/Attribute.util";
 import { getVariantName } from "../../../../utils/Product.util";
 import ProductModalUpdateVariantComponent from "../ProductModalUpdateVariant/ProductModalUpdateVariant";
 
@@ -45,7 +45,7 @@ export default function ProductTableAttributeComponent({
 		setVariantImages((prev) => ({ ...prev, [id]: res.data.imageUrl || "" }));
 		toast.success(`Cập nhật ảnh cho phiên bản thành công`);
 	};
-	const applyStockAll = async () => {
+	const applyStockAll = () => {
 		if (!stockForAllSelected || selected.length === 0) return;
 		setVariantList((prev) => prev.map((v) => (selected.includes(v.id) ? { ...v, stock: Number(stockForAllSelected) } : v)));
 	};
@@ -53,7 +53,6 @@ export default function ProductTableAttributeComponent({
 		setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
 	};
 	const toggleSelectAll = () => {
-		if (!product?.variants) return;
 		if (selected.length === variantList.length) {
 			setSelected([]);
 		} else {
@@ -75,7 +74,7 @@ export default function ProductTableAttributeComponent({
 			})
 		);
 	};
-	const applyNewPrice = async () => {
+	const applyNewPrice = () => {
 		if (!newPrice) return;
 		const updateList = Object.entries(newPrice).map(([id, price]) => ({
 			id: Number(id),
@@ -89,7 +88,7 @@ export default function ProductTableAttributeComponent({
 		);
 		setNewPrice({});
 	};
-	const applyNewStock = async () => {
+	const applyNewStock = () => {
 		if (!newStock) return;
 		const updateList = Object.entries(newStock).map(([id, stock]) => ({
 			id: Number(id),
@@ -104,7 +103,7 @@ export default function ProductTableAttributeComponent({
 		});
 		setNewStock({});
 	};
-	const applyNewPriceAll = async () => {
+	const applyNewPriceAll = () => {
 		if (!priceForAllSelected || selected.length === 0) return;
 		setVariantList((prev) => {
 			if (!prev) return prev;
@@ -113,30 +112,49 @@ export default function ProductTableAttributeComponent({
 	};
 	React.useEffect(() => {
 		const load = () => {
-			if (!product) return;
-			const hasEmptyAttribute = attributes.some((attr) => attr.values.length === 0);
-			if (hasEmptyAttribute) return;
-			const combinations = generateCombinations(attributes);
-			const newList: VariantResponse[] = combinations.map((combo) => {
-				const existed = product.variants.find((v) => isSameVariant(combo, v));
-				if (existed) return existed;
-				return {
-					id: Math.random() * -100 - 10000,
-					sku: "",
-					price: 0,
-					stock: 0,
-					imageUrl: "",
-					option1value: combo.option1value ?? null,
-					option2value: combo.option2value ?? null,
-					option3value: combo.option3value ?? null,
-				};
-			});
-			setVariantList(newList);
-			const variantImageValues: { [key: number]: string } = {};
-			for (const variant of newList) {
-				variantImageValues[variant.id] = variant.imageUrl || "";
+			let combinations = generateCombinations(attributes);
+			combinations = combinations.filter((c) => isValidVariant(c));
+			if (combinations.length <= 0) return;
+			if (product) {
+				const hasEmptyAttribute = attributes.some((attr) => attr.values.length === 0);
+				if (hasEmptyAttribute) return;
+				const newList: VariantResponse[] = combinations.map((combo) => {
+					const existed = product.variants.find((v) => isSameVariant(combo, v));
+					if (existed) return existed;
+					return {
+						id: Math.random() * -100 - 10000,
+						sku: "",
+						price: 0,
+						stock: 0,
+						imageUrl: "",
+						option1value: combo.option1value ?? null,
+						option2value: combo.option2value ?? null,
+						option3value: combo.option3value ?? null,
+					};
+				});
+				setVariantList(newList);
+				const variantImageValues: { [key: number]: string } = {};
+				for (const variant of newList) {
+					variantImageValues[variant.id] = variant.imageUrl || "";
+				}
+				setSelected(prev => prev.filter(id => newList.some(v => v.id === id)));
+				setVariantImages(variantImageValues);
+			} else {
+				const newList: VariantResponse[] = combinations.map((combo) => {
+					return {
+						id: Math.random() * -100 - 10000,
+						sku: "",
+						price: 0,
+						stock: 0,
+						imageUrl: "",
+						option1value: combo.option1value ?? null,
+						option2value: combo.option2value ?? null,
+						option3value: combo.option3value ?? null,
+					};
+				});
+				setVariantList(newList);
+				setSelected(prev => prev.filter(id => newList.some(v => v.id === id)));
 			}
-			setVariantImages(variantImageValues);
 		};
 		load();
 	}, [attributes, product]);
@@ -159,7 +177,7 @@ export default function ProductTableAttributeComponent({
 									newValueObject={newSkuList}
 									applyNewValue={applyNewSku}
 									buttonLabel={"Sửa SKU"}
-									variantName={'sku'}
+									variantName={"sku"}
 								/>
 							</th>
 							<th>
@@ -175,6 +193,7 @@ export default function ProductTableAttributeComponent({
 									applyNewValue={applyNewPrice}
 									buttonLabel={"Sửa Giá"}
 									variantName="price"
+									isMultiApply
 								/>
 							</th>
 							<th>
@@ -190,6 +209,7 @@ export default function ProductTableAttributeComponent({
 									applyNewValue={applyNewStock}
 									buttonLabel={"Sửa Số lượng"}
 									variantName="stock"
+									isMultiApply
 								/>
 							</th>
 						</tr>

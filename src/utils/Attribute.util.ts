@@ -1,5 +1,5 @@
-import type { Attribute } from "../types/IAttribute";
-import type { VariantResponse } from "../types/IProduct";
+import type { Attribute, OptionResult } from "../types/IAttribute.d";
+import type { VariantResponse } from "../types/IProduct.d";
 
 export function generateCombinations(attributes: Attribute[]) {
 	const result: {
@@ -23,7 +23,7 @@ export function generateCombinations(attributes: Attribute[]) {
 	}
 	return result;
 }
-export function isSameVariant(a: { option1value: string; option2value: string; option3value: string }, b: VariantResponse) {
+export function isSameVariant(a: OptionResult, b: VariantResponse) {
 	let isOption1Same = a.option1value === b.option1value;
 	let isOption2Same = a.option2value === b.option2value;
 	let isOption3Same = a.option3value === b.option3value;
@@ -37,4 +37,8 @@ export function isSameVariant(a: { option1value: string; option2value: string; o
 		isOption3Same = true;
 	}
 	return isOption1Same && isOption2Same && isOption3Same;
+}
+
+export function isValidVariant(variant: OptionResult) {
+	return !!variant.option1value || !!variant.option2value || !!variant.option3value;
 }
