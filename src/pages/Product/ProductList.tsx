@@ -20,8 +20,6 @@ const ProductList = () => {
 	const [page, setPage] = React.useState(0);
 	const [limit, setLimit] = React.useState(10);
 	const [totalPages, setTotalPages] = React.useState(0);
-	const [loading, setLoading] = React.useState(false);
-	const [error, setError] = React.useState("");
 	const { search, setSearch, categorySelects, setCategorySelects, dateRange, setDateRange, sortOrder, setSortOrder } = useProductSearch();
 	const query: string = useDebounce(search, 1000);
 	const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
@@ -30,16 +28,11 @@ const ProductList = () => {
 	React.useEffect(() => {
 		const fetchData = async () => {
 			try {
-				setLoading(true);
-				setError("");
 				const response = await getAllProducts(page, limit, query, sortOrder, categorySelects, dateRange.start, dateRange.end);
 				setItem(response?.data.content || []);
 				setTotalPages(response?.data.page?.totalPages || 0);
 			} catch (err) {
-				setError("Không thể tải dữ liệu!");
 				console.error(err);
-			} finally {
-				setLoading(false);
 			}
 		};
 		fetchData();
@@ -96,10 +89,6 @@ const ProductList = () => {
 				dateRange={dateRange}
 				setDateRange={setDateRange}
 			/>
-
-			{/* ================= STATUS ================= */}
-			{loading && <p>Đang tải dữ liệu...</p>}
-			{error && <p style={{ color: "red" }}>{error}</p>}
 
 			{/* ================= TABLE ================= */}
 			<table className="products-table">

@@ -7,12 +7,13 @@ import "./ProductImage.css";
 export default function ProductImage({
 	product,
 	onFilesChange,
+	files,
 }: {
+	files: File[];
 	product?: ProductResponse | null;
-	onFilesChange: (files: FileList | null) => void;
+	onFilesChange: (files: File[] | null) => void;
 }) {
 	const user = React.useContext(AuthenticationContext);
-	const [files, setFiles] = React.useState<File[]>([]);
 	const [removedThumbnail, setRemovedThumbnail] = React.useState(false);
 	const fileRef = React.useRef<HTMLInputElement>(null);
 	const dropZoneRef = React.useRef<HTMLDivElement>(null);
@@ -22,8 +23,7 @@ export default function ProductImage({
 	const handleDropFiles = (e: React.DragEvent<HTMLDivElement>) => {
 		e.preventDefault();
 		if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-			onFilesChange(e.dataTransfer.files);
-			setFiles(Array.from(e.dataTransfer.files));
+			onFilesChange(Array.from(e.dataTransfer.files));
 		}
 	};
 	const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
@@ -40,8 +40,7 @@ export default function ProductImage({
 	};
 	const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files && e.target.files.length > 0) {
-			onFilesChange(e.target.files);
-			setFiles(Array.from(e.target.files));
+			onFilesChange(Array.from(e.target.files));
 		}
 	};
 	window.addEventListener("drop", (e) => {
@@ -108,8 +107,8 @@ export default function ProductImage({
 							<button
 								type="button"
 								onClick={() => {
-									setFiles([]);
-									setRemovedThumbnail(false);
+									onFilesChange([]);
+									console.log("removing file");
 								}}
 								className="product-btn-remove-image-select"
 							>

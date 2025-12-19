@@ -1,8 +1,11 @@
+import type { AxiosError } from "axios";
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { createProduct } from "../../../apis/productApi";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
+import type { BaseResponse } from "../../../types/BaseResponse";
 import type { Attribute } from "../../../types/IAttribute.d";
 import type { VariantResponse } from "../../../types/IProduct";
 import { generateCombinations } from "../../../utils/Attribute.util";
@@ -11,9 +14,6 @@ import ProductCategorySelect from "../Components/CategorySelect/ProductCategoryS
 import ProductImage from "../Components/ProductImage/ProductImage";
 import ProductTableAttributeComponent from "../Components/TableAttribute/TableAttributeComponent";
 import "./CreateProduct.css";
-import type { AxiosError } from "axios";
-import type { BaseResponse } from "../../../types/BaseResponse";
-import { useNavigate } from "react-router-dom";
 
 const AddProductForm: React.FC = () => {
 	const [name, setName] = React.useState("");
@@ -26,9 +26,12 @@ const AddProductForm: React.FC = () => {
 	const [categorySelect, setCategorySelect] = React.useState("");
 	const [variantList, setVariantList] = React.useState<VariantResponse[]>([]);
 	const navigate = useNavigate();
-	const handleFiles = (newFiles: FileList | null) => {
-		if (!newFiles) return;
-		const arr = Array.from(newFiles);
+	const handleFiles = (newFiles: File[] | null) => {
+		const arr = Array.from(newFiles || []);
+		if (arr.length === 0) {
+			setFiles([]);
+			return;
+		}
 		const newValidFiles = arr.filter((f) => f.type.startsWith("image/") && f.size <= 4 * 1024 * 1024);
 		if (files.length + newValidFiles.length > 1) {
 			toast.error("Tối đa 1 ảnh.");
@@ -44,6 +47,18 @@ const AddProductForm: React.FC = () => {
 
 	const handleSave = async () => {
 		try {
+			if (!name.trim()) {
+				toast.error("Vui lòng nhập tên sản phẩm");
+				return;
+			}
+			if (!categorySelect) {
+				toast.error("Vui lòng chọn danh mục sản phẩm");
+				return;
+			}
+			if (price <= 0) {
+				toast.error("Vui lòng nhập giá sản phẩm hợp lệ");
+				return;
+			}
 			const combos = generateCombinations(attributes);
 			const buildVariants = () => {
 				return combos.map((combo) => ({
@@ -60,7 +75,7 @@ const AddProductForm: React.FC = () => {
 			formData.append("option1name", attributes?.[0]?.name || "");
 			formData.append("option2name", attributes?.[1]?.name || "");
 			formData.append("option3name", attributes?.[2]?.name || "");
-			formData.append("imageUrl", files[0]);
+			if (files && files.length) formData.append("imageUrl", files[0]);
 			const variantsFormData = buildVariants();
 			for (let i = 0; i < variantsFormData.length; i++) {
 				formData.append(`variants[${i}].stock`, variantsFormData[i].stock.toString());
@@ -90,8 +105,8 @@ const AddProductForm: React.FC = () => {
 		setFiles([]);
 		setCategorySelect("");
 		setAttributes([]);
+		setVariantList([]);
 	};
-
 	return (
 		<div className="add-product-container">
 			<h1 className="add-product-page-title">Thêm sản phẩm</h1>
@@ -111,12 +126,22 @@ const AddProductForm: React.FC = () => {
 							</div>
 							<div className="add-product-col-2">
 								<label className="add-product-label">Số lượng</label>
-								<Input type="number" value={stock} placeholder="Nhập số lượng" onChange={(v) => setStock(v as number)} />
+								<Input
+									type="text"
+									value={stock.toLocaleString("vi-VN")}
+									placeholder="Nhập số lượng"
+									onChange={(v) => setStock(Number((v as string).substring(0, 18).replace(/\D/g, "")))}
+								/>
 							</div>
 						</div>
 						<div className="add-product-field-row">
 							<label className="add-product-label">Giá</label>
-							<Input type="number" value={price} placeholder="Nhập giá" onChange={(v) => setPrice(v as number)} />
+							<Input
+								type="text"
+								value={price.toLocaleString("vi-VN")}
+								placeholder="Nhập giá"
+								onChange={(v) => setPrice(Number((v as string).substring(0, 18).replace(/\D/g, "")))}
+							/>
 						</div>
 						<div className="add-product-field-row">
 							<label className="add-product-label">Mô tả</label>
@@ -128,18 +153,26 @@ const AddProductForm: React.FC = () => {
 							/>
 						</div>
 						<ProductAttributeListComponent attributes={attributes} setAttributes={setAttributes} />
-						<h3>Danh sách biến thể</h3>
-						<ProductTableAttributeComponent attributes={attributes} variantList={variantList} setVariantList={setVariantList} />
-						<div style={{ marginTop: 14, display: "flex", gap: 10 }}>
-							<Button label="Tạo sản phẩm" variant="primary" size="md" onClick={handleSave} />
-							<Button label="Hủy" variant="secondary" size="md" onClick={handleCancel} />
-						</div>
+						{attributes.length > 0 && (
+							<>
+								<h3>Danh sách biến thể</h3>
+								<ProductTableAttributeComponent
+									attributes={attributes}
+									variantList={variantList}
+									setVariantList={setVariantList}
+								/>
+							</>
+						)}
 					</div>
 				</div>
 				<div>
-					<ProductImage onFilesChange={handleFiles} />
+					<ProductImage onFilesChange={handleFiles} files={files} />
 					<ProductCategorySelect categorySelect={categorySelect} handleSelect={setCategorySelect} />
 				</div>
+			</div>
+			<div className="product-actions-btns">
+				<Button label="Tạo sản phẩm" variant="primary" size="md" onClick={handleSave} />
+				<Button label="Hủy" variant="secondary" size="md" onClick={handleCancel} />
 			</div>
 		</div>
 	);
