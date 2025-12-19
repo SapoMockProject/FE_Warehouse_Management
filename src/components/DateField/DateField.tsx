@@ -100,7 +100,7 @@ const DateField: React.FC<DateProps> = (props) => {
                                     fill="none"
                                     xmlns="http://www.w3.org/2000/svg" 
                                 >
-                                    <path fill="none" stroke="#949494" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m7 10l5 5m0 0l5-5"/>
+                                    <path fill="none" stroke="#949494" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m7 10l5 5m0 0l5-5"/>
                                 </svg>
                             </div>
 

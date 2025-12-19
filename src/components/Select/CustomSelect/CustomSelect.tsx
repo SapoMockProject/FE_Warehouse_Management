@@ -71,9 +71,9 @@ export const CustomSelect: React.FC<CustomSelectProps> = ({
 						<path
 							fill="none"
 							stroke="#949494"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth="2"
 							d="m7 10l5 5m0 0l5-5"
 						/>
 					</svg>
