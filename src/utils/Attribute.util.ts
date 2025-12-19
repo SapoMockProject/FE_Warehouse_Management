@@ -2,11 +2,7 @@ import type { Attribute, OptionResult } from "../types/IAttribute.d";
 import type { VariantResponse } from "../types/IProduct.d";
 
 export function generateCombinations(attributes: Attribute[]) {
-	const result: {
-		option1value: string;
-		option2value: string;
-		option3value: string;
-	}[] = [];
+	const result: OptionResult[] = [];
 	const arr1 = attributes[0]?.values || [""];
 	const arr2 = attributes[1]?.values || [""];
 	const arr3 = attributes[2]?.values || [""];

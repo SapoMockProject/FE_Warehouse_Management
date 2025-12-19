@@ -74,7 +74,7 @@ export default function UpdateProduct() {
 		};
 		load();
 	}, [product]);
-	const handleFiles = (fileList: FileList | null) => {
+	const handleFiles = (fileList: File[] | null) => {
 		if (!fileList || fileList.length === 0) return;
 		const file = fileList[0];
 		setFiles([file]);
@@ -137,22 +137,26 @@ export default function UpdateProduct() {
 							/>
 						</div>
 						<ProductAttributeListComponent attributes={attributes} setAttributes={setAttributes} />
-						<h3>Danh sách biến thể</h3>
-						<ProductTableAttributeComponent
-							variantList={variantList}
-							setVariantList={setVariantList}
-							attributes={attributes}
-							product={product}
-						/>
+						{attributes.length > 0 && (
+							<>
+								<h3>Danh sách biến thể</h3>
+								<ProductTableAttributeComponent
+									variantList={variantList}
+									setVariantList={setVariantList}
+									attributes={attributes}
+									product={product}
+								/>
+							</>
+						)}
 					</div>
 				</div>
 				<div>
-					<ProductImage product={product} onFilesChange={handleFiles} />
+					<ProductImage files={files} product={product} onFilesChange={handleFiles} />
 					<ProductCategorySelect product={product} categorySelect={categorySelect} handleSelect={setCategorySelect} />
 				</div>
 			</div>
 			{user?.user.role !== Role.COORDINATOR && (
-				<div style={{ marginTop: 14, display: "flex", gap: 10, justifyContent: "flex-end", alignItems: "center" }}>
+				<div className="product-actions-btns">
 					<Button label="Sửa sản phẩm" variant="primary" size="md" onClick={handleSave} />
 					<Button label="Hủy" variant="secondary" size="md" onClick={() => navigate(-1)} />
 				</div>
