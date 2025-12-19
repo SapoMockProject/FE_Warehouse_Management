@@ -28,3 +28,17 @@ export const getAllProductOptions = (product: ProductResponse) => {
 export const buildLabelForSelectedVariants = (variant: VariantResponse) => {
 	return [variant.option1value, variant.option2value, variant.option3value].filter(Boolean).join(" / ");
 };
+
+export const formatDateTimeDisplay = (dateString: string) => {
+	const date = new Date(dateString);
+	const options: Intl.DateTimeFormatOptions = {
+		year: "numeric",
+		month: "2-digit",
+		day: "2-digit",
+		hour: "2-digit",
+		minute: "2-digit",
+		second: "2-digit",
+		timeZone: "Asia/Ho_Chi_Minh",
+	};
+	return date.toLocaleString("vi-VN", options);
+};

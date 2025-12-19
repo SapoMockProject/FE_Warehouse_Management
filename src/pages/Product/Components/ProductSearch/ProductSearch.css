@@ -1,0 +1,24 @@
+.product-search-filter-bar {
+	background: white;
+	padding: 18px;
+	border-radius: 10px;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+	display: flex;
+	gap: 10px;
+	align-items: center;
+	margin-bottom: 20px;
+	width: 100%;
+}
+
+.product-search-filter-bar .product-search-date-range {
+    flex: 1;
+}
+.product-search-filter-bar .product-search-category-select {
+    flex: 1;
+}
+.product-search-filter-bar .product-search-input {
+    flex: 4;
+}
+.product-search-filter-bar-item {
+    width: 100%;
+}

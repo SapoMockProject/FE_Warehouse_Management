@@ -41,41 +41,6 @@
   border-bottom: 3px solid #0d6efd;
 }
 
-/* ===================== FILTER BAR ===================== */
-.product-list-filter-bar {
-  background: white;
-  padding: 18px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.product-list-filter-bar select {
-  padding: 12px 14px;
-  border-radius: 8px;
-  border: 1px solid #ced4da;
-  font-size: 14px;
-  min-width: 160px;
-}
-
-.product-list-search-filter-bar input {
-  border-radius: 8px;
-  border: 1px solid #ced4da;
-  font-size: 14px;
-  min-width: 390px;
-}
-
-.product-list-btn-filter {
-  padding: 12px 14px;
-  border: 1px solid #ced4da;
-  background: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-}
 
 /* ===================== TABLE ===================== */
 .products-table {

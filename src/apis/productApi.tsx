@@ -3,17 +3,35 @@ import type { BaseResponse } from "../types/BaseResponse";
 import type { ProductResponse, VariantResponse } from "../types/IProduct";
 import type { PagedModel } from "../types/PagedModel";
 
-export const getAllProducts = async (page: number, limit: number, query: string, sortOrder: "asc" | "desc") => {
+export const getAllProducts = async (
+	page: number,
+	limit: number,
+	query: string,
+	sortOrder: "asc" | "desc",
+	categoryIds?: string[],
+	fromDate?: string,
+	toDate?: string
+) => {
+	let params = {
+		page,
+		limit,
+		query,
+		sortOrder: sortOrder.toUpperCase(),
+	};
+	if (categoryIds && categoryIds.length > 0) {
+		params = Object.assign(params, { categoryIds: categoryIds.join(",") });
+	}
+	if (fromDate) {
+		params = Object.assign(params, { fromCreatedDate: fromDate });
+	}
+	if (toDate) {
+		params = Object.assign(params, { toCreatedDate: toDate });
+	}
 	const res = await axiosConfiguration.get<BaseResponse<PagedModel<ProductResponse>>>("/products", {
 		headers: {
 			Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
 		},
-		params: {
-			page,
-			limit,
-			query,
-			sortOrder: sortOrder.toUpperCase(),
-		},
+		params: params,
 	});
 	return res.data;
 };
