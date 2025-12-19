@@ -1,3 +1,5 @@
+import type { Category } from "./ICategory.d";
+
 export interface Product {
 	id: number;
 	name: string;
@@ -46,7 +48,7 @@ export interface ProductSelectProps {
 export interface ProductResponse {
 	id: number;
 	name: string;
-	categoryName: string;
+	category: Category;
 	description: string;
 	option1name: string;
 	option2name: string;

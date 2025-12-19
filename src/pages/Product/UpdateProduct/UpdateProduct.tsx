@@ -144,12 +144,6 @@ export default function UpdateProduct() {
 							attributes={attributes}
 							product={product}
 						/>
-						{user?.user.role !== Role.COORDINATOR && (
-							<div style={{ marginTop: 14, display: "flex", gap: 10 }}>
-								<Button label="Sửa sản phẩm" variant="primary" size="md" onClick={handleSave} />
-								<Button label="Hủy" variant="secondary" size="md" onClick={() => navigate(-1)} />
-							</div>
-						)}
 					</div>
 				</div>
 				<div>
@@ -157,6 +151,12 @@ export default function UpdateProduct() {
 					<ProductCategorySelect product={product} categorySelect={categorySelect} handleSelect={setCategorySelect} />
 				</div>
 			</div>
+			{user?.user.role !== Role.COORDINATOR && (
+				<div style={{ marginTop: 14, display: "flex", gap: 10, justifyContent: "flex-end", alignItems: "center" }}>
+					<Button label="Sửa sản phẩm" variant="primary" size="md" onClick={handleSave} />
+					<Button label="Hủy" variant="secondary" size="md" onClick={() => navigate(-1)} />
+				</div>
+			)}
 		</div>
 	);
 }

@@ -36,8 +36,8 @@ export default function ProductCategorySelect({
 		fetchCategories();
 	}, [page]);
 	React.useEffect(() => {
-		if (!categorySelect && categories.length > 0 && product?.categoryName) {
-			const found = categories.find((c) => c.name === product.categoryName);
+		if (!categorySelect && categories.length > 0 && product && product.category.name) {
+			const found = categories.find((c) => c.name === product.category.name);
 			if (found && handleSelect) {
 				handleSelect(found.id.toString());
 			}
@@ -66,7 +66,7 @@ export default function ProductCategorySelect({
 						))}
 					</CustomSelect>
 				) : (
-					<Input value={product?.categoryName} readonly type="text" />
+					<Input value={product?.category.name} readonly type="text" />
 				)}
 			</div>
 		</>

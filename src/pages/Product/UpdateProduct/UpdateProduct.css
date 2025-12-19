@@ -1,6 +1,6 @@
 .update-product-container {
-	max-width: 1200px;
-	margin: 5px 28px auto;
+	width: 100%;
+	padding: 50px 28px auto;
 }
 
 .update-product-title {

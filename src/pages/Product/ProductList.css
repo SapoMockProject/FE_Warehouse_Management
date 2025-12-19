@@ -41,41 +41,6 @@
   border-bottom: 3px solid #0d6efd;
 }
 
-/* ===================== FILTER BAR ===================== */
-.product-list-filter-bar {
-  background: white;
-  padding: 18px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.product-list-filter-bar select {
-  padding: 12px 14px;
-  border-radius: 8px;
-  border: 1px solid #ced4da;
-  font-size: 14px;
-  min-width: 160px;
-}
-
-.product-list-search-filter-bar input {
-  border-radius: 8px;
-  border: 1px solid #ced4da;
-  font-size: 14px;
-  min-width: 390px;
-}
-
-.product-list-btn-filter {
-  padding: 12px 14px;
-  border: 1px solid #ced4da;
-  background: white;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-}
 
 /* ===================== TABLE ===================== */
 .products-table {
@@ -104,21 +69,26 @@
 
 .products-table td,
 th {
-  text-align: center;
+  text-align: left;
   vertical-align: middle;
   padding: 14px;
+}
+
+.product-list-table-header {
+  text-align: left;
+  margin-left: 30px;
 }
 
 .product-list-product-info {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
 }
 
 .product-list-product-info img {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   object-fit: cover;
   border-radius: 6px;
 }
@@ -129,79 +99,18 @@ th {
   font-weight: 500;
 }
 
-.products-table .product-list-select-checkbox {
-  display: flex;
-  font-weight: 500;
-}
-
-.product-list-select-checkbox .product-list-update-link {
-  margin: 0 16px;
-  border: none;
-  background: #f9fafb;
-  color: #0d6efd;
-  cursor: pointer;
-  margin-top: -4px;
-}
-
-.product-list-select-checkbox .product-list-update-link:hover {
-  border-bottom: 1px solid #0d6efd;
-  color: #368eec;
-}
-
 .product-list-select-checkbox .product-list-delete-link {
   text-decoration: none;
   margin-top: -4px;
   font-size: 13px;
 }
 
-.product-list-select-checkbox .product-list-delete-link:hover {
-  border-bottom: 1px solid #0d6efd;
-  color: #368eec;
-}
-
-/* ===================== PAGINATION ===================== */
 .product-list-vesion-product-variant {
   color: #a3a7ad;
 }
 
-.product-list-pagination-container {
+.products-table .product-list-select-checkbox {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 5px;
-  gap: 10px;
-}
-
-.product-list-text-info {
-  color: #333;
-  font-size: 14px;
-}
-
-.product-list-display-select {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-}
-
-.product-list-pagination {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.product-list-page-number {
-  background-color: #007bff;
-  color: white;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-weight: 500;
-}
-
-.product-list-page-number:hover {
-  background-color: #0056b3;
+  gap: 10px;
 }
