@@ -1,6 +1,6 @@
 import type { AxiosError } from "axios";
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { loginAccount, loginGoogle } from "../../apis/authApi";
 import Button from "../../components/Button/Button";
@@ -14,6 +14,21 @@ export default function Login() {
 	const [loginValue, setLoginValue] = React.useState({ username: "", password: "" });
 	const [errors, setErrors] = React.useState<{ username?: string; password?: string }>({});
 	const navigate = useNavigate();
+
+const location = useLocation();
+
+	React.useEffect(() => {
+		const reason = location.state?.reason;
+
+		if (reason === "expired") {
+			toast.warning("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+		}
+
+		if (reason === "unauthorized") {
+			toast.info("Vui lòng đăng nhập để tiếp tục.");
+		}
+	}, [location.state]);
+
 	const login = async () => {
 		if (!loginValue.username) {
 			setErrors((prev) => ({ ...prev, username: "Vui lòng nhập username" }));
@@ -41,6 +56,7 @@ export default function Login() {
 				return;
 			}
 			localStorage.setItem("token", token);
+			toast.success("Đăng nhập thành công!");
 			navigate("/dashboard");
 		} catch (error) {
 			const code = ((error as AxiosError).response?.data as BaseResponse<number>).data;

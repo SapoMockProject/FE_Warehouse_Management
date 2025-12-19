@@ -5,23 +5,36 @@ export default function ContainerComponent({ children }: { children: React.React
 	const navigate = useNavigate();
 	const [params] = useSearchParams();
 	const location = useLocation();
+
 	React.useEffect(() => {
 		if (location.pathname !== "/verify-account") {
 			const token = localStorage.getItem("token");
+
 			if (!token && location.pathname !== "/login") {
-				navigate(`/login?${params.toString()}`);
+				navigate(`/login?${params.toString()}`, {
+					state: { reason: "unauthorized" },
+				});
 				return;
-			} else if (token) {
-				const { exp } = JSON.parse(atob(token!.split(".")[1]));
+			}
+
+			if (token) {
+				const { exp } = JSON.parse(atob(token.split(".")[1]));
+
 				if (Date.now() >= exp * 1000) {
 					localStorage.removeItem("token");
-					navigate("/login");
+					navigate("/login", {
+						replace: true,
+						state: { reason: "expired" },
+					});
+					return;
 				}
+
 				if (location.pathname === "/login") {
 					navigate("/");
 				}
 			}
 		}
 	}, [navigate, params, location]);
+
 	return <>{children}</>;
 }
