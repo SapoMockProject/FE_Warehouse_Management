@@ -13,6 +13,7 @@ import ProductTableAttributeComponent from "../Components/TableAttribute/TableAt
 import "./CreateProduct.css";
 import type { AxiosError } from "axios";
 import type { BaseResponse } from "../../../types/BaseResponse";
+import { useNavigate } from "react-router-dom";
 
 const AddProductForm: React.FC = () => {
 	const [name, setName] = React.useState("");
@@ -24,6 +25,7 @@ const AddProductForm: React.FC = () => {
 	const [files, setFiles] = React.useState<File[]>([]);
 	const [categorySelect, setCategorySelect] = React.useState("");
 	const [variantList, setVariantList] = React.useState<VariantResponse[]>([]);
+	const navigate = useNavigate();
 	const handleFiles = (newFiles: FileList | null) => {
 		if (!newFiles) return;
 		const arr = Array.from(newFiles);
@@ -33,6 +35,11 @@ const AddProductForm: React.FC = () => {
 			return;
 		}
 		setFiles((prev) => [...prev, ...newValidFiles]);
+	};
+
+	const handleCancel = () => {
+		handleReset();
+		navigate("/products");
 	};
 
 	const handleSave = async () => {
@@ -125,7 +132,7 @@ const AddProductForm: React.FC = () => {
 						<ProductTableAttributeComponent attributes={attributes} variantList={variantList} setVariantList={setVariantList} />
 						<div style={{ marginTop: 14, display: "flex", gap: 10 }}>
 							<Button label="Tạo sản phẩm" variant="primary" size="md" onClick={handleSave} />
-							<Button label="Hủy" variant="secondary" size="md" onClick={handleReset} />
+							<Button label="Hủy" variant="secondary" size="md" onClick={handleCancel} />
 						</div>
 					</div>
 				</div>

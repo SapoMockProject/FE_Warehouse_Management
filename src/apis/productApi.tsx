@@ -79,3 +79,12 @@ export const getProductById = async (id: number) => {
 	});
 	return res.data;
 };
+
+export const deleteProductById = async (ids: number[]) => {
+	const token = localStorage.getItem("token");
+	await axiosConfiguration.delete(`/products/${ids.join(",")}`, {
+		headers: {
+			Authorization: `Bearer ${token}`,
+		},
+	});
+};

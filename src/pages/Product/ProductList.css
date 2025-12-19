@@ -69,21 +69,26 @@
 
 .products-table td,
 th {
-  text-align: center;
+  text-align: left;
   vertical-align: middle;
   padding: 14px;
+}
+
+.product-list-table-header {
+  text-align: left;
+  margin-left: 30px;
 }
 
 .product-list-product-info {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
 }
 
 .product-list-product-info img {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   object-fit: cover;
   border-radius: 6px;
 }
@@ -94,79 +99,18 @@ th {
   font-weight: 500;
 }
 
-.products-table .product-list-select-checkbox {
-  display: flex;
-  font-weight: 500;
-}
-
-.product-list-select-checkbox .product-list-update-link {
-  margin: 0 16px;
-  border: none;
-  background: #f9fafb;
-  color: #0d6efd;
-  cursor: pointer;
-  margin-top: -4px;
-}
-
-.product-list-select-checkbox .product-list-update-link:hover {
-  border-bottom: 1px solid #0d6efd;
-  color: #368eec;
-}
-
 .product-list-select-checkbox .product-list-delete-link {
   text-decoration: none;
   margin-top: -4px;
   font-size: 13px;
 }
 
-.product-list-select-checkbox .product-list-delete-link:hover {
-  border-bottom: 1px solid #0d6efd;
-  color: #368eec;
-}
-
-/* ===================== PAGINATION ===================== */
 .product-list-vesion-product-variant {
   color: #a3a7ad;
 }
 
-.product-list-pagination-container {
+.products-table .product-list-select-checkbox {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 18px 5px;
-  gap: 10px;
-}
-
-.product-list-text-info {
-  color: #333;
-  font-size: 14px;
-}
-
-.product-list-display-select {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-}
-
-.product-list-pagination {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.product-list-page-number {
-  background-color: #007bff;
-  color: white;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   font-weight: 500;
-}
-
-.product-list-page-number:hover {
-  background-color: #0056b3;
+  gap: 10px;
 }

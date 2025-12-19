@@ -12,9 +12,14 @@ export default function PopConfirm({
 	children: React.ReactNode;
 	title: string;
 	description?: string;
-	actions: { label: string; onClick: () => void; variant?: "primary" | "secondary" | "tertiary" | "danger" }[];
+	actions: { label: string; onClick: () => void | Promise<void>; variant?: "primary" | "secondary" | "tertiary" | "danger" }[];
 }) {
 	const [openModal, closeModal, ModalComponent] = useModalComponent({ className: "pop-confirm-modal" });
+	const handleActionClick = (actionOnClick: () => void | Promise<void>) => {
+		Promise.resolve(actionOnClick()).then(() => {
+			closeModal();
+		})
+	};
 	return (
 		<>
 			<ModalComponent>
@@ -31,7 +36,7 @@ export default function PopConfirm({
 								key={index}
 								variant={action.variant || "primary"}
 								label={action.label}
-								onClick={action.onClick}
+								onClick={() => handleActionClick(action.onClick)}
 								size="md"
 							/>
 						))}

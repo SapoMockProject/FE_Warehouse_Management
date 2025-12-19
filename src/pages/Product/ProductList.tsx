@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./ProductList.css";
 
-import { getAllProducts } from "../../apis/productApi";
+import { deleteProductById, getAllProducts } from "../../apis/productApi";
 import Button from "../../components/Button/Button";
 import Pagination from "../../components/Pagination/Pagination";
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
@@ -12,6 +12,8 @@ import type { ProductResponse } from "../../types/IProduct";
 import { Role } from "../../types/IUser.d";
 import ProductSearchTab from "./Components/ProductSearch/ProductSearchTab";
 import { formatDateTimeDisplay } from "../../utils/Product.util";
+import PopConfirm from "../../components/PopConfirm/PopConfirm";
+import { toast } from "react-toastify";
 
 const ProductList = () => {
 	const [item, setItem] = React.useState<ProductResponse[]>([]);
@@ -24,6 +26,7 @@ const ProductList = () => {
 	const query: string = useDebounce(search, 1000);
 	const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
 	const [selectAll, setSelectAll] = React.useState(false);
+	const [reload, setReload] = React.useState(false);
 	React.useEffect(() => {
 		const fetchData = async () => {
 			try {
@@ -40,7 +43,16 @@ const ProductList = () => {
 			}
 		};
 		fetchData();
-	}, [page, limit, sortOrder, query, categorySelects, dateRange]);
+	}, [page, limit, sortOrder, query, categorySelects, dateRange, reload]);
+
+	const deleteProduct = async () => {
+		await deleteProductById(selectedIds);
+		setSelectedIds([]);
+		setSelectAll(false);
+		toast.success("Xoá sản phẩm thành công");
+		setPage(0);
+		setReload((prev) => !prev);
+	};
 
 	const toggleSelectAll = () => {
 		if (selectAll) setSelectedIds([]);
@@ -100,8 +112,12 @@ const ProductList = () => {
 							<th colSpan={4}>
 								<div className="product-list-select-checkbox">
 									Đã chọn {selectedIds.length} sản phẩm
-									<Button label="Sửa sản phẩm" variant="tertiary" size="sm" className="product-list-update-link" />
-									<Button label="Xóa sản phẩm" variant="danger" size="sm" className="product-list-delete-link" />
+									<PopConfirm
+										title={`Bạn có chắc chắn muốn xoá ${selectedIds.length} sản phẩm?`}
+										actions={[{ label: "Xác nhận", variant: "danger", onClick: deleteProduct }]}
+									>
+										<Button label="Xóa sản phẩm" variant="danger" size="sm" className="product-list-delete-link" />
+									</PopConfirm>
 								</div>
 							</th>
 						</tr>
@@ -110,46 +126,40 @@ const ProductList = () => {
 							<th>
 								<input type="checkbox" checked={selectAll} onChange={toggleSelectAll} />
 							</th>
-							<th>Sản phẩm</th>
-							<th>Có thể bán</th>
-							<th>Loại</th>
-							<th>Ngày khởi tạo</th>
+							<th className="product-list-table-header">Sản phẩm</th>
+							<th className="product-list-table-header">Có thể bán</th>
+							<th className="product-list-table-header">Loại</th>
+							<th className="product-list-table-header">Ngày khởi tạo</th>
 						</tr>
 					)}
 				</thead>
 
 				<tbody>
 					{item.length > 0 ? (
-						item.map((p) => (
-							<tr key={p.id}>
+						item.map((product) => (
+							<tr key={product.id}>
 								<td>
-									<input type="checkbox" checked={selectedIds.includes(p.id)} onChange={() => toggleSelect(p.id)} />
+									<input
+										type="checkbox"
+										checked={selectedIds.includes(product.id)}
+										onChange={() => toggleSelect(product.id)}
+									/>
 								</td>
-
-								<td>
+								<td className="">
 									<div className="product-list-product-info">
-										<img
-											src={p.thumbnail}
-											alt={p.name}
-											style={{
-												width: 50,
-												height: 50,
-												objectFit: "cover",
-												borderRadius: 6,
-											}}
-										/>
-										<Link to={`/products/${p.id}`}>{p.name}</Link>
+										<img src={product.thumbnail} alt={product.name} />
+										<Link to={`/products/${product.id}`}>{product.name}</Link>
 									</div>
 								</td>
 
 								<td>
-									{p.quantity}
+									{product.quantity}
 									<br />
-									<span className="product-list-vesion-product-variant">({p.variantCount} Phiên bản)</span>
+									<span className="product-list-vesion-product-variant">({product.variantCount} Phiên bản)</span>
 								</td>
 
-								<td>{p.category.name}</td>
-								<td>{formatDateTimeDisplay(p.createdDate)}</td>
+								<td>{product.category.name}</td>
+								<td>{formatDateTimeDisplay(product.createdDate)}</td>
 							</tr>
 						))
 					) : (
