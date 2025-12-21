@@ -1,11 +1,10 @@
 import React from "react";
-import "./Dashboard.css";
-import InventoryOverTime from "./InventoryOverTime/InventoryOverTime";
-import type { BaseResponse } from "../../types/BaseResponse";
+import { getStatisticOverTime } from "../../apis/statisticApi";
 import type { IStatisticResponse } from "../../types/IStatistic";
-import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
 import CardComponent from "./Card/CardComponent";
+import "./Dashboard.css";
 import GoodReceiptOverProduct from "./GoodReceiptOverProduct/GoodReceiptOverProduct";
+import InventoryOverTime from "./InventoryOverTime/InventoryOverTime";
 
 export const Dashboard = () => {
 	const [data, setData] = React.useState<IStatisticResponse>({
@@ -18,12 +17,8 @@ export const Dashboard = () => {
 	});
 	React.useEffect(() => {
 		const fetchData = async () => {
-			const response = await axiosConfiguration.get("/statistics/statistic-over-time", {
-				headers: {
-					Authorization: `Bearer ${localStorage.getItem("token")}`,
-				},
-			});
-			setData((response.data as BaseResponse<IStatisticResponse>).data);
+			const response = await getStatisticOverTime();
+			setData(response.data);
 		};
 		fetchData();
 	}, []);
