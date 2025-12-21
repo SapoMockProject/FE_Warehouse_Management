@@ -1,20 +1,43 @@
+import type { AxiosRequestConfig } from "axios";
 import React from "react";
-import useExportExcel from "../../hooks/ExportExcel/useExportExcel";
+import { toast } from "react-toastify";
+import { axiosConfiguration } from "../../configurations/AxiosConfiguration";
 import useModalComponent from "../../hooks/Modal/useModalComponent";
 import Button from "../Button/Button";
 import Input from "../Input/Input";
 import { CustomSelect } from "../Select/CustomSelect/CustomSelect";
 import { SelectOption } from "../Select/SelectOption/SelectOption";
 import "./ExportExcel.css";
-import type { AxiosRequestConfig } from "axios";
 
 export default function ExportExcelComponent({ config }: { config: AxiosRequestConfig }) {
 	const [openModal, closeModal, ModalCompoent] = useModalComponent({ className: "export-excel-modal-container" });
 	const [selectedFormat, setSelectedFormat] = React.useState<"csv" | "xlsx" | "xls">("xlsx");
 	const [exportLimit, setExportLimit] = React.useState(1000);
-	const exportExcel = useExportExcel();
-	const handleExport = () => {
-		exportExcel.exportExcel({ config, exportLimit, type: selectedFormat });
+	const handleExport = async() => {
+		const exportExcel = async ({
+			config,
+			exportLimit,
+			type,
+		}: {
+			config: AxiosRequestConfig;
+			exportLimit: number;
+			type: "csv" | "xlsx" | "xls";
+		}) => {
+			config.responseType = "blob";
+			config.params["exportLimit"] = exportLimit;
+			config.params["type"] = type.toUpperCase();
+			const response = await axiosConfiguration(config);
+			const fileName = response.headers["content-disposition"].split(";")[1].split("=")[1];
+			const url = window.URL.createObjectURL(new Blob([response.data]));
+			const link = document.createElement("a");
+			link.href = url;
+			link.setAttribute("target", "_blank");
+			link.setAttribute("download", fileName);
+			link.click();
+			window.URL.revokeObjectURL(url);
+			toast.success("Xuất file thành công");
+		};
+		await exportExcel({ config, exportLimit, type: selectedFormat });
 		closeModal();
 	};
 	return (
