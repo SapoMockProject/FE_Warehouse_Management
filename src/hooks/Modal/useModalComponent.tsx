@@ -30,7 +30,7 @@ export default function useModalComponent(props: {
 				</div>
 			</>
 		),
-		[isVisible, props]
+		[isVisible, props.className]
 	);
 	return [openModal, closeModal, ModalComponent];
 }

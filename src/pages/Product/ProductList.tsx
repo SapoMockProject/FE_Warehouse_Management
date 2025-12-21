@@ -1,19 +1,20 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import "./ProductList.css";
-
+import { toast } from "react-toastify";
 import { deleteProductById, getAllProducts } from "../../apis/productApi";
 import Button from "../../components/Button/Button";
 import Pagination from "../../components/Pagination/Pagination";
+import PopConfirm from "../../components/PopConfirm/PopConfirm";
 import { AuthenticationContext } from "../../contexts/AuthenticationContext";
 import { useDebounce } from "../../hooks/useDebounce";
 import useProductSearch from "../../hooks/useProductSearch";
 import type { ProductResponse } from "../../types/IProduct";
 import { Role } from "../../types/IUser.d";
-import ProductSearchTab from "./Components/ProductSearch/ProductSearchTab";
 import { formatDateTimeDisplay } from "../../utils/Product.util";
-import PopConfirm from "../../components/PopConfirm/PopConfirm";
-import { toast } from "react-toastify";
+import ProductSearchTab from "./Components/ProductSearch/ProductSearchTab";
+import "./ProductList.css";
+import ExportExcelComponent from "../../components/ExportExcel/ExportExcelComponent";
+import type { AxiosRequestConfig } from "axios";
 
 const ProductList = () => {
 	const [item, setItem] = React.useState<ProductResponse[]>([]);
@@ -60,27 +61,48 @@ const ProductList = () => {
 	React.useEffect(() => {
 		setSelectAll(selectedIds.length > 0);
 	}, [selectedIds, item]);
+	const configExport = (): AxiosRequestConfig => {
+		let params = {
+			page,
+			limit,
+			query,
+			sortOrder: sortOrder.toUpperCase(),
+		};
+		if (categorySelects && categorySelects.length > 0) {
+			params = Object.assign(params, { categoryIds: categorySelects.join(",") });
+		}
+		if (dateRange.start) {
+			params = Object.assign(params, { fromCreatedDate: dateRange.start });
+		}
+		if (dateRange.end) {
+			params = Object.assign(params, { toCreatedDate: dateRange.end });
+		}
+		return {
+			url: "/product-variants/exports",
+			method: "GET",
+			params: params,
+			headers: {
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		};
+	};
 	const user = React.useContext(AuthenticationContext);
 	return (
 		<div className="product-list-product-container">
-			{/* ================= HEADER ================= */}
 			<div className="product-list-header">
 				<h2>Danh sách sản phẩm</h2>
-				<div className="product-list-header-right">
-					{user?.user.role !== Role.COORDINATOR && (
+				{user?.user.role !== Role.COORDINATOR && (
+					<div className="product-list-header-right">
+						<ExportExcelComponent config={configExport()} />
 						<Link to="/products/create">
 							<Button label="+ Thêm sản phẩm" variant="primary" size="md" />
 						</Link>
-					)}
-				</div>
+					</div>
+				)}
 			</div>
-
-			{/* ================= TABS ================= */}
 			<div className="product-list-tabs">
 				<div className="product-list-tab product-list-active">Tất cả</div>
 			</div>
-
-			{/* ================= FILTER BAR ================= */}
 			<ProductSearchTab
 				search={search}
 				setSearch={setSearch}
@@ -89,8 +111,6 @@ const ProductList = () => {
 				dateRange={dateRange}
 				setDateRange={setDateRange}
 			/>
-
-			{/* ================= TABLE ================= */}
 			<table className="products-table">
 				<thead>
 					{selectedIds.length > 0 ? (
@@ -122,7 +142,6 @@ const ProductList = () => {
 						</tr>
 					)}
 				</thead>
-
 				<tbody>
 					{item.length > 0 ? (
 						item.map((product) => (
@@ -158,8 +177,6 @@ const ProductList = () => {
 					)}
 				</tbody>
 			</table>
-
-			{/* ================= PAGINATION ================= */}
 			<Pagination
 				page={page}
 				totalPages={totalPages}
@@ -177,5 +194,4 @@ const ProductList = () => {
 		</div>
 	);
 };
-
 export default ProductList;
