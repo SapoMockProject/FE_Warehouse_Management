@@ -18,3 +18,18 @@ export const getAllCategories = async (page: number = 0, limit: number = 10) => 
 	const categories = (res.data as BaseResponse<PagedModel<Category>>).data;
 	return categories;
 };
+
+export const createCategory = async (name: string) => {
+	const token = localStorage.getItem("token");
+	const res = await axiosConfiguration.post(
+		"/categories",
+		{ name },
+		{
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		}
+	);
+	const category = (res.data as BaseResponse<Category>).data;
+	return category;
+};
