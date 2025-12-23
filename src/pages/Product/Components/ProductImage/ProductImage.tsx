@@ -8,17 +8,22 @@ export default function ProductImage({
 	product,
 	onFilesChange,
 	files,
+	removedThumbnail,
+	setRemovedThumbnail,
 }: {
 	files: File[];
 	product?: ProductResponse | null;
 	onFilesChange: (files: File[] | null) => void;
+	removedThumbnail?: boolean;
+	setRemovedThumbnail?: (removed: boolean) => void;
 }) {
 	const user = React.useContext(AuthenticationContext);
-	const [removedThumbnail, setRemovedThumbnail] = React.useState(false);
 	const fileRef = React.useRef<HTMLInputElement>(null);
 	const dropZoneRef = React.useRef<HTMLDivElement>(null);
 	const removeThumbnail = () => {
-		setRemovedThumbnail(true);
+		if (setRemovedThumbnail) {
+			setRemovedThumbnail(true);
+		}
 	};
 	const handleDropFiles = (e: React.DragEvent<HTMLDivElement>) => {
 		e.preventDefault();

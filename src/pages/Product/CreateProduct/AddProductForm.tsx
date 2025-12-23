@@ -61,12 +61,17 @@ const AddProductForm: React.FC = () => {
 			}
 			const combos = generateCombinations(attributes);
 			const buildVariants = () => {
-				return combos.map((combo) => ({
-					sku,
-					price,
-					stock,
-					...combo,
-				}));
+				const variants = [];
+				for (let i = 0; i < combos.length; i++) {
+					const variant = {
+						sku: sku + "_" + String(i),
+						price,
+						stock,
+						...combos[i],
+					};
+					variants.push(variant);
+				}
+				return variants;
 			};
 			const formData = new FormData();
 			formData.append("name", name);
