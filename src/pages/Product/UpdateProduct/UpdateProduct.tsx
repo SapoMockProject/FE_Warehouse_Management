@@ -24,6 +24,9 @@ export default function UpdateProduct() {
 	const [categorySelect, setCategorySelect] = React.useState<string>("");
 	const [attributes, setAttributes] = React.useState<Attribute[]>([]);
 	const [variantList, setVariantList] = React.useState<VariantResponse[]>([]);
+	const [sku, setSku] = React.useState("");
+	const [price, setPrice] = React.useState(0);
+	const [stock, setStock] = React.useState(0);
 	const navigate = useNavigate();
 	React.useEffect(() => {
 		if (!id) return;
@@ -42,6 +45,9 @@ export default function UpdateProduct() {
 			if (!product) return;
 			setName(product.name);
 			setDescription(product.description);
+			setPrice(product.variants[0]?.price || 0);
+			setStock(product.variants[0]?.stock || 0);
+			setSku(product.variants[0]?.sku || "");
 		};
 		load();
 	}, [product]);
@@ -90,14 +96,21 @@ export default function UpdateProduct() {
 			formData.append("option2name", attributes?.[1]?.name || "");
 			formData.append("option3name", attributes?.[2]?.name || "");
 			if (files && files.length) formData.append("imageUrl", files[0]);
-			for (let i = 0; i < variantList.length; i++) {
-				formData.append(`variants[${i}].stock`, variantList[i].stock.toString());
-				formData.append(`variants[${i}].price`, variantList[i].price.toString());
-				formData.append(`variants[${i}].sku`, variantList[i].sku);
-				formData.append(`variants[${i}].option1value`, variantList[i].option1value ?? "");
-				formData.append(`variants[${i}].option2value`, variantList[i].option2value ?? "");
-				formData.append(`variants[${i}].option3value`, variantList[i].option3value ?? "");
-				formData.append(`variants[${i}].id`, variantList[i].id <= 0 ? "" : String(variantList[i].id));
+			if (variantList.length === 0) {
+				formData.append("variants[0].sku", sku);
+				formData.append("variants[0].price", price.toString());
+				formData.append("variants[0].stock", stock.toString());
+				formData.append("variants[0].id", product?.variants[0].id ? String(product.variants[0].id) : "");
+			} else {
+				for (let i = 0; i < variantList.length; i++) {
+					formData.append(`variants[${i}].stock`, variantList[i].stock.toString());
+					formData.append(`variants[${i}].price`, variantList[i].price.toString());
+					formData.append(`variants[${i}].sku`, variantList[i].sku);
+					formData.append(`variants[${i}].option1value`, variantList[i].option1value ?? "");
+					formData.append(`variants[${i}].option2value`, variantList[i].option2value ?? "");
+					formData.append(`variants[${i}].option3value`, variantList[i].option3value ?? "");
+					formData.append(`variants[${i}].id`, variantList[i].id <= 0 ? "" : String(variantList[i].id));
+				}
 			}
 			await updateProduct(Number(id), formData);
 			console.log("Sửa sản phẩm thành công");
@@ -126,6 +139,34 @@ export default function UpdateProduct() {
 							/>
 							<div className="add-product-hint">Tối đa 820 ký tự</div>
 						</div>
+						{variantList.length === 0 && (
+							<>
+								<div className="add-product-row">
+									<div className="add-product-col-2">
+										<label className="add-product-label">Mã SKU</label>
+										<Input type="text" value={sku} placeholder="Nhập SKU" onChange={(v) => setSku(v as string)} />
+									</div>
+									<div className="add-product-col-2">
+										<label className="add-product-label">Số lượng</label>
+										<Input
+											type="text"
+											value={stock.toLocaleString("vi-VN")}
+											placeholder="Nhập số lượng"
+											onChange={(v) => setStock(Number((v as string).substring(0, 18).replace(/\D/g, "")))}
+										/>
+									</div>
+								</div>
+								<div className="add-product-field-row">
+									<label className="add-product-label">Giá</label>
+									<Input
+										type="text"
+										value={price.toLocaleString("vi-VN")}
+										placeholder="Nhập giá"
+										onChange={(v) => setPrice(Number((v as string).substring(0, 18).replace(/\D/g, "")))}
+									/>
+								</div>
+							</>
+						)}
 						<div className="update-product-field-row">
 							<label className="update-product-label">Mô tả</label>
 							<Input
