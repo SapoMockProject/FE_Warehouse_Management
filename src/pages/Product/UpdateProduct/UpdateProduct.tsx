@@ -24,6 +24,7 @@ export default function UpdateProduct() {
 	const [categorySelect, setCategorySelect] = React.useState<string>("");
 	const [attributes, setAttributes] = React.useState<Attribute[]>([]);
 	const [variantList, setVariantList] = React.useState<VariantResponse[]>([]);
+	const [removedThumbnail, setRemovedThumbnail] = React.useState(false);
 	const [sku, setSku] = React.useState("");
 	const [price, setPrice] = React.useState(0);
 	const [stock, setStock] = React.useState(0);
@@ -96,6 +97,7 @@ export default function UpdateProduct() {
 			formData.append("option2name", attributes?.[1]?.name || "");
 			formData.append("option3name", attributes?.[2]?.name || "");
 			if (files && files.length) formData.append("imageUrl", files[0]);
+			else if (!removedThumbnail) formData.append("imageUrl", product?.thumbnail || "");
 			if (variantList.length === 0) {
 				formData.append("variants[0].sku", sku);
 				formData.append("variants[0].price", price.toString());
@@ -192,7 +194,13 @@ export default function UpdateProduct() {
 					</div>
 				</div>
 				<div>
-					<ProductImage files={files} product={product} onFilesChange={handleFiles} />
+					<ProductImage
+						removedThumbnail={removedThumbnail}
+						setRemovedThumbnail={setRemovedThumbnail}
+						files={files}
+						product={product}
+						onFilesChange={handleFiles}
+					/>
 					<ProductCategorySelect product={product} categorySelect={categorySelect} handleSelect={setCategorySelect} />
 				</div>
 			</div>
