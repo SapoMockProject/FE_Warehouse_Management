@@ -74,6 +74,10 @@ const DateField: React.FC<DateProps> = (props) => {
                         dateOnChange({ ...dateValue, preset });
                     } else {
                         setShowCustomDate(false);
+                        if (preset === dateValue.preset) {
+                            dateOnChange({start: "", end: "", preset: ''});
+                            return;
+                        }
                         const range = calculateDateRange(preset);
                         if (range) {
                             dateOnChange(range);
