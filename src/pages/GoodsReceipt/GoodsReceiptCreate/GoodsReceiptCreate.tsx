@@ -1,3 +1,4 @@
+import type { AxiosError } from "axios";
 import React, { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -16,6 +17,7 @@ import SupplierInfoCard from "../../../components/Supplier/SupplierCard/Supplier
 import SupplierItem from "../../../components/Supplier/SupplierItem/SupplierItem";
 import { ValidationMessage } from "../../../components/ValidationMessage/ValidationMessage";
 import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
+import type { BaseResponse } from "../../../types/BaseResponse";
 import type {
   GoodsReceiptItemRequest,
   GoodsReceiptRequest,
@@ -112,7 +114,7 @@ const GoodsReceiptCreate: React.FC = () => {
   useEffect(() => {
     if (purchaseOrderData) {
       const convertedItems: ProductVariantItem[] = purchaseOrderData.items.map(
-        (item: any) => {
+        (item: PurchaseOrderItemResponse) => {
           const variantName = getVariantName(item.productVariant);
           return {
             id: item.productVariant.id,
@@ -124,8 +126,8 @@ const GoodsReceiptCreate: React.FC = () => {
             stock: item.productVariant.stock,
             imageUrl: item.productVariant.imageUrl,
             quantityPurchase: item.quantityPurchase,
-            discountType: item.discountType,
-            discountValue: item.discountValueItem,
+            discountType: item.discountType || null,
+            discountValue: item.discountValueItem || 0,
             priceAfterDiscount: item.discountValueItem
               ? item.price - (item.discountType == "PERCENT" ? (item.price * item.discountValueItem / 100) : item.discountValueItem)
               : undefined,
@@ -141,7 +143,7 @@ const GoodsReceiptCreate: React.FC = () => {
           receivedQuantity: item.quantityPurchase,
           price: item.price,
           discountType: item.discountType || null,
-          discountValueItem: item.discountValueItem || null,
+          discountValueItem: item.discountValueItem || 0,
           subtotalPriceItem: item.subtotalPriceItem,
         }));
 
@@ -155,7 +157,7 @@ const GoodsReceiptCreate: React.FC = () => {
         refference: purchaseOrderData.refference || "",
         goodsReceiptCode: "",
         discountType: purchaseOrderData.discountType || null,
-        discountValue: purchaseOrderData.discountValue,
+        discountValue: purchaseOrderData.discountValue || 0,
         totalDiscountValue: purchaseOrderData.totalDiscountValue,
         totalLineItemsPriceBeforeDiscount:
           purchaseOrderData.totalLineItemsPriceBeforeDiscount,
@@ -427,47 +429,47 @@ const GoodsReceiptCreate: React.FC = () => {
   }, []);
 
   useEffect(() => {
-  const items = goodsReceiptRequest.items;
+    const items = goodsReceiptRequest.items;
 
-  let totalBeforeDiscount = 0;
-  let totalDiscountValue = 0;
-  let totalAfterDiscount = 0;
+    let totalBeforeDiscount = 0;
+    let totalDiscountValue = 0;
+    let totalAfterDiscount = 0;
 
-  items.forEach((item) => {
-    const quantity = item.receivedQuantity || 0;
-    const basePrice = item.price * quantity;
+    items.forEach((item) => {
+      const quantity = item.receivedQuantity || 0;
+      const basePrice = item.price * quantity;
 
-    totalBeforeDiscount += basePrice;
+      totalBeforeDiscount += basePrice;
 
-    let itemDiscount = 0;
+      let itemDiscount = 0;
 
-    if (item.discountType === "FIXED" && item.discountValueItem) {
-      itemDiscount = item.discountValueItem * quantity;
-    }
+      if (item.discountType === "FIXED" && item.discountValueItem) {
+        itemDiscount = item.discountValueItem * quantity;
+      }
 
-    if (item.discountType === "PERCENT" && item.discountValueItem) {
-      itemDiscount = basePrice * (item.discountValueItem / 100);
-    }
+      if (item.discountType === "PERCENT" && item.discountValueItem) {
+        itemDiscount = basePrice * (item.discountValueItem / 100);
+      }
 
-    totalDiscountValue += itemDiscount;
-    totalAfterDiscount += Math.max(0, basePrice - itemDiscount);
-  });
+      totalDiscountValue += itemDiscount;
+      totalAfterDiscount += Math.max(0, basePrice - itemDiscount);
+    });
 
   const totalLandedCost = goodsReceiptRequest.totalLandedCost || 0;
 
-  const totalPrice = Math.max(
-    0,
-    totalAfterDiscount + totalLandedCost
-  );
+    const totalPrice = Math.max(
+      0,
+      totalAfterDiscount + totalLandedCost
+    );
 
-  setGoodsReceiptRequest((prev) => ({
-    ...prev,
-    totalLineItemsPriceBeforeDiscount: totalBeforeDiscount,
-    totalDiscountValue,
-    totalLineItemsPriceAfterDiscount: totalAfterDiscount,
-    totalPrice,
-  }));
-}, [goodsReceiptRequest.items, goodsReceiptRequest.totalLandedCost]);
+    setGoodsReceiptRequest((prev) => ({
+      ...prev,
+      totalLineItemsPriceBeforeDiscount: totalBeforeDiscount,
+      totalDiscountValue,
+      totalLineItemsPriceAfterDiscount: totalAfterDiscount,
+      totalPrice,
+    }));
+  }, [goodsReceiptRequest.items, goodsReceiptRequest.totalLandedCost]);
 
 
   const handleBackBtn = () => {
@@ -500,7 +502,7 @@ const GoodsReceiptCreate: React.FC = () => {
         receivedQuantity: 1,
         price: variant.price,
         discountType: null,
-        discountValueItem: null,
+        discountValueItem: 0,
         subtotalPriceItem: variant.price,
       };
 
@@ -558,7 +560,7 @@ const GoodsReceiptCreate: React.FC = () => {
     price: number;
     priceAfterDiscount: number;
     discountType: "FIXED" | "PERCENT" | null;
-    discountValue: number | null;
+    discountValue: number;
   }) => {
     if (!selectedVariantFixPrice) return;
 
@@ -585,8 +587,8 @@ const GoodsReceiptCreate: React.FC = () => {
       items: prev.items.map((item) => {
         if (item.productVariantId === productId) {
           const quantity = item.receivedQuantity || 1;
-          const discountValue =
-            data.discountValue != null ? data.discountValue : 0;
+          let discountValue = data.discountValue != null ? data.discountValue : 0;
+          if (data.discountType === "PERCENT") discountValue = (data.price * discountValue) / 100;
           return {
             ...item,
             price: data.price,
@@ -736,9 +738,9 @@ const GoodsReceiptCreate: React.FC = () => {
         return;
       }
 
-      if (backendMessage == "Validation failed") {
-        toast.error("Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
-        return;
+      if (backendMessage != null) {
+        toast.error(backendMessage);
+        return
       }
 
       toast.error("Có lỗi xảy ra, vui lòng thử lại");

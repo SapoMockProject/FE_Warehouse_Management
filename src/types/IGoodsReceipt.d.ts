@@ -10,7 +10,7 @@ export interface GoodsReceiptRequest {
     receiptDate?: string | null;
     refference: string;
     goodsReceiptCode: string | null;
-    discountValue?: number | null;
+    discountValue: number;
     discountType: "FIXED" | "PERCENT" | null;
     totalDiscountValue: number;
     totalLineItemsPriceBeforeDiscount: number;

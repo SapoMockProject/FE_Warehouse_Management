@@ -558,8 +558,8 @@ const PurchaseOrderCreate: React.FC = () => {
 				return
 			}
 
-			if (backendMessage == "Validation failed") {
-				toast.error("Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
+			if (backendMessage != null) {
+				toast.error(backendMessage);
 				return
 			}
 
