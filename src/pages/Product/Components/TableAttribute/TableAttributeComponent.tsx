@@ -112,12 +112,33 @@ export default function ProductTableAttributeComponent({
 	};
 	React.useEffect(() => {
 		const load = () => {
-			let combinations = generateCombinations(attributes);
+			const newAttributeList = attributes.filter((attr) => attr.values.length !== 0);
+			let combinations = generateCombinations(newAttributeList);
 			combinations = combinations.filter((c) => isValidVariant(c));
-			if (combinations.length <= 0) return;
-			if (product) {
-				const hasEmptyAttribute = attributes.some((attr) => attr.values.length === 0);
-				if (hasEmptyAttribute) return;
+			if (variantList.length) {
+				const newList: VariantResponse[] = combinations.map((combo) => {
+					const existed = variantList.find((v) => isSameVariant(combo, v));
+					if (existed) return existed;
+					return {
+						id: Math.random() * -100 - 10000,
+						sku: "",
+						price: 0,
+						stock: 0,
+						imageUrl: "",
+						option1value: combo.option1value ?? null,
+						option2value: combo.option2value ?? null,
+						option3value: combo.option3value ?? null,
+					};
+				});
+				setVariantList(newList);
+				const variantImageValues: { [key: number]: string } = {};
+				for (const variant of newList) {
+					variantImageValues[variant.id] = variant.imageUrl || "";
+				}
+				setSelected(prev => prev.filter(id => newList.some(v => v.id === id)));
+				setVariantImages(variantImageValues);
+			}
+			else if (product) {
 				const newList: VariantResponse[] = combinations.map((combo) => {
 					const existed = product.variants.find((v) => isSameVariant(combo, v));
 					if (existed) return existed;

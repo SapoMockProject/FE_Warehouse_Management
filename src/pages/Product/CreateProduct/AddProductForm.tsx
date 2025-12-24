@@ -8,7 +8,6 @@ import Input from "../../../components/Input/Input";
 import type { BaseResponse } from "../../../types/BaseResponse";
 import type { Attribute } from "../../../types/IAttribute.d";
 import type { VariantResponse } from "../../../types/IProduct";
-import { generateCombinations } from "../../../utils/Attribute.util";
 import ProductAttributeListComponent from "../Components/Attribute/ProductAttributeList/ProductAttributeList";
 import ProductCategorySelect from "../Components/CategorySelect/ProductCategorySelect";
 import ProductImage from "../Components/ProductImage/ProductImage";
@@ -59,20 +58,6 @@ const AddProductForm: React.FC = () => {
 				toast.error("Vui lòng nhập giá sản phẩm hợp lệ");
 				return;
 			}
-			const combos = generateCombinations(attributes);
-			const buildVariants = () => {
-				const variants = [];
-				for (let i = 0; i < combos.length; i++) {
-					const variant = {
-						sku: sku + "_" + String(i),
-						price,
-						stock,
-						...combos[i],
-					};
-					variants.push(variant);
-				}
-				return variants;
-			};
 			const formData = new FormData();
 			formData.append("name", name);
 			formData.append("description", description);
@@ -81,14 +66,13 @@ const AddProductForm: React.FC = () => {
 			formData.append("option2name", attributes?.[1]?.name || "");
 			formData.append("option3name", attributes?.[2]?.name || "");
 			if (files && files.length) formData.append("imageUrl", files[0]);
-			const variantsFormData = buildVariants();
-			for (let i = 0; i < variantsFormData.length; i++) {
-				formData.append(`variants[${i}].stock`, variantsFormData[i].stock.toString());
-				formData.append(`variants[${i}].price`, variantsFormData[i].price.toString());
-				formData.append(`variants[${i}].sku`, variantsFormData[i].sku);
-				formData.append(`variants[${i}].option1value`, variantsFormData[i].option1value);
-				formData.append(`variants[${i}].option2value`, variantsFormData[i].option2value);
-				formData.append(`variants[${i}].option3value`, variantsFormData[i].option3value);
+			for (let i = 0; i < variantList.length; i++) {
+				formData.append(`variants[${i}].stock`, variantList[i].stock.toString());
+				formData.append(`variants[${i}].price`, variantList[i].price.toString());
+				formData.append(`variants[${i}].sku`, variantList[i].sku);
+				formData.append(`variants[${i}].option1value`, variantList[i].option1value || "");
+				formData.append(`variants[${i}].option2value`, variantList[i].option2value || "");
+				formData.append(`variants[${i}].option3value`, variantList[i].option3value || "");
 			}
 			const res = await createProduct(formData);
 			toast.success("Thêm sản phẩm thành công");
