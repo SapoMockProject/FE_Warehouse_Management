@@ -10,7 +10,7 @@ export interface PurchaseOrderRequest {
   refference: string;
   purchaseOrderCode: string;
 
-  discountValue?: number | null;
+  discountValue?: number;
   discountType?: "FIXED" | "PERCENT" | null;
 
   totalDiscountValue: number; // tổng tiền chiết khấu (bao gồm chiết khấu của đơn đặt và của từng itee)
@@ -27,7 +27,7 @@ export interface PurchaseOrderItemRequest {
   quantity: number;
   price: number;
   discountType: "FIXED" | "PERCENT" | null;
-  discountValueItem?: number | null;
+  discountValueItem: number;
   subtotalPriceItem: number;
 }
 

@@ -26,7 +26,7 @@ interface GoodsReceiptItemRequest {
     receivedQuantity: number;
     price: number;
     discountType: "FIXED" | "PERCENT" | null;
-    discountValueItem: number | null;
+    discountValueItem: number;
     subtotalPriceItem: number;
 }
 
@@ -58,7 +58,7 @@ interface GoodsReceiptItemResponse {
   receivedQuantity: number;
   price: number;
   discountType: string | null;
-  discountValueItem: number | null;
+  discountValueItem: number;
   subtotalPriceItem: number;
   productVariant: VariantResponse;
 }

@@ -25,7 +25,7 @@ import type {
   ProductVariantItem,
   VariantResponse,
 } from "../../../types/IProduct";
-import type { PurchaseOrderItemResponse } from "../../../types/IPurchaseOrder";
+import type { PurchaseOrderItemResponse, PurchaseOrderResponse } from "../../../types/IPurchaseOrder";
 import type { ISupplierResponse } from "../../../types/ISupplier";
 import type { TransactionRequest } from "../../../types/ITransaction";
 import type { IUserResponse } from "../../../types/IUser";
@@ -33,11 +33,13 @@ import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 import EditPriceProductItem from "../../PurchaseOrder/PurchaseOrderCreate/EditPriceProductItem/EditPriceProductItem";
 import "./GoodsReceiptCreate.css";
+import type { AxiosError } from "axios";
+import type { BaseResponse } from "../../../types/BaseResponse";
 
 const GoodsReceiptCreate: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const purchaseOrderData = location.state?.purchaseOrderData;
+  const purchaseOrderData = location.state?.purchaseOrderData as PurchaseOrderResponse;
 
   const bodyRequest: GoodsReceiptRequest = {
     purchaseOrderId: null,
@@ -72,7 +74,6 @@ const GoodsReceiptCreate: React.FC = () => {
   >([]);
   const [pageSearchVariant, setPageSearchVariant] = useState<number>(0);
   const [hasMoreVariant, setHasMoreVariant] = useState(true);
-  const [loadingVariant, setLoadingVariant] = useState(false);
   const dropdownProductRef = useRef<HTMLDivElement>(null);
   const observerProductRef = useRef<HTMLDivElement | null>(null);
 
@@ -83,7 +84,6 @@ const GoodsReceiptCreate: React.FC = () => {
   const [suppliers, setSuppliers] = useState<ISupplierResponse[]>([]);
   const [selectSupplier, setSelectSupplier] = useState<ISupplierResponse>();
   const [hasMoreSupplier, setHasMoreSupplier] = useState(true);
-  const [loadingSupplier, setLoadingSupplier] = useState(false);
   const dropdownSupplierRef = useRef<HTMLDivElement>(null);
   const observerSupplierRef = useRef<HTMLDivElement | null>(null);
 
@@ -97,7 +97,6 @@ const GoodsReceiptCreate: React.FC = () => {
   const [error, setError] = useState<Record<string, string>>({});
 
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([]);
-  const [loadingPaymentMethods, setLoadingPaymentMethods] = useState(false);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
 
   const user = React.useContext(AuthenticationContext);
@@ -112,8 +111,6 @@ const GoodsReceiptCreate: React.FC = () => {
 
   useEffect(() => {
     if (purchaseOrderData) {
-      setLoading(true);
-
       const convertedItems: ProductVariantItem[] = purchaseOrderData.items.map(
         (item: any) => {
           const variantName = getVariantName(item.productVariant);
@@ -130,7 +127,7 @@ const GoodsReceiptCreate: React.FC = () => {
             discountType: item.discountType,
             discountValue: item.discountValueItem,
             priceAfterDiscount: item.discountValueItem
-              ? item.price - item.discountValueItem
+              ? item.price - (item.discountType == "PERCENT" ? (item.price * item.discountValueItem / 100) : item.discountValueItem)
               : undefined,
           };
         }
@@ -164,7 +161,8 @@ const GoodsReceiptCreate: React.FC = () => {
           purchaseOrderData.totalLineItemsPriceBeforeDiscount,
         totalLineItemsPriceAfterDiscount:
           purchaseOrderData.totalLineItemsPriceAfterDiscount,
-        totalLandedCost: purchaseOrderData.totalLandedCost,
+        totalLandedCost:
+          purchaseOrderData.totalLandedCost,
         totalPrice: purchaseOrderData.totalPrice,
         items: requestItems,
         transactionInfo: null,
@@ -198,10 +196,6 @@ const GoodsReceiptCreate: React.FC = () => {
   };
 
   const fetchProductVariants = async (page: number, keyword: string) => {
-    if (loadingVariant) return;
-
-    setLoadingVariant(true);
-
     try {
       const res = await getProductVariants(page, 10, keyword);
       const data = res.data;
@@ -212,7 +206,6 @@ const GoodsReceiptCreate: React.FC = () => {
 
       if (!productVariantList || productVariantList.length === 0) {
         setHasMoreVariant(false);
-        setLoadingVariant(false);
         return;
       }
 
@@ -226,18 +219,15 @@ const GoodsReceiptCreate: React.FC = () => {
 
       if (typeof errorCode === "number") {
         toast.error(getErrorMessage(errorCode));
-        return
+        return;
       }
 
       toast.error("Có lỗi xảy ra, vui lòng thử lại");
       console.error("Lỗi fetch products:", err);
     }
-
-    setLoadingVariant(false);
   };
 
   const fetchSuppliers = async (page: number, query: string) => {
-    setLoadingSupplier(true);
     try {
       const res = await getAllSupliers(page, 5, query);
 
@@ -248,7 +238,6 @@ const GoodsReceiptCreate: React.FC = () => {
 
       if (!supplierList || supplierList.length === 0) {
         setHasMoreSupplier(false);
-        setLoadingSupplier(false);
         return;
       }
 
@@ -257,23 +246,22 @@ const GoodsReceiptCreate: React.FC = () => {
       if (page + 1 >= totalPage) {
         setHasMoreSupplier(false);
       }
-    } catch (err: any) {
-      const errorCode = err?.response?.data?.data;
+    } catch (err) {
+      const errorCode = (
+        (err as AxiosError).response?.data as BaseResponse<number>
+      )?.data;
 
       if (typeof errorCode === "number") {
         toast.error(getErrorMessage(errorCode));
-        return
+        return;
       }
 
       toast.error("Có lỗi xảy ra, vui lòng thử lại");
       console.error("Lỗi khi load nhà cung cấp:", err);
-    } finally {
-      setLoadingSupplier(false);
     }
   };
 
   const fetchEmployees = async (page: number, query: string) => {
-    setLoadingSupplier(true);
     try {
       const res = await getAllEmployees(page, 999, query, "desc", false);
 
@@ -282,7 +270,6 @@ const GoodsReceiptCreate: React.FC = () => {
       const employeeList = data.content;
 
       if (!employeeList || employeeList.length === 0) {
-        setLoadingSupplier(false);
         return;
       }
 
@@ -292,18 +279,15 @@ const GoodsReceiptCreate: React.FC = () => {
 
       if (typeof errorCode === "number") {
         toast.error(getErrorMessage(errorCode));
-        return
+        return;
       }
 
       toast.error("Có lỗi xảy ra, vui lòng thử lại");
       console.error("Lỗi khi load nhân viên:", err);
-    } finally {
-      setLoadingSupplier(false);
     }
   };
 
   const fetchPaymentMethods = async () => {
-    setLoadingPaymentMethods(true);
     try {
       const response = await getAllPaymentMethods(0, 99);
       setPaymentMethods(response.data.content);
@@ -312,13 +296,11 @@ const GoodsReceiptCreate: React.FC = () => {
 
       if (typeof errorCode === "number") {
         toast.error(getErrorMessage(errorCode));
-        return
+        return;
       }
 
       toast.error("Có lỗi xảy ra, vui lòng thử lại");
       console.error("Lỗi khi load phương thức thanh toán:", err);
-    } finally {
-      setLoadingPaymentMethods(false);
     }
   };
 
@@ -376,20 +358,22 @@ const GoodsReceiptCreate: React.FC = () => {
 
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMoreVariant && !loadingVariant) {
+        if (entries[0].isIntersecting && hasMoreVariant) {
           setPageSearchVariant((prev) => prev + 1);
         }
       },
       { threshold: 1 }
     );
 
-    const lastChildOfList = observerProductRef.current.querySelector(".purchase-order-search-product-item:last-child");
+    const lastChildOfList = observerProductRef.current.querySelector(
+      ".purchase-order-search-product-item:last-child"
+    );
     if (lastChildOfList) {
       console.log("Observing last child of supplier list: ", lastChildOfList);
       observer.observe(lastChildOfList);
     }
     return () => observer.disconnect();
-  }, [hasMoreVariant, loadingVariant, isOpenSearchVariant]);
+  }, [hasMoreVariant, isOpenSearchVariant]);
 
   useEffect(() => {
     if (!isOpenSearchSupplier) return;
@@ -415,20 +399,27 @@ const GoodsReceiptCreate: React.FC = () => {
     const observer = new IntersectionObserver(
       (entries) => {
         console.log("Length", entries.length);
-        console.log("Observing supplier scroll: ", entries[0], "isVisible:", entries[0].isIntersecting);
-        if (entries[0].isIntersecting && hasMoreSupplier && !loadingSupplier) {
+        console.log(
+          "Observing supplier scroll: ",
+          entries[0],
+          "isVisible:",
+          entries[0].isIntersecting
+        );
+        if (entries[0].isIntersecting && hasMoreSupplier) {
           setPageSearchSupplier((prev) => prev + 1);
         }
       },
       { threshold: 0.5 }
     );
-    const lastChildOfList = observerSupplierRef.current.querySelector(".purchase-order-supplier-dropdown-item:last-child");
+    const lastChildOfList = observerSupplierRef.current.querySelector(
+      ".purchase-order-supplier-dropdown-item:last-child"
+    );
     if (lastChildOfList) {
       console.log("Observing last child of supplier list: ", lastChildOfList);
       observer.observe(lastChildOfList);
     }
     return () => observer.disconnect();
-  }, [hasMoreSupplier, loadingSupplier, isOpenSearchSupplier]);
+  }, [hasMoreSupplier, isOpenSearchSupplier]);
 
   useEffect(() => {
     fetchEmployees(0, "");
@@ -436,38 +427,48 @@ const GoodsReceiptCreate: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const totalLineItemsPriceBeforeDiscount = goodsReceiptRequest.items.reduce(
-      (sum, item) => sum + item.price * item.receivedQuantity,
-      0
-    );
-    const totalItemsDiscount = goodsReceiptRequest.items.reduce((sum, item) => {
-      const basePrice = item.price * item.receivedQuantity;
-      const discountAmount = basePrice - item.subtotalPriceItem;
-      return sum + discountAmount;
-    }, 0);
+  const items = goodsReceiptRequest.items;
 
-    const totalLineItemsPriceAfterDiscount = goodsReceiptRequest.items.reduce(
-      (sum, item) => sum + item.subtotalPriceItem,
-      0
-    );
-    const totalDiscountValue = totalItemsDiscount;
+  let totalBeforeDiscount = 0;
+  let totalDiscountValue = 0;
+  let totalAfterDiscount = 0;
 
-    const totalLandedCost = goodsReceiptRequest.totalLandedCost || 0;
+  items.forEach((item) => {
+    const quantity = item.receivedQuantity || 0;
+    const basePrice = item.price * quantity;
 
-    const totalPrice = Math.max(
-      0,
-      totalLineItemsPriceAfterDiscount + totalLandedCost
-    );
+    totalBeforeDiscount += basePrice;
 
-    setGoodsReceiptRequest((prev) => ({
-      ...prev,
-      totalDiscountValue,
-      totalLandedCost,
-      totalLineItemsPriceBeforeDiscount,
-      totalLineItemsPriceAfterDiscount,
-      totalPrice,
-    }));
-  }, [goodsReceiptRequest.items, goodsReceiptRequest.totalLandedCost]);
+    let itemDiscount = 0;
+
+    if (item.discountType === "FIXED" && item.discountValueItem) {
+      itemDiscount = item.discountValueItem * quantity;
+    }
+
+    if (item.discountType === "PERCENT" && item.discountValueItem) {
+      itemDiscount = basePrice * (item.discountValueItem / 100);
+    }
+
+    totalDiscountValue += itemDiscount;
+    totalAfterDiscount += Math.max(0, basePrice - itemDiscount);
+  });
+
+  const totalLandedCost = goodsReceiptRequest.totalLandedCost || 0;
+
+  const totalPrice = Math.max(
+    0,
+    totalAfterDiscount + totalLandedCost
+  );
+
+  setGoodsReceiptRequest((prev) => ({
+    ...prev,
+    totalLineItemsPriceBeforeDiscount: totalBeforeDiscount,
+    totalDiscountValue,
+    totalLineItemsPriceAfterDiscount: totalAfterDiscount,
+    totalPrice,
+  }));
+}, [goodsReceiptRequest.items, goodsReceiptRequest.totalLandedCost]);
+
 
   const handleBackBtn = () => {
     if (purchaseOrderData) {
@@ -527,7 +528,7 @@ const GoodsReceiptCreate: React.FC = () => {
       ...prev,
       items: prev.items.map((item) => {
         if (item.productVariantId === variantId) {
-          const discount = item.discountValueItem || 0;
+          const discount = (item.discountType == "PERCENT" ? (item.price * item.discountValueItem / 100) : item.discountValueItem) || 0;
           return {
             ...item,
             receivedQuantity: qty,
@@ -567,14 +568,14 @@ const GoodsReceiptCreate: React.FC = () => {
       prev.map((p) =>
         p.id === selectedVariantFixPrice?.id
           ? {
-            ...p,
-            ...{
-              price: data.price,
-              discountType: data.discountType,
-              discountValue: data.discountValue || 0,
-              priceAfterDiscount: data.priceAfterDiscount,
-            },
-          }
+              ...p,
+              ...{
+                price: data.price,
+                discountType: data.discountType,
+                discountValue: data.discountValue || 0,
+                priceAfterDiscount: data.priceAfterDiscount,
+              },
+            }
           : p
       )
     );
@@ -656,9 +657,9 @@ const GoodsReceiptCreate: React.FC = () => {
       ...prev,
       transactionInfo: prev.transactionInfo
         ? {
-          ...prev.transactionInfo,
-          [field]: value,
-        }
+            ...prev.transactionInfo,
+            [field]: value,
+          }
         : null,
     }));
   };
@@ -799,7 +800,10 @@ const GoodsReceiptCreate: React.FC = () => {
                   className="input-search-product"
                 />
                 {isOpenSearchVariant && (
-                  <div className="purchase-order-dropdown" ref={observerProductRef}>
+                  <div
+                    className="purchase-order-dropdown"
+                    ref={observerProductRef}
+                  >
                     <div className="purchase-order-dropdown-item">
                       {searchProductVariants.map((p) => (
                         <ProductItemSearch
@@ -1020,7 +1024,17 @@ const GoodsReceiptCreate: React.FC = () => {
                   Chi phí khác
                 </span>
                 <span className="purchase-order-payment-currency">
-                  {goodsReceiptRequest.totalLandedCost.toLocaleString("vi-VN")}đ
+                  <Input
+                    type="text"
+                    value={goodsReceiptRequest.totalLandedCost}
+                    onChange={(val) =>
+                      handleChangeGoodsReceiptField(
+                        "totalLandedCost",
+                        Number(val)
+                      )
+                    }
+                    placeholder="0"
+                  />
                 </span>
               </div>
               <div className="purchase-order-payment-row purchase-order-payment-total">
@@ -1250,7 +1264,7 @@ const GoodsReceiptCreate: React.FC = () => {
                         className={
                           goodsReceiptRequest.totalPrice -
                             (goodsReceiptRequest.transactionInfo?.amount || 0) >
-                            0
+                          0
                             ? "text-warning"
                             : "text-success"
                         }
@@ -1267,28 +1281,28 @@ const GoodsReceiptCreate: React.FC = () => {
                   {goodsReceiptRequest.totalPrice -
                     (goodsReceiptRequest.transactionInfo?.amount || 0) >
                     0 && (
-                      <div className="payment-partial-notice">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#1890ff"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <circle cx="12" cy="12" r="10" />
-                          <line x1="12" y1="16" x2="12" y2="12" />
-                          <line x1="12" y1="8" x2="12.01" y2="8" />
-                        </svg>
-                        <span>
-                          Thanh toán một phần. Số tiền còn lại sẽ được ghi nhận là
-                          công nợ.
-                        </span>
-                      </div>
-                    )}
+                    <div className="payment-partial-notice">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#1890ff"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <span>
+                        Thanh toán một phần. Số tiền còn lại sẽ được ghi nhận là
+                        công nợ.
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1337,7 +1351,10 @@ const GoodsReceiptCreate: React.FC = () => {
                   />
 
                   {isOpenSearchSupplier && (
-                    <div className="purchase-order-dropdown" ref={observerSupplierRef}>
+                    <div
+                      className="purchase-order-dropdown"
+                      ref={observerSupplierRef}
+                    >
                       <div className="purchase-order-dropdown-item">
                         {suppliers.map((s) => (
                           <SupplierItem
@@ -1374,9 +1391,9 @@ const GoodsReceiptCreate: React.FC = () => {
                   onClear={
                     !purchaseOrderData
                       ? () => {
-                        handleChangeGoodsReceiptField("supplierId", null);
-                        setSelectSupplier(undefined);
-                      }
+                          handleChangeGoodsReceiptField("supplierId", null);
+                          setSelectSupplier(undefined);
+                        }
                       : undefined
                   }
                 />

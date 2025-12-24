@@ -148,7 +148,7 @@ const PurchaseOrderEdit: React.FC = () => {
                     quantityPurchase: item.quantityPurchase,
                     discountType: item.discountType,
                     discountValue: item.discountValueItem,
-                    priceAfterDiscount: item.discountValueItem ? item.price - item.discountValueItem : undefined
+                    priceAfterDiscount: item.discountValueItem ? item.price - (item.discountType == "PERCENT" ? (item.price * item.discountValueItem / 100) : item.discountValueItem) : 0
                 };
             });
 
@@ -191,7 +191,7 @@ const PurchaseOrderEdit: React.FC = () => {
 
             toast.error("Có lỗi xảy ra, vui lòng thử lại");
             console.log("Lỗi load PurchaseDetail: ", err);
-            
+
         } finally {
             setLoading(false);
         }
@@ -259,7 +259,7 @@ const PurchaseOrderEdit: React.FC = () => {
 
             toast.error("Có lỗi xảy ra, vui lòng thử lại");
             console.log("Lỗi load danh sách variant: ", err);
-            
+
         }
 
         setLoadingVariant(false);
@@ -417,7 +417,7 @@ const PurchaseOrderEdit: React.FC = () => {
         load();
     }, [pageSearchSupplier]);
 
-    useEffect(() => {        
+    useEffect(() => {
         if (!observerSupplierRef.current) return;
 
         const observer = new IntersectionObserver(
@@ -442,47 +442,40 @@ const PurchaseOrderEdit: React.FC = () => {
     }, [])
 
     useEffect(() => {
-        const totalLineItemsPriceBeforeDiscount = purchaseOrderRequest.items.reduce(
-            (sum, item) => sum + (item.price * item.quantity),
-            0
-        );
+        const items = purchaseOrderRequest.items;
 
-        const totalItemsDiscount = purchaseOrderRequest.items.reduce(
-            (sum, item) => {
-                const basePrice = item.price * item.quantity;
-                const discountAmount = basePrice - item.subtotalPriceItem;
-                return sum + discountAmount;
-            },
-            0
-        );
+        let totalBeforeDiscount = 0;
+        let totalDiscountValue = 0;
+        let totalAfterDiscount = 0;
 
-        const totalLineItemsPriceAfterDiscount = purchaseOrderRequest.items.reduce(
-            (sum, item) => sum + item.subtotalPriceItem,
-            0
-        );
+        items.forEach((item) => {
+            const quantity = item.quantity || 0;
+            const basePrice = item.price * quantity;
 
-        let orderDiscount = 0;
-        if (purchaseOrderRequest.discountType === "FIXED" && purchaseOrderRequest.discountValue != null) {
-            orderDiscount = purchaseOrderRequest.discountValue;
-        } else if (purchaseOrderRequest.discountType === "PERCENT" && purchaseOrderRequest.discountValue != null) {
-            orderDiscount = totalLineItemsPriceAfterDiscount * (purchaseOrderRequest.discountValue / 100);
-        }
+            totalBeforeDiscount += basePrice;
 
-        const totalDiscountValue = totalItemsDiscount + orderDiscount;
+            let itemDiscount = 0;
 
-        const totalLandedCost = purchaseOrderRequest.totalLandedCost || 0;
+            if (item.discountType === "FIXED" && item.discountValueItem) {
+                itemDiscount = item.discountValueItem * quantity;
+            }
 
-        const totalPrice = Math.max(0,
-            totalLineItemsPriceAfterDiscount - orderDiscount + totalLandedCost
-        );
+            if (item.discountType === "PERCENT" && item.discountValueItem) {
+                itemDiscount = basePrice * (item.discountValueItem / 100);
+            }
 
-        setPurchaseOrderRequest(prev => ({
+            totalDiscountValue += itemDiscount;
+            totalAfterDiscount += Math.max(0, basePrice - itemDiscount);
+        });
+
+        const totalPrice = Math.max(0, totalAfterDiscount);
+
+        setPurchaseOrderRequest((prev) => ({
             ...prev,
+            totalLineItemsPriceBeforeDiscount: totalBeforeDiscount,
             totalDiscountValue,
-            totalLandedCost,
-            totalLineItemsPriceBeforeDiscount,
-            totalLineItemsPriceAfterDiscount,
-            totalPrice
+            totalLineItemsPriceAfterDiscount: totalAfterDiscount,
+            totalPrice,
         }));
     }, [
         purchaseOrderRequest.items,
@@ -518,7 +511,7 @@ const PurchaseOrderEdit: React.FC = () => {
                 quantity: 1,
                 price: vartiant.price,
                 discountType: null,
-                discountValueItem: null,
+                discountValueItem: 0,
                 subtotalPriceItem: vartiant.price
             };
 
@@ -546,11 +539,13 @@ const PurchaseOrderEdit: React.FC = () => {
         setPurchaseOrderRequest(prev => ({
             ...prev,
             items: prev.items.map(item => {
+                const discount = (item.discountType == "PERCENT" ? (item.price * item.discountValueItem / 100) : item.discountValueItem) || 0;
+
                 if (item.productVariantId === variantId) {
                     return {
                         ...item,
                         quantity: qty,
-                        subtotalPriceItem: item.price * qty
+                        subtotalPriceItem: (item.price - discount) * qty
                     };
                 }
                 return item;
@@ -576,7 +571,7 @@ const PurchaseOrderEdit: React.FC = () => {
         price: number;
         priceAfterDiscount: number;
         discountType: "FIXED" | "PERCENT" | null;
-        discountValue: number | null;
+        discountValue: number;
     }) => {
         if (!selectedVariantFixPrice) return;
 
@@ -803,7 +798,7 @@ const PurchaseOrderEdit: React.FC = () => {
                                                 <td>
                                                     <div className="purchase-order-product-info">
                                                         <div className="purchase-order-product-image-placeholder">
-                                                            {item.imageUrl ? (<img src={item.imageUrl}/>)
+                                                            {item.imageUrl ? (<img src={item.imageUrl} />)
                                                                 : (<svg
                                                                     xmlns="http://www.w3.org/2000/svg"
                                                                     width="20"
