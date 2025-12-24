@@ -1,6 +1,7 @@
 import { axiosConfiguration } from "../configurations/AxiosConfiguration";
 import type { BaseResponse } from "../types/BaseResponse";
 import type { ReturnSupplierRequest, ReturnSupplierResponse } from "../types/IReturnSupplier";
+import type { TransactionRequest } from "../types/ITransaction";
 import type { PagedModel } from "../types/PagedModel";
 
 export const createReturnOrder = async (bodyRequest: ReturnSupplierRequest) => {
@@ -18,7 +19,7 @@ export const getAllSupplierReturns = async (
     page: number = 0,
     size: number = 10,
     query?: string,
-    receiptStatus?: boolean,
+    returned?: boolean,
     transactionStatus?: string,
     fromDate?: string,
     toDate?: string,
@@ -33,12 +34,11 @@ export const getAllSupplierReturns = async (
 
     if (query) params.query = query;
 
-    if (receiptStatus !== undefined) params.receipt_status = receiptStatus.toString();
+    if (returned !== undefined) params.returned = returned.toString();
 
     if (transactionStatus) params.transaction_status = transactionStatus;
 
     if (fromDate) params.from_date = fromDate;
-
 
     if (toDate) params.to_date = toDate;
 
@@ -57,4 +57,35 @@ export const getAllSupplierReturns = async (
     );
 
     return res.data;
+};
+
+export const getSupplierReturnById = async (id: number) => {
+    const res = await axiosConfiguration.get<BaseResponse<ReturnSupplierResponse>>(`/supplier-returns/${id}`, {
+        headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+        },
+    });
+    return res.data;
+};
+
+export const refundVariants = async (id: number) => {
+    const res = await axiosConfiguration.put<BaseResponse<ReturnSupplierResponse>>(`/supplier-returns/${id}/refund-variant`,
+        null,
+        {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+            }
+        })
+    return res.data
+};
+
+export const refundAmount = async (id: number, bodyRequest: TransactionRequest) => {
+    const res = await axiosConfiguration.put<BaseResponse<ReturnSupplierResponse>>(`/supplier-returns/${id}/refund-amount`,
+        bodyRequest,
+        {
+            headers: {
+                "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+            }
+        })
+    return res.data
 };

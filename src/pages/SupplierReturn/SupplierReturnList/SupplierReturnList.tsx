@@ -192,9 +192,8 @@ const SupplierReturnList: React.FC = () => {
         const statusMap: Record<string, string> = {
             PENDING: "Chờ hoàn tiền",
             PAID: "Đã hoàn tiền",
-            REFUNDED: "Đã hoàn tiền",
         };
-        return statusMap[status] || status;
+        return statusMap[status] || "N/A";
     };
 
     const getTransactionStatusClass = (status: string) => {
@@ -364,14 +363,6 @@ const SupplierReturnList: React.FC = () => {
                                 }
                             />
                         </div>
-
-                        <div style={{ flex: "0 1 auto" }}>
-                            <Button
-                                label="Bộ lọc khác"
-                                className="opr-other_filter"
-                                size="md"
-                            />
-                        </div>
                     </div>
                 </div>
 
@@ -423,20 +414,20 @@ const SupplierReturnList: React.FC = () => {
                                                 <td>
                                                     <span
                                                         className={`opr-badge opr-badge-${getReturnStatusClass(
-                                                            item.returnStatus
+                                                            item.returned
                                                         )}`}
                                                     >
-                                                        {getReturnStatusLabel(item.returnStatus)}
+                                                        {getReturnStatusLabel(item.returned)}
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    {/* <span
+                                                    <span
                                                         className={`opr-badge opr-badge-${getTransactionStatusClass(
                                                             item.transactionStatus
                                                         )}`}
                                                     >
                                                         {getTransactionStatusLabel(item.transactionStatus)}
-                                                    </span> */}
+                                                    </span>
                                                 </td>
                                                 <td className="td_highlight">
                                                     <a
@@ -446,13 +437,14 @@ const SupplierReturnList: React.FC = () => {
                                                         {item.supplierResponse.name || "N/A"}
                                                     </a>
                                                 </td>
-                                                <td>
-                                                    <a
-                                                        href={`/goods-recepits/${item.goodsReceiptId}`}
+                                                <td className="td_highlight">
+                                                    {item.goodsReceiptCode != null ? (<a
+                                                        href={`/goods-receipts/${item.goodsReceiptId}`}
                                                         onClick={(e) => e.stopPropagation()}
                                                     >
-                                                        {item.goodsReceiptCode || "N/A"}
-                                                    </a>
+                                                        {item.goodsReceiptCode}
+                                                    </a>) : "N/A" }
+                                                    
                                                 </td>
                                                 <td className="align_center">
                                                     {getTotalQuantity(item.items)}

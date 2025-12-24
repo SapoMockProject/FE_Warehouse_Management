@@ -25,7 +25,7 @@ export interface ReturnSupplierRequest {
   returnedCostReceiveOnVariant: number;
   totalReturnedPrice: number;
   items: ReturnSupplierItemRequest[];
-  transactionInfo: TransactionRequest | null;
+  transactionRequest: TransactionRequest | null;
 }
 
 export interface ReturnOrderItemResponse {
@@ -35,6 +35,8 @@ export interface ReturnOrderItemResponse {
   discountType: "FIXED" | "PERCENT" | null;
   discountValueItem: number;
   subtotalPriceItem: number;
+  landedCostAllocation: number;      // Chi phí nhập phân bổ
+  orderDiscountAllocation: number;   // Discount đơn phân bổ
   productVariant: {
     id: number;
     productId: number;
@@ -55,16 +57,16 @@ export interface ReturnSupplierResponse {
   supplierResponse: ISupplierResponse;
   goodsReceiptId: number | null;
   goodsReceiptCode: number | null;
-  returnStatus: boolean;
+  returned: boolean;
   transactionStatus: string;
   returnReason: string;
   discountValue: number | null;
+
   totalDiscountValue: number;
   totalLineItemsPriceBeforeDiscount: number;
   totalLineItemsPriceAfterDiscount: number;
   returnedCostReceiveOnVariant: number;
   totalReturnedPrice: number;
-  totalPricePayable: number | null;
   items: ReturnOrderItemResponse[];
   createdDate: string;
   transactions?: TransactionResponse[];

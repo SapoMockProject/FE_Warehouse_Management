@@ -182,7 +182,7 @@ const SupplierReturnCreate: React.FC = () => {
                     returnedQuantity: item.quantityReturn,
                     price: item.price,
                     discountType: null,
-                    discountValueItem: item.itemDiscountValue,
+                    discountValueItem: item.itemDiscountValue / item.maxQuantity,
                     subtotalPriceItem: item.price * item.quantityReturn / item.maxQuantity,
                     landedCostAllocation: item.landedCostAllocation / item.maxQuantity,
                     orderDiscountAllocation: item.orderDiscountAllocation / item.maxQuantity
@@ -612,9 +612,9 @@ const SupplierReturnCreate: React.FC = () => {
         if (!showRefundForm) {
             setReturnSupplierRequest((prev) => ({
                 ...prev,
-                transactionInfo: {
+                transactionRequest: {
                     paymentMethodId: null,
-                    amount: 0,
+                    amount: prev.totalReturnedPrice,
                     referenceCode: "",
                     processedOn: new Date().toISOString(),
                 },
@@ -622,7 +622,7 @@ const SupplierReturnCreate: React.FC = () => {
         } else {
             setReturnSupplierRequest((prev) => ({
                 ...prev,
-                transactionInfo: null,
+                transactionRequest: null,
             }));
         }
     };
@@ -633,9 +633,9 @@ const SupplierReturnCreate: React.FC = () => {
     ) => {
         setReturnSupplierRequest((prev) => ({
             ...prev,
-            transactionInfo: prev.transactionInfo
+            transactionRequest: prev.transactionRequest
                 ? {
-                    ...prev.transactionInfo,
+                    ...prev.transactionRequest,
                     [field]: value,
                 }
                 : null,
@@ -670,19 +670,19 @@ const SupplierReturnCreate: React.FC = () => {
             validationErrors.supplierId = "Vui lòng chọn nhà cung cấp";
         }
 
-        if (returnSupplierRequest.transactionInfo) {
-            if (!returnSupplierRequest.transactionInfo.paymentMethodId) {
+        if (returnSupplierRequest.transactionRequest) {
+            if (!returnSupplierRequest.transactionRequest.paymentMethodId) {
                 validationErrors.paymentMethod = "Vui lòng chọn phương thức hoàn tiền";
             }
             if (
-                !returnSupplierRequest.transactionInfo.amount ||
-                returnSupplierRequest.transactionInfo.amount <= 0
+                !returnSupplierRequest.transactionRequest.amount ||
+                returnSupplierRequest.transactionRequest.amount <= 0
             ) {
                 validationErrors.paymentAmount =
                     "Vui lòng nhập số tiền hoàn trả hợp lệ";
             }
             if (
-                returnSupplierRequest.transactionInfo.amount >
+                returnSupplierRequest.transactionRequest.amount >
                 returnSupplierRequest.totalReturnedPrice
             ) {
                 validationErrors.paymentAmount =
@@ -1101,7 +1101,7 @@ const SupplierReturnCreate: React.FC = () => {
                                         <CustomSelect
                                             placeholder="Chọn phương thức hoàn tiền"
                                             value={
-                                                returnSupplierRequest.transactionInfo?.paymentMethodId?.toString() ||
+                                                returnSupplierRequest.transactionRequest?.paymentMethodId?.toString() ||
                                                 null
                                             }
                                             onChange={(val) =>
@@ -1135,11 +1135,12 @@ const SupplierReturnCreate: React.FC = () => {
                                                     <span style={{ color: "red" }}>*</span>
                                                 </>
                                             }
-                                            value={returnSupplierRequest.transactionInfo?.amount || 0}
+                                            value={returnSupplierRequest.transactionRequest?.amount || 0}
                                             onChange={(val) =>
                                                 handlePaymentFieldChange("amount", Number(val))
                                             }
                                             placeholder="Nhập số tiền hoàn trả"
+                                            disabled={true}
                                         />
                                         {errors.paymentAmount && (
                                             <ValidationMessage
@@ -1148,65 +1149,6 @@ const SupplierReturnCreate: React.FC = () => {
                                                 type="error"
                                             />
                                         )}
-                                        <div
-                                            style={{
-                                                marginTop: "8px",
-                                                display: "flex",
-                                                gap: "8px",
-                                                flexWrap: "wrap",
-                                            }}
-                                        >
-                                            <Button
-                                                label="25%"
-                                                onClick={() =>
-                                                    handlePaymentFieldChange(
-                                                        "amount",
-                                                        Math.round(
-                                                            returnSupplierRequest.totalReturnedPrice * 0.25
-                                                        )
-                                                    )
-                                                }
-                                                variant="tertiary"
-                                                size="sm"
-                                            />
-                                            <Button
-                                                label="50%"
-                                                onClick={() =>
-                                                    handlePaymentFieldChange(
-                                                        "amount",
-                                                        Math.round(
-                                                            returnSupplierRequest.totalReturnedPrice * 0.5
-                                                        )
-                                                    )
-                                                }
-                                                variant="tertiary"
-                                                size="sm"
-                                            />
-                                            <Button
-                                                label="75%"
-                                                onClick={() =>
-                                                    handlePaymentFieldChange(
-                                                        "amount",
-                                                        Math.round(
-                                                            returnSupplierRequest.totalReturnedPrice * 0.75
-                                                        )
-                                                    )
-                                                }
-                                                variant="tertiary"
-                                                size="sm"
-                                            />
-                                            <Button
-                                                label="100%"
-                                                onClick={() =>
-                                                    handlePaymentFieldChange(
-                                                        "amount",
-                                                        returnSupplierRequest.totalReturnedPrice
-                                                    )
-                                                }
-                                                variant="tertiary"
-                                                size="sm"
-                                            />
-                                        </div>
                                     </div>
 
                                     <div className="purchase-order-form-group">
@@ -1219,12 +1161,12 @@ const SupplierReturnCreate: React.FC = () => {
                                                 </>
                                             }
                                             value={
-                                                returnSupplierRequest.transactionInfo?.processedOn || ""
-                                            }
+                                                returnSupplierRequest.transactionRequest?.processedOn.slice(0, 16)}
                                             onChange={(val) =>
                                                 handlePaymentFieldChange("processedOn", val as string)
                                             }
                                             placeholder="Chọn ngày ghi nhận"
+                                            disabled={true}
                                         />
                                     </div>
 
@@ -1233,7 +1175,7 @@ const SupplierReturnCreate: React.FC = () => {
                                             type="text"
                                             label="Mã tham chiếu"
                                             value={
-                                                returnSupplierRequest.transactionInfo?.referenceCode ||
+                                                returnSupplierRequest.transactionRequest?.referenceCode ||
                                                 ""
                                             }
                                             onChange={(val) =>
