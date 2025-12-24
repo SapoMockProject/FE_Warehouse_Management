@@ -20,10 +20,11 @@ import type { BaseResponse } from "../../../types/BaseResponse";
 import type { ProductVariantItem, VariantResponse } from "../../../types/IProduct";
 import type { PurchaseOrderItemRequest, PurchaseOrderRequest } from "../../../types/IPurchaseOrder";
 import type { ISupplierResponse } from "../../../types/ISupplier";
-import type { IUserResponse } from "../../../types/IUser";
+import { Role, type IUserResponse } from "../../../types/IUser.d";
 import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 import EditPriceProductItem from "./EditPriceProductItem/EditPriceProductItem";
 import "./PurchaseOrderCreate.css";
+import { canSelectEmployee } from "../../../utils/Employee.util";
 
 const PurchaseOrderCreate: React.FC = () => {
 	const navigate = useNavigate();
@@ -204,17 +205,19 @@ const PurchaseOrderCreate: React.FC = () => {
 	};
 
 	const fetchEmployees = async (query: string) => {
-		setLoadingSupplier(true);
 		try {
-			const res = await getAllEmployees(0, 999, query, "asc", false);
+			let employeeList = [] as IUserResponse[];
+			if (canSelectEmployee(user?.user as IUserResponse)) {
+				const res = await getAllEmployees(0, 999, query, "asc", false);
 
-			const data = res.data;
-			console.log("Employee: ", data);
-
-			const employeeList = data.content;
-
+				const data = res.data;
+				employeeList = data.content;
+				console.log("Employee: ", data);
+			} else if (user) {
+				employeeList.push(user.user)
+			}
+			console.log(employeeList)
 			if (!employeeList || employeeList.length === 0) {
-				setLoadingSupplier(false);
 				return;
 			}
 
@@ -229,8 +232,6 @@ const PurchaseOrderCreate: React.FC = () => {
 
 			toast.error("Có lỗi xảy ra, vui lòng thử lại");
 			console.error("Lỗi khi load nhân viên:", error);
-		} finally {
-			setLoadingSupplier(false);
 		}
 	};
 
@@ -319,7 +320,7 @@ const PurchaseOrderCreate: React.FC = () => {
 
 	useEffect(() => {
 		fetchEmployees("");
-	}, []);
+	}, [user]);
 
 	const handleBackBtn = () => {
 		navigate("/purchase-orders");

@@ -35,6 +35,7 @@ import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 import EditPriceProductItem from "../../PurchaseOrder/PurchaseOrderCreate/EditPriceProductItem/EditPriceProductItem";
 import "./GoodsReceiptCreate.css";
+import { canSelectEmployee } from "../../../utils/Employee.util";
 
 const GoodsReceiptCreate: React.FC = () => {
   const navigate = useNavigate();
@@ -261,31 +262,38 @@ const GoodsReceiptCreate: React.FC = () => {
     }
   };
 
-  const fetchEmployees = async (page: number, query: string) => {
-    try {
-      const res = await getAllEmployees(page, 999, query, "desc", false);
-
-      const data = res.data;
-
-      const employeeList = data.content;
-
-      if (!employeeList || employeeList.length === 0) {
-        return;
+  const fetchEmployees = async (query: string) => {
+      try {
+        console.log(user);
+        
+        let employeeList = [] as IUserResponse[];
+        if (canSelectEmployee(user?.user as IUserResponse)) {
+          const res = await getAllEmployees(0, 999, query, "asc", false);
+  
+          const data = res.data;
+          employeeList = data.content;
+          console.log("Employee: ", data);
+        } else if (user) {
+          employeeList.push(user.user)
+        }
+        console.log(employeeList)
+        if (!employeeList || employeeList.length === 0) {
+          return;
+        }
+  
+        setEmployees((prev) => [...prev, ...employeeList]);
+      } catch (err: any) {
+        const errorCode = err?.response?.data?.data;
+  
+        if (typeof errorCode === "number") {
+          toast.error(getErrorMessage(errorCode));
+          return
+        }
+  
+        toast.error("Có lỗi xảy ra, vui lòng thử lại");
+        console.error("Lỗi khi load nhân viên:", error);
       }
-
-      setEmployees((prev) => [...prev, ...employeeList]);
-    } catch (err: any) {
-      const errorCode = err?.response?.data?.data;
-
-      if (typeof errorCode === "number") {
-        toast.error(getErrorMessage(errorCode));
-        return;
-      }
-
-      toast.error("Có lỗi xảy ra, vui lòng thử lại");
-      console.error("Lỗi khi load nhân viên:", err);
-    }
-  };
+    };
 
   const fetchPaymentMethods = async () => {
     try {
@@ -424,7 +432,7 @@ const GoodsReceiptCreate: React.FC = () => {
   useEffect(() => {
     fetchEmployees(0, "");
     fetchPaymentMethods();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const items = goodsReceiptRequest.items;
