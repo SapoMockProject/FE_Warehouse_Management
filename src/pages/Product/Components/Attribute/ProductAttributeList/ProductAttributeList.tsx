@@ -3,7 +3,7 @@ import Button from "../../../../../components/Button/Button";
 import { AuthenticationContext } from "../../../../../contexts/AuthenticationContext";
 import type { Attribute } from "../../../../../types/IAttribute.d";
 import { Role } from "../../../../../types/IUser.d";
-import ProductAttributeComponent from "../ProductAttriibuteComponent";
+import ProductAttributeComponent from "../ProductAttributeComponent";
 
 export default function ProductAttributeListComponent({
 	attributes,
