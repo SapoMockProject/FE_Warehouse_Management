@@ -1,4 +1,4 @@
-import { Role } from "../types/IUser.d";
+import { Role, type IUserResponse } from "../types/IUser.d";
 
 export function getNameOfRole(role: string): string {
 	switch (role) {
@@ -22,3 +22,8 @@ export const handleGetRoleOptions = () => {
 		{ label: "Thủ kho", value: Role.STORE_KEEPER },
 	];
 };
+
+export 	const canSelectEmployee = (user: IUserResponse) => {
+		const role = user?.role;
+		return role === Role.ADMIN_SYSTEM || role === Role.STORE_KEEPER;
+	};

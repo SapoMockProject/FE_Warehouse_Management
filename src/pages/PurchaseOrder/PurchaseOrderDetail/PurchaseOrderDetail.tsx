@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { use, useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./PurchaseOrderDetail.css"
 import "../PurchaseOrderCreate/PurchaseOrderCreate.css";
@@ -12,6 +12,8 @@ import type { HistoryPurchaseOrder } from "../../../types/HistoryPurchaseOrder";
 import { PurchaseOrderHistory } from "./HistoryPurchaseOrder/HistoryPurchaseOrder";
 import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 import { toast } from "react-toastify";
+import { AuthenticationContext } from "../../../contexts/AuthenticationContext";
+import { Role } from "../../../types/IUser.d";
 
 const PurchaseOrderDetail: React.FC = () => {
     const navigate = useNavigate();
@@ -20,6 +22,8 @@ const PurchaseOrderDetail: React.FC = () => {
     const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrderResponse | null>(null);
     const [histories, setHistories] = useState<HistoryPurchaseOrder[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const user = useContext(AuthenticationContext);
 
     useEffect(() => {
         if (id) {
@@ -438,7 +442,7 @@ const PurchaseOrderDetail: React.FC = () => {
             {purchaseOrder.status !== "CANCELLED" && purchaseOrder.status !== "IMPORTED_ALL" && (
                 <div className="purchase-order-footer">
 
-                    {(purchaseOrder.status === "DRAFT" || purchaseOrder.status === "PENDING") && (
+                    {(purchaseOrder.status === "DRAFT" || purchaseOrder.status === "PENDING") && (user?.user.role != Role.COORDINATOR && user?.user.role != Role.WAREHOUSE_STAFF) && (
                         <>
                             <Button
                                 label="Hủy đơn"
@@ -459,7 +463,7 @@ const PurchaseOrderDetail: React.FC = () => {
                     )}
 
 
-                    {purchaseOrder.status === "DRAFT" && (
+                    {purchaseOrder.status === "DRAFT" && (user?.user.role != Role.COORDINATOR && user?.user.role != Role.WAREHOUSE_STAFF) && (
                         <Button
                             label="Duyệt đơn"
                             icon={<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="#000000" d="M10.543 1.793a1 1 0 0 1 1.414 0l2.5 2.5a1 1 0 0 1 0 1.414l-2.5 2.5a1 1 0 1 1-1.414-1.414l.758-.759a7 7 0 1 0 7.645 7.842a1 1 0 1 1 1.984.248a9 9 0 1 1-9.572-10.101l-.815-.816a1 1 0 0 1 0-1.414Zm5.664 8a1 1 0 0 1 0 1.414l-4.5 4.5a1 1 0 0 1-1.414 0l-2-2a1 1 0 1 1 1.414-1.414L11 13.586l3.793-3.793a1 1 0 0 1 1.414 0Z" /></svg>}
