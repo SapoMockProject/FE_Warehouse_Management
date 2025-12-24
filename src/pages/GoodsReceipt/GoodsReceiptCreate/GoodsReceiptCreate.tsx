@@ -35,6 +35,8 @@ import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 import EditPriceProductItem from "../../PurchaseOrder/PurchaseOrderCreate/EditPriceProductItem/EditPriceProductItem";
 import "./GoodsReceiptCreate.css";
+import type { AxiosError } from "axios";
+import type { BaseResponse } from "../../../types/BaseResponse";
 
 const GoodsReceiptCreate: React.FC = () => {
   const navigate = useNavigate();
@@ -453,7 +455,7 @@ const GoodsReceiptCreate: React.FC = () => {
       totalAfterDiscount += Math.max(0, basePrice - itemDiscount);
     });
 
-    const totalLandedCost = goodsReceiptRequest.totalLandedCost || 0;
+  const totalLandedCost = goodsReceiptRequest.totalLandedCost || 0;
 
     const totalPrice = Math.max(
       0,
@@ -568,14 +570,14 @@ const GoodsReceiptCreate: React.FC = () => {
       prev.map((p) =>
         p.id === selectedVariantFixPrice?.id
           ? {
-            ...p,
-            ...{
-              price: data.price,
-              discountType: data.discountType,
-              discountValue: data.discountValue || 0,
-              priceAfterDiscount: data.priceAfterDiscount,
-            },
-          }
+              ...p,
+              ...{
+                price: data.price,
+                discountType: data.discountType,
+                discountValue: data.discountValue || 0,
+                priceAfterDiscount: data.priceAfterDiscount,
+              },
+            }
           : p
       )
     );
@@ -657,9 +659,9 @@ const GoodsReceiptCreate: React.FC = () => {
       ...prev,
       transactionInfo: prev.transactionInfo
         ? {
-          ...prev.transactionInfo,
-          [field]: value,
-        }
+            ...prev.transactionInfo,
+            [field]: value,
+          }
         : null,
     }));
   };
@@ -1264,7 +1266,7 @@ const GoodsReceiptCreate: React.FC = () => {
                         className={
                           goodsReceiptRequest.totalPrice -
                             (goodsReceiptRequest.transactionInfo?.amount || 0) >
-                            0
+                          0
                             ? "text-warning"
                             : "text-success"
                         }
@@ -1281,28 +1283,28 @@ const GoodsReceiptCreate: React.FC = () => {
                   {goodsReceiptRequest.totalPrice -
                     (goodsReceiptRequest.transactionInfo?.amount || 0) >
                     0 && (
-                      <div className="payment-partial-notice">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="#1890ff"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <circle cx="12" cy="12" r="10" />
-                          <line x1="12" y1="16" x2="12" y2="12" />
-                          <line x1="12" y1="8" x2="12.01" y2="8" />
-                        </svg>
-                        <span>
-                          Thanh toán một phần. Số tiền còn lại sẽ được ghi nhận là
-                          công nợ.
-                        </span>
-                      </div>
-                    )}
+                    <div className="payment-partial-notice">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="#1890ff"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <span>
+                        Thanh toán một phần. Số tiền còn lại sẽ được ghi nhận là
+                        công nợ.
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1391,9 +1393,9 @@ const GoodsReceiptCreate: React.FC = () => {
                   onClear={
                     !purchaseOrderData
                       ? () => {
-                        handleChangeGoodsReceiptField("supplierId", null);
-                        setSelectSupplier(undefined);
-                      }
+                          handleChangeGoodsReceiptField("supplierId", null);
+                          setSelectSupplier(undefined);
+                        }
                       : undefined
                   }
                 />

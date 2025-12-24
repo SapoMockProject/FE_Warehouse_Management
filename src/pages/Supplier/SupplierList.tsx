@@ -16,6 +16,8 @@ import { getOrderBySupplier, getSupplierStatusText, getSupplierStatusVariant } f
 import CreateSupplier from "./CreateSupplier/CreateSupplier";
 import "./SupplierList.css";
 import TagComponent from "./Tag/TagComponent";
+import ExportExcelComponent from "../../components/ExportExcel/ExportExcelComponent";
+import type { AxiosRequestConfig } from "axios";
 export type SupplierSortBy = ReturnType<typeof getOrderBySupplier>[number]["value"];
 export default function SupplierList() {
 	const [supplies, setSuppliers] = React.useState<ISupplierResponse[]>([]);
@@ -96,12 +98,27 @@ export default function SupplierList() {
 			setSelectedEmployees(employeeUsername);
 		}
 	};
+	const config: AxiosRequestConfig = {
+		method: "GET",
+		url: "/suppliers/exports",
+		params: {
+			page,
+			limit,
+			query,
+			sortDirection: sortOrder.toUpperCase(),
+			isDeleted: false,
+		},
+		headers: {
+			Authorization: `Bearer ${localStorage.getItem("token")}`,
+		},
+	};
 	return (
 		<>
 			<div className="supplier-list-container">
 				<div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
 					<span style={{ fontWeight: "bold" }}>Nhà cung cấp</span>
-					<div>
+					<div className="supplier-row">
+						<ExportExcelComponent config={config} />
 						<CreateSupplier />
 					</div>
 				</div>
