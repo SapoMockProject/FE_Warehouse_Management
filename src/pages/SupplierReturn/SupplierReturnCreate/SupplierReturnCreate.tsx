@@ -15,7 +15,7 @@ import SupplierItem from "../../../components/Supplier/SupplierItem/SupplierItem
 import { ValidationMessage } from "../../../components/ValidationMessage/ValidationMessage";
 import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import EditPriceProductItem from "../../PurchaseOrder/PurchaseOrderCreate/EditPriceProductItem/EditPriceProductItem";
-// import { createReturnOrder } from "../../../apis/returnOrderApi";
+import { createReturnOrder } from "../../../apis/supplierReturnApi";
 import { toast } from "react-toastify";
 import { getProductVariants } from "../../../apis/productApi";
 import type { GoodsReceiptResponse } from "../../../types/IGoodsReceipt";
@@ -120,7 +120,7 @@ const SupplierReturnCreate: React.FC = () => {
 
             const totalLandedCost = goodsReceiptData.totalLandedCost || 0;
             const totalDiscount = goodsReceiptData.discountValue || 0;
-            
+
             //Tính đơn giá hoàn trả
             const convertedItems: ReturnItem[] = goodsReceiptData.items.map(
                 (item) => {
@@ -139,11 +139,11 @@ const SupplierReturnCreate: React.FC = () => {
                             ? (item.price * item.discountValueItem) / 100
                             : item.discountValueItem || 0) * item.receivedQuantity;
 
-                            console.log(landedCostForItem );
-                            console.log(discountForItem);
-                            console.log(itemOwnDiscount );
-                            
-                    const adjustedPrice =(
+                    console.log(landedCostForItem);
+                    console.log(discountForItem);
+                    console.log(itemOwnDiscount);
+
+                    const adjustedPrice = (
                         item.price +
                         landedCostForItem / item.receivedQuantity -
                         discountForItem / item.receivedQuantity -
@@ -164,7 +164,6 @@ const SupplierReturnCreate: React.FC = () => {
                         quantityReturn: 0,
                         maxQuantity: item.receivedQuantity,
                         discountType: null,
-                        discountValue: null,
                         priceAfterDiscount: null,
 
                         originalPrice: item.price,
@@ -183,8 +182,10 @@ const SupplierReturnCreate: React.FC = () => {
                     returnedQuantity: item.quantityReturn,
                     price: item.price,
                     discountType: null,
-                    discountValueItem: 0,
-                    subtotalPriceItem: item.price * item.quantityReturn,
+                    discountValueItem: item.itemDiscountValue,
+                    subtotalPriceItem: item.price * item.quantityReturn / item.maxQuantity,
+                    landedCostAllocation: item.landedCostAllocation / item.maxQuantity,
+                    orderDiscountAllocation: item.orderDiscountAllocation / item.maxQuantity
                 })
             );
 
@@ -192,7 +193,6 @@ const SupplierReturnCreate: React.FC = () => {
                 ...prev,
                 goodsReceiptId: goodsReceiptData.id,
                 supplierId: goodsReceiptData.supplier.id,
-                returnedCostReceiveOnVariant: 0,
                 items: requestItems,
             }));
 
@@ -472,9 +472,12 @@ const SupplierReturnCreate: React.FC = () => {
             ...variant,
             quantityReturn: 0,
             maxQuantity: variant.stock,
-            discountType: null,
-            discountValue: null,
+            discountValue: 0,
             priceAfterDiscount: null,
+            originalPrice: variant.price,
+            itemDiscountValue: 0,
+            landedCostAllocation: 0,
+            orderDiscountAllocation: 0,
         };
 
         setReturnItems((prev) => [...prev, newReturnItem]);
@@ -484,7 +487,7 @@ const SupplierReturnCreate: React.FC = () => {
             returnedQuantity: 0,
             price: variant.price,
             discountType: null,
-            discountValueItem: null,
+            discountValueItem: 0,
             subtotalPriceItem: 0,
         };
 
@@ -571,12 +574,13 @@ const SupplierReturnCreate: React.FC = () => {
                     const returnItem = returnItems.find((ri) => ri.id === variantId);
                     const quantity = returnItem?.quantityReturn || 1;
                     let discountValue = data.discountValue || 0;
-                              if (data.discountType === "PERCENT") discountValue = (data.price * discountValue) / 100;
+                    if (data.discountType === "PERCENT") discountValue = (data.price * discountValue) / 100;
+
                     return {
                         ...item,
                         price: data.price,
                         discountType: data.discountType,
-                        discountValueItem: data.discountValue,
+                        discountValueItem: data.discountValue || 0,
                         subtotalPriceItem: (data.price - discountValue) * quantity,
                     };
                 }
@@ -699,12 +703,26 @@ const SupplierReturnCreate: React.FC = () => {
         try {
             console.log("supplier return request: ", bodyRequest);
 
-            // const response = await createReturnOrder(bodyRequest);
-            // if (response.data) {
-            //     navigate(`/return-orders/${response.data.id}`);
-            // }
-        } catch (err) {
-            console.error("Error creating return order:", err);
+            const response = await createReturnOrder(bodyRequest);
+            console.log("Kết quả backend:", response);
+
+            if (response.data) {
+                navigate(`/supplier-returns/${response.data.id}`);
+            }
+        } catch (err: any) {
+            const errorCode = err?.response?.data?.data;
+            const backendMessage = err?.response?.data?.message;
+
+            if (typeof errorCode === "number") {
+                toast.error(getErrorMessage(errorCode));
+                return;
+            }
+
+            if (backendMessage != null) {
+                toast.error(backendMessage);
+                return
+            }
+            console.error("Lỗi tạo SupplierReturn :", err);
         }
     };
 
@@ -948,9 +966,9 @@ const SupplierReturnCreate: React.FC = () => {
                                                     <td className="purchase-order-total align_right">
                                                         {(
                                                             Math.round(quantity *
-                                                            (priceAfterDiscount != null
-                                                                ? priceAfterDiscount
-                                                                : item.price))
+                                                                (priceAfterDiscount != null
+                                                                    ? priceAfterDiscount
+                                                                    : item.price))
                                                         ).toLocaleString("vi-VN")}
                                                         đ
                                                     </td>

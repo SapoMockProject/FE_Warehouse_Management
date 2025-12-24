@@ -5,8 +5,11 @@ export interface ReturnSupplierItemRequest {
   returnedQuantity: number;
   price: number;
   discountType: "FIXED" | "PERCENT" | null;
-  discountValueItem: number | null;
+  discountValueItem: number;
   subtotalPriceItem: number;
+
+  landedCostAllocation?: number;      // Chi phí nhập phân bổ
+  orderDiscountAllocation?: number;   // Discount đơn phân bổ
 }
 
 export interface ReturnSupplierRequest {
