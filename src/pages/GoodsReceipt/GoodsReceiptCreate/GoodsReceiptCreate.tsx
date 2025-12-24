@@ -35,8 +35,6 @@ import { formatDateTime } from "../../../utils/DateFilterOptions.util";
 import { getErrorMessage } from "../../../utils/StatusResponseMessage.util";
 import EditPriceProductItem from "../../PurchaseOrder/PurchaseOrderCreate/EditPriceProductItem/EditPriceProductItem";
 import "./GoodsReceiptCreate.css";
-import type { AxiosError } from "axios";
-import type { BaseResponse } from "../../../types/BaseResponse";
 
 const GoodsReceiptCreate: React.FC = () => {
   const navigate = useNavigate();
