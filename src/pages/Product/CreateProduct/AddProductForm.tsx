@@ -90,9 +90,10 @@ const AddProductForm: React.FC = () => {
 				formData.append(`variants[${i}].option2value`, variantsFormData[i].option2value);
 				formData.append(`variants[${i}].option3value`, variantsFormData[i].option3value);
 			}
-			await createProduct(formData);
+			const res = await createProduct(formData);
 			toast.success("Thêm sản phẩm thành công");
 			handleReset();
+			navigate(`/products/${res.data.id.toString()}`);
 		} catch (err) {
 			console.error(err);
 			toast.error(

@@ -45,7 +45,7 @@ export default function ProductCategorySelect({
 				handleSelect(found.id.toString());
 			}
 		}
-	}, [isLoading]);
+	}, [isLoading, product]);
 	const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
 		const target = e.target as HTMLDivElement;
 		if (target.scrollHeight - target.scrollTop === target.clientHeight && hasMore) {

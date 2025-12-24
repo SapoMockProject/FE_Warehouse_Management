@@ -42,11 +42,16 @@ export default function DetailEmployee() {
 	};
 	React.useEffect(() => {
 		const fetchUser = async () => {
-			const user = await getUserById(Number(id));
-			setEmployeeInfo(user.data);
+			try {
+				const user = await getUserById(Number(id));
+				setEmployeeInfo(user.data);
+			} catch (error) {
+				console.log(error);
+				navigate("/not-found");
+			}
 		};
 		fetchUser();
-	}, [id, reload]);
+	}, [id, reload, navigate]);
 	const handleSaveUser = async () => {
 		if (!employeeInfo) {
 			toast.error("Không tìm thấy thông tin nhân viên");

@@ -78,7 +78,6 @@ const location = useLocation();
 		const urlParams = new URLSearchParams(window.location.search);
 		const code = urlParams.get("code");
 		const prompt = urlParams.get("prompt");
-		console.log("Code from Google:", code);
 		if (code && prompt) {
 			const fetchToken = async () => {
 				const response = await loginGoogle(code);

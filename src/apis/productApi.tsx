@@ -38,12 +38,13 @@ export const getAllProducts = async (
 
 export const createProduct = async (formData: FormData) => {
 	const token = localStorage.getItem("token");
-	return await axiosConfiguration.post("/products", formData, {
+	const res = await axiosConfiguration.post("/products", formData, {
 		headers: {
 			Authorization: `Bearer ${token}`,
 			"Content-Type": "multipart/form-data",
 		},
 	});
+	return res.data as BaseResponse<ProductResponse>;
 };
 
 export const updateProduct = async (id: number, formData: FormData) => {

@@ -44,17 +44,6 @@ export default function UpdateProduct() {
 	React.useEffect(() => {
 		const load = () => {
 			if (!product) return;
-			setName(product.name);
-			setDescription(product.description);
-			setPrice(product.variants[0]?.price || 0);
-			setStock(product.variants[0]?.stock || 0);
-			setSku(product.variants[0]?.sku || "");
-		};
-		load();
-	}, [product]);
-	React.useEffect(() => {
-		const load = () => {
-			if (!product) return;
 			const opts = getAllProductOptions(product);
 			const newAttributes: Attribute[] = [];
 			if (product.option1name) {
@@ -78,6 +67,9 @@ export default function UpdateProduct() {
 			setAttributes(newAttributes);
 			setName(product.name);
 			setDescription(product.description);
+			setPrice(product.variants[0]?.price || 0);
+			setStock(product.variants[0]?.stock || 0);
+			setSku(product.variants[0]?.sku || "");
 		};
 		load();
 	}, [product]);
@@ -97,7 +89,7 @@ export default function UpdateProduct() {
 			formData.append("option2name", attributes?.[1]?.name || "");
 			formData.append("option3name", attributes?.[2]?.name || "");
 			if (files && files.length) formData.append("imageUrl", files[0]);
-			else if (!removedThumbnail) formData.append("imageUrl", product?.thumbnail || "");
+			else if (!removedThumbnail) formData.append("thumbnailUrl", product?.thumbnail || "");
 			if (variantList.length === 0) {
 				formData.append("variants[0].sku", sku);
 				formData.append("variants[0].price", price.toString());
