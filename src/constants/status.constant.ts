@@ -20,3 +20,8 @@ export const TRANSACTION_STATUSES = [
   { value: "PENDING", label: "Chờ thanh toán", class: "pending" },
   { value: "PAID", label: "Đã thanh toán", class: "paid" },
 ];
+
+export const RETURN_STATUSES = [
+    { value: "returned", label: "Đã hoàn trả", class: "returned" },
+    { value: "not_returned", label: "Chưa hoàn trả", class: "not_returned" }
+];

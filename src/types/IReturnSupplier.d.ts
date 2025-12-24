@@ -1,3 +1,4 @@
+import type { ISupplierResponse } from "./ISupplier";
 import type { TransactionRequest, TransactionResponse } from "./ITransaction";
 
 export interface ReturnSupplierItemRequest {
@@ -51,15 +52,9 @@ export interface ReturnOrderItemResponse {
 export interface ReturnSupplierResponse {
   id: number;
   returnSupplierCode: string;
-  supplier: {
-    id: number;
-    name: string;
-    supplierCode: string;
-    address: string;
-    phone: string;
-    email: string;
-  };
+  supplierResponse: ISupplierResponse;
   goodsReceiptId: number | null;
+  goodsReceiptCode: number | null;
   returnStatus: boolean;
   transactionStatus: string;
   returnReason: string;
