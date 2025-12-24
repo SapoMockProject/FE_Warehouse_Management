@@ -289,7 +289,7 @@ const PurchaseOrderDetail: React.FC = () => {
                                                         {item.discountValueItem && item.discountValueItem > 0 ? (
                                                             <div className="purchase-order-price_edit">
                                                                 <div>
-                                                                    {(item.price - item.discountValueItem).toLocaleString("vi-VN")}đ
+                                                                    {(item.price - (item.discountType == "PERCENT" ? (item.price * item.discountValueItem / 100) : item.discountValueItem)).toLocaleString("vi-VN")}đ
                                                                 </div>
                                                                 <div style={{ textDecoration: "line-through", color: "#999", fontSize: "12px" }}>
                                                                     {item.price.toLocaleString("vi-VN")}đ
@@ -318,7 +318,7 @@ const PurchaseOrderDetail: React.FC = () => {
                             <div className="purchase-order-payment-row">
                                 <span className="purchase-order-payment-label">Tổng tiền hàng</span>
                                 <span className="purchase-order-payment-currency">
-                                    {purchaseOrder.totalLineItemsPriceBeforeDiscount.toLocaleString("vi-VN")}đ
+                                    {purchaseOrder.totalLineItemsPriceAfterDiscount.toLocaleString("vi-VN")}đ
                                 </span>
                             </div>
                             <div className="purchase-order-payment-row">

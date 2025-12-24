@@ -365,11 +365,11 @@ const GoodsReceiptDetail: React.FC = () => {
                                             <td className="align_center">
                                                 {item.discountValueItem ? (
                                                     <div>
+                                                        <div style={{ fontWeight: "bold" }}>
+                                                            {(item.price - (item.discountType == "PERCENT" ? (item.price * item.discountValueItem / 100) : item.discountValueItem)).toLocaleString("vi-VN")}đ
+                                                        </div>
                                                         <div style={{ textDecoration: "line-through", color: "#999", fontSize: "12px" }}>
                                                             {item.price.toLocaleString("vi-VN")}đ
-                                                        </div>
-                                                        <div style={{ fontWeight: "bold" }}>
-                                                            {(item.price - item.discountValueItem).toLocaleString("vi-VN")}đ
                                                         </div>
                                                     </div>
                                                 ) : (
@@ -398,7 +398,7 @@ const GoodsReceiptDetail: React.FC = () => {
                             <div className="purchase-order-payment-row">
                                 <span className="purchase-order-payment-label">Chiết khấu</span>
                                 <span className="purchase-order-payment-currency">
-                                    {goodsReceipt.totalDiscountValue != null ? goodsReceipt.totalDiscountValue.toLocaleString("vi-VN") : 0}đ
+                                    {goodsReceipt.discountValue != null ? goodsReceipt.discountValue.toLocaleString("vi-VN") : 0}đ
                                 </span>
                             </div>
                             <div className="purchase-order-payment-row">

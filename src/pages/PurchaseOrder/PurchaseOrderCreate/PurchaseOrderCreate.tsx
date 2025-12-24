@@ -345,7 +345,7 @@ const PurchaseOrderCreate: React.FC = () => {
 				quantity: 1,
 				price: product.price,
 				discountType: null,
-				discountValueItem: null,
+				discountValueItem: 0,
 				subtotalPriceItem: product.price,
 			};
 
@@ -368,10 +368,12 @@ const PurchaseOrderCreate: React.FC = () => {
 			...prev,
 			items: prev.items.map((item) => {
 				if (item.productVariantId === productId) {
+					const discount = (item.discountType == "PERCENT" ? (item.price * item.discountValueItem / 100) : item.discountValueItem) || 0;
+
 					return {
 						...item,
 						quantity: qty,
-						subtotalPriceItem: item.price * qty,
+						subtotalPriceItem: (item.price - discount) * qty,
 					};
 				}
 				return item;
@@ -398,7 +400,7 @@ const PurchaseOrderCreate: React.FC = () => {
 		price: number;
 		priceAfterDiscount: number;
 		discountType: "FIXED" | "PERCENT" | null;
-		discountValue: number | null;
+		discountValue: number;
 	}) => {
 		if (!selectedVariantFixPrice) return;
 
@@ -470,35 +472,39 @@ const PurchaseOrderCreate: React.FC = () => {
 	};
 
 	useEffect(() => {
-		const totalLineItemsPriceBeforeDiscount = purchaseOrderRequest.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+		const items = purchaseOrderRequest.items;
 
-		const totalItemsDiscount = purchaseOrderRequest.items.reduce((sum, item) => {
-			const basePrice = item.price * item.quantity;
-			const discountAmount = basePrice - item.subtotalPriceItem;
-			return sum + discountAmount;
-		}, 0);
+		let totalBeforeDiscount = 0;
+		let totalDiscountValue = 0;
+		let totalAfterDiscount = 0;
 
-		const totalLineItemsPriceAfterDiscount = purchaseOrderRequest.items.reduce((sum, item) => sum + item.subtotalPriceItem, 0);
+		items.forEach((item) => {
+			const quantity = item.quantity || 0;
+			const basePrice = item.price * quantity;
 
-		let orderDiscount = 0;
-		if (purchaseOrderRequest.discountType === "FIXED" && purchaseOrderRequest.discountValue != null) {
-			orderDiscount = purchaseOrderRequest.discountValue;
-		} else if (purchaseOrderRequest.discountType === "PERCENT" && purchaseOrderRequest.discountValue != null) {
-			orderDiscount = totalLineItemsPriceAfterDiscount * (purchaseOrderRequest.discountValue / 100);
-		}
+			totalBeforeDiscount += basePrice;
 
-		const totalDiscountValue = totalItemsDiscount + orderDiscount;
+			let itemDiscount = 0;
 
-		const totalLandedCost = purchaseOrderRequest.totalLandedCost || 0;
+			if (item.discountType === "FIXED" && item.discountValueItem) {
+				itemDiscount = item.discountValueItem * quantity;
+			}
 
-		const totalPrice = Math.max(0, totalLineItemsPriceAfterDiscount - orderDiscount + totalLandedCost);
+			if (item.discountType === "PERCENT" && item.discountValueItem) {
+				itemDiscount = basePrice * (item.discountValueItem / 100);
+			}
+
+			totalDiscountValue += itemDiscount;
+			totalAfterDiscount += Math.max(0, basePrice - itemDiscount);
+		});
+
+		const totalPrice = Math.max(0, totalAfterDiscount);
 
 		setPurchaseOrderRequest((prev) => ({
 			...prev,
+			totalLineItemsPriceBeforeDiscount: totalBeforeDiscount,
 			totalDiscountValue,
-			totalLandedCost,
-			totalLineItemsPriceBeforeDiscount,
-			totalLineItemsPriceAfterDiscount,
+			totalLineItemsPriceAfterDiscount: totalAfterDiscount,
 			totalPrice,
 		}));
 	}, [
@@ -552,8 +558,8 @@ const PurchaseOrderCreate: React.FC = () => {
 				return
 			}
 
-			if (backendMessage == "Validation failed") {
-				toast.error("Dữ liệu không hợp lệ, vui lòng kiểm tra lại");
+			if (backendMessage != null) {
+				toast.error(backendMessage);
 				return
 			}
 
