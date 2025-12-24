@@ -167,27 +167,39 @@ export const SidebarComponent = () => {
             </NavLink>
           )}
 
-          {(user?.user?.role === Role.ADMIN_SYSTEM ||
-            user?.user?.role === Role.STORE_KEEPER) && (
-            <NavLink to="/suppliers" className="sidebar-link" title="Supplier">
+          {(user?.user?.role === Role.ADMIN_SYSTEM || user?.user?.role === Role.STORE_KEEPER) && (
+            <NavLink
+              to="/supplier-returns/create"
+              className="sidebar-link"
+              title="Supplier Return"
+            >
               <div className="menu-icon">
-                <svg
-                  className="icon"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="200"
-                  height="200"
-                  viewBox="0 0 16 16"
-                  fill="#ffffff"
-                >
-                  <g fill="#ffffff">
-                    <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h4a.5.5 0 1 0 0-1h-4a.5.5 0 0 1-.5-.5V7.207l5-5l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z" />
-                    <path d="M16 12.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0Zm-3.5-2a.5.5 0 0 0-.5.5v1h-1a.5.5 0 0 0 0 1h1v1a.5.5 0 1 0 1 0v-1h1a.5.5 0 1 0 0-1h-1v-1a.5.5 0 0 0-.5-.5Z" />
-                  </g>
-                </svg>
-              </div>
-              <span className="menu-name">Nhà cung cấp</span>
+                <svg className="icon" xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 24 24"><path fill="none" stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.527 15.977h3.24c1.278-.021 3.233.652 3.233 3.08C22 21.577 19.588 22 18.766 22H7.946C5.438 22 2 21.491 2 17.17V8.002h20v4.517m-6.473 3.457a.8.8 0 0 1 .273-.58l1.702-1.42m-1.975 2a.8.8 0 0 0 .275.623l1.7 1.383M2.006 7.991l.921-2.3c.748-1.789 1.122-2.683 1.88-3.186S6.537 2 8.48 2h7.02c1.944 0 2.916 0 3.674.504c.758.503 1.131 1.397 1.88 3.185L22 7.995m-10.037.006v-6m-2 10h4" color="currentColor" /></svg>              </div>
+              <span className="menu-name">Hoàn trả</span>
             </NavLink>
           )}
+
+          {(user?.user?.role === Role.ADMIN_SYSTEM ||
+            user?.user?.role === Role.STORE_KEEPER) && (
+              <NavLink to="/suppliers" className="sidebar-link" title="Supplier">
+                <div className="menu-icon">
+                  <svg
+                    className="icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="200"
+                    height="200"
+                    viewBox="0 0 16 16"
+                    fill="#ffffff"
+                  >
+                    <g fill="#ffffff">
+                      <path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h4a.5.5 0 1 0 0-1h-4a.5.5 0 0 1-.5-.5V7.207l5-5l6.646 6.647a.5.5 0 0 0 .708-.708L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.707 1.5Z" />
+                      <path d="M16 12.5a3.5 3.5 0 1 1-7 0a3.5 3.5 0 0 1 7 0Zm-3.5-2a.5.5 0 0 0-.5.5v1h-1a.5.5 0 0 0 0 1h1v1a.5.5 0 1 0 1 0v-1h1a.5.5 0 1 0 0-1h-1v-1a.5.5 0 0 0-.5-.5Z" />
+                    </g>
+                  </svg>
+                </div>
+                <span className="menu-name">Nhà cung cấp</span>
+              </NavLink>
+            )}
 
           {user?.user?.role === Role.ADMIN_SYSTEM && (
             <NavLink to="/employees" className="sidebar-link" title="Employee">

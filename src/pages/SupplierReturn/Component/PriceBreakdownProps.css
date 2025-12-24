@@ -1,0 +1,208 @@
+.price-breakdown-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.price-breakdown-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: #f0f7ff;
+    border: 1px solid #d6e4ff;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
+    font-weight: 500;
+    color: #1890ff;
+}
+
+.price-breakdown-trigger:hover {
+    background: #e6f4ff;
+    border-color: #91caff;
+}
+
+.price-breakdown-trigger svg {
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.price-breakdown-trigger:hover svg {
+    opacity: 1;
+}
+
+.price-breakdown-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 320px;
+    animation: popoverSlideIn 0.2s ease-out;
+}
+
+@keyframes popoverSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+.price-breakdown-popover::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-left: 1px solid #e8e8e8;
+    border-top: 1px solid #e8e8e8;
+    transform: translateX(-50%) rotate(45deg);
+}
+
+.price-breakdown-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.price-breakdown-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #262626;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #8c8c8c;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.close-btn:hover {
+    background: #f5f5f5;
+    color: #262626;
+}
+
+.price-breakdown-body {
+    padding: 12px 16px;
+}
+
+.breakdown-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 13px;
+}
+
+.breakdown-row .label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #595959;
+}
+
+.breakdown-row .label svg {
+    flex-shrink: 0;
+}
+
+.breakdown-row.original .label {
+    font-weight: 500;
+    color: #262626;
+}
+
+.breakdown-row.discount .label svg {
+    color: #faad14;
+}
+
+.breakdown-row.landed-cost .label svg {
+    color: #1890ff;
+}
+
+.breakdown-row.order-discount .label svg {
+    color: #52c41a;
+}
+
+.breakdown-row .value {
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.breakdown-row .value.positive {
+    color: #262626;
+}
+
+.breakdown-row .value.negative {
+    color: #ff4d4f;
+}
+
+.breakdown-divider {
+    height: 1px;
+    background: #f0f0f0;
+    margin: 8px 0;
+}
+
+.breakdown-row.final {
+    padding: 12px 0 8px;
+}
+
+.breakdown-row.final .label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #262626;
+}
+
+.breakdown-row.final .value {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.breakdown-row.final .value.highlight {
+    color: #1890ff;
+}
+
+.breakdown-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    background: #f6ffed;
+    border: 1px solid #b7eb8f;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-size: 12px;
+    color: #52c41a;
+}
+
+.breakdown-note svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+.breakdown-note span {
+    line-height: 1.5;
+}

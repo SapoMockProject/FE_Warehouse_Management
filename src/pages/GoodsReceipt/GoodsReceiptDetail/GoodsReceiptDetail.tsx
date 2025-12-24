@@ -176,6 +176,11 @@ const GoodsReceiptDetail: React.FC = () => {
         }));
     };
 
+    const handleSupplierReturn = () => {
+        if (!goodsReceipt?.receiptStatus) return;
+        navigate(`/supplier-returns/create`, { state: { goodsReceiptData: goodsReceipt } });
+    }
+
     const handleSubmitPayment = async () => {
         if (!goodsReceipt) return;
 
@@ -592,6 +597,16 @@ const GoodsReceiptDetail: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {goodsReceipt.receiptStatus && (
+                <div className="purchase-order-footer">
+                    <Button
+                        className="purchase-order-btn purchase-order-btn-primary"
+                        label="Tạo đơn hoàn trả"
+                        onClick={() => handleSupplierReturn()}
+                    />
+                </div>
+            )}
         </div >
     );
 };

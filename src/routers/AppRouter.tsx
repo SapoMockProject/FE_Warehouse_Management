@@ -22,6 +22,7 @@ import PurchaseOrderEdit from "../pages/PurchaseOrder/PurchaseOrderUpdate/Purcha
 import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
 import SupplierList from "../pages/Supplier/SupplierList";
 import VerifyAccountPage from "../pages/VerifyAccount/VerifyAccount";
+import SupplierReturnCreate from "../pages/SupplierReturn/SupplierReturnCreate/SupplierReturnCreate";
 
 export const AppRouter = () => {
 	return (
@@ -60,6 +61,7 @@ export const AppRouter = () => {
 							<Route path="/products/:id" element={<UpdateProduct />} />
 							<Route path="/products/create" element={<AddProductForm />} />
 							<Route path="/products" element={<ProductList />} />
+							<Route path="/supplier-returns/create" element={<SupplierReturnCreate />} />
 						</Route>
 					</Route>
 					<Route path="/verify-account" element={<VerifyAccountPage />} />
