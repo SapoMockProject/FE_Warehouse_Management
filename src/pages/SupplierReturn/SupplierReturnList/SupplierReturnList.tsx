@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import "./SupplierReturnList.css";
 import Button from "../../../components/Button/Button";
 import Input from "../../../components/Input/Input";
 import DateField from "../../../components/DateField/DateField";
