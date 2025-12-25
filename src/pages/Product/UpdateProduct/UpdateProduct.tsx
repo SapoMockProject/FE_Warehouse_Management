@@ -29,6 +29,7 @@ export default function UpdateProduct() {
 	const [price, setPrice] = React.useState(0);
 	const [stock, setStock] = React.useState(0);
 	const navigate = useNavigate();
+	const [isSaving, setIsSaving] = React.useState(false);
 	React.useEffect(() => {
 		if (!id) return;
 		const fetchProduct = async () => {
@@ -80,6 +81,19 @@ export default function UpdateProduct() {
 	};
 	const handleSave = async () => {
 		try {
+			setIsSaving(true);
+			if (!name.trim()) {
+				toast.error("Vui lòng nhập tên sản phẩm");
+				return;
+			}
+			if (!categorySelect) {
+				toast.error("Vui lòng chọn danh mục sản phẩm");
+				return;
+			}
+			if (price <= 0) {
+				toast.error("Vui lòng nhập giá sản phẩm hợp lệ");
+				return;
+			}
 			const formData = new FormData();
 			formData.append("id", String(id));
 			formData.append("name", name);
@@ -112,6 +126,8 @@ export default function UpdateProduct() {
 		} catch (err) {
 			console.log(err);
 			toast.error("Sửa sản phẩm thất bại!");
+		} finally {
+			setIsSaving(false);
 		}
 	};
 	const user = React.useContext(AuthenticationContext);
@@ -198,7 +214,13 @@ export default function UpdateProduct() {
 			</div>
 			{user?.user.role !== Role.COORDINATOR && (
 				<div className="product-actions-btns">
-					<Button label="Sửa sản phẩm" variant="primary" size="md" onClick={handleSave} />
+					<Button
+						label={isSaving ? "Đang lưu..." : "Sửa sản phẩm"}
+						variant="primary"
+						size="md"
+						onClick={handleSave}
+						disabled={isSaving}
+					/>
 					<Button label="Hủy" variant="secondary" size="md" onClick={() => navigate(-1)} />
 				</div>
 			)}

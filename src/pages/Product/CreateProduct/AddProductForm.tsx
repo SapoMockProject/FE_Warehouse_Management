@@ -24,6 +24,7 @@ const AddProductForm: React.FC = () => {
 	const [files, setFiles] = React.useState<File[]>([]);
 	const [categorySelect, setCategorySelect] = React.useState("");
 	const [variantList, setVariantList] = React.useState<VariantResponse[]>([]);
+	const [isSaving, setIsSaving] = React.useState(false);
 	const navigate = useNavigate();
 	const handleFiles = (newFiles: File[] | null) => {
 		const arr = Array.from(newFiles || []);
@@ -46,6 +47,7 @@ const AddProductForm: React.FC = () => {
 
 	const handleSave = async () => {
 		try {
+			setIsSaving(true);
 			if (!name.trim()) {
 				toast.error("Vui lòng nhập tên sản phẩm");
 				return;
@@ -83,6 +85,8 @@ const AddProductForm: React.FC = () => {
 			toast.error(
 				((err as AxiosError).response?.data as BaseResponse<{ [key: string]: string }>)?.message || "Thêm sản phẩm thất bại"
 			);
+		} finally {
+			setIsSaving(false);
 		}
 	};
 
@@ -161,7 +165,13 @@ const AddProductForm: React.FC = () => {
 				</div>
 			</div>
 			<div className="product-actions-btns">
-				<Button label="Tạo sản phẩm" variant="primary" size="md" onClick={handleSave} />
+				<Button
+					label={isSaving ? "Đang lưu..." : "Tạo sản phẩm"}
+					variant="primary"
+					size="md"
+					onClick={handleSave}
+					disabled={isSaving}
+				/>
 				<Button label="Hủy" variant="secondary" size="md" onClick={handleCancel} />
 			</div>
 		</div>

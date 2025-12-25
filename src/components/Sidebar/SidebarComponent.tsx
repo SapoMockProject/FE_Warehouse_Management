@@ -169,7 +169,7 @@ export const SidebarComponent = () => {
 
           {(user?.user?.role === Role.ADMIN_SYSTEM || user?.user?.role === Role.STORE_KEEPER) && (
             <NavLink
-              to="/supplier-returns/create"
+              to="/supplier-returns"
               className="sidebar-link"
               title="Supplier Return"
             >

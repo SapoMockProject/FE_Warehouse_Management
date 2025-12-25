@@ -23,6 +23,8 @@ import DetailSupplier from "../pages/Supplier/DetailSupplier/DetailSupplier";
 import SupplierList from "../pages/Supplier/SupplierList";
 import VerifyAccountPage from "../pages/VerifyAccount/VerifyAccount";
 import SupplierReturnCreate from "../pages/SupplierReturn/SupplierReturnCreate/SupplierReturnCreate";
+import SupplierReturnList from "../pages/SupplierReturn/SupplierReturnList/SupplierReturnList";
+import SupplierReturnDetail from "../pages/SupplierReturn/SupplierReturnDetail/SupplierReturnDetail";
 
 export const AppRouter = () => {
 	return (
@@ -62,6 +64,8 @@ export const AppRouter = () => {
 							<Route path="/products/create" element={<AddProductForm />} />
 							<Route path="/products" element={<ProductList />} />
 							<Route path="/supplier-returns/create" element={<SupplierReturnCreate />} />
+							<Route path="/supplier-returns" element={<SupplierReturnList />} />
+							<Route path="/supplier-returns/:id" element={<SupplierReturnDetail />} />
 						</Route>
 					</Route>
 					<Route path="/verify-account" element={<VerifyAccountPage />} />
